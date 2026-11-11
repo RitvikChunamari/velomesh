@@ -408,6 +408,11 @@ h2 {
   border-radius: var(--radius-card);
 }
 
+.trace-item > :last-child {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .path-diagram {
   padding: var(--space-md);
   background-color: var(--color-paper);
