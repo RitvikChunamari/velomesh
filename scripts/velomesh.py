@@ -285,13 +285,126 @@ def install_rules():
         HOME / ".gemini" / "config" / "AGENTS.md",
         HOME / ".cursorrules",
         HOME / ".cursor" / "rules" / "agent-fusion.mdc",
+        HOME / ".copilot" / "copilot-instructions.md",
     ]
     for p in paths:
         write_managed_rule(p, body)
         say(f"  Managed rule: {p}")
     instructions = ROOT / "copilot-app-instructions.txt"
+    instructions.parent.mkdir(parents=True, exist_ok=True)
     instructions.write_text(body, encoding="utf-8")
-    say(f"  Copilot App instructions (paste in Settings > Sessions): {instructions}")
+
+
+def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str | None = None) -> list[str]:
+    configured = []
+    if not node_bin:
+        node_bin = shutil.which("node") or ("/opt/homebrew/bin/node" if Path("/opt/homebrew/bin/node").exists() else "node")
+    if not mcp_script_path:
+        candidates = [
+            BUNDLE / "scripts" / "mcp-server.mjs",
+            HOME / ".gemini" / "config" / "plugins" / "agent-fusion" / "scripts" / "mcp-server.mjs",
+            HOME / ".velomesh" / "scripts" / "mcp-server.mjs",
+            HOME / ".local" / "share" / "agent-fusion" / "scripts" / "mcp-server.mjs",
+        ]
+        found = next((c for c in candidates if c.is_file()), candidates[0])
+        mcp_script_path = str(found)
+
+    # Sync latest MCP & hook scripts to legacy plugin locations if present
+    src_scripts = BUNDLE / "scripts"
+    if src_scripts.is_dir():
+        for mirror in [
+            HOME / ".gemini" / "config" / "plugins" / "agent-fusion" / "scripts",
+            HOME / ".local" / "share" / "agent-fusion" / "scripts",
+        ]:
+            if mirror.is_dir() and mirror.resolve() != src_scripts.resolve():
+                for fname in ("mcp-server.mjs", "hooks.mjs", "lib.mjs"):
+                    sfile = src_scripts / fname
+                    if sfile.is_file():
+                        try:
+                            shutil.copy2(sfile, mirror / fname)
+                        except OSError:
+                            pass
+
+    # 1. Cursor (~/.cursor/mcp.json)
+    cursor_dir = HOME / ".cursor"
+    cursor_dir.mkdir(parents=True, exist_ok=True)
+    cursor_mcp_file = cursor_dir / "mcp.json"
+    try:
+        cursor_data = json.loads(cursor_mcp_file.read_text(encoding="utf-8")) if cursor_mcp_file.is_file() else {}
+        if not isinstance(cursor_data, dict):
+            cursor_data = {}
+    except Exception:
+        cursor_data = {}
+    cursor_servers = cursor_data.setdefault("mcpServers", {})
+    server_entry = {"command": node_bin, "args": [mcp_script_path], "env": {}}
+    cursor_servers["velomesh"] = server_entry
+    if "agent-fusion" in cursor_servers:
+        cursor_servers["agent-fusion"] = server_entry
+    cursor_mcp_file.write_text(json.dumps(cursor_data, indent=2) + "\n", encoding="utf-8")
+    configured.append("cursor")
+
+    # 2. GitHub Copilot (~/.copilot/mcp-config.json)
+    copilot_dir = HOME / ".copilot"
+    copilot_dir.mkdir(parents=True, exist_ok=True)
+    copilot_mcp_file = copilot_dir / "mcp-config.json"
+    try:
+        copilot_data = json.loads(copilot_mcp_file.read_text(encoding="utf-8")) if copilot_mcp_file.is_file() else {}
+        if not isinstance(copilot_data, dict):
+            copilot_data = {}
+    except Exception:
+        copilot_data = {}
+    copilot_servers = copilot_data.setdefault("mcpServers", {})
+    copilot_servers["velomesh"] = {
+        "type": "local",
+        "command": node_bin,
+        "args": [mcp_script_path],
+        "tools": ["*"],
+        "env": {},
+    }
+    copilot_mcp_file.write_text(json.dumps(copilot_data, indent=2) + "\n", encoding="utf-8")
+    configured.append("github-copilot")
+
+    # 3. Codex (~/.codex/config.toml)
+    codex_dir = HOME / ".codex"
+    codex_dir.mkdir(parents=True, exist_ok=True)
+    codex_toml_file = codex_dir / "config.toml"
+    toml_text = codex_toml_file.read_text(encoding="utf-8") if codex_toml_file.is_file() else ""
+    required_tools = ["fusion_start", "discover_and_install_capability", "search_online_capabilities"]
+    if "[mcp_servers.agent-fusion]" in toml_text or "[mcp_servers.velomesh]" in toml_text:
+        def _inject_tools(match):
+            existing = match.group(1)
+            additions = [f'"{t}"' for t in required_tools if f'"{t}"' not in existing]
+            if not additions:
+                return match.group(0)
+            prefix = existing.rstrip()
+            sep = ", " if prefix and not prefix.endswith(",") else ""
+            return f"enabled_tools = [{prefix}{sep}{', '.join(additions)}]"
+        toml_text = re.sub(r"enabled_tools\s*=\s*\[(.*?)\]", _inject_tools, toml_text, flags=re.DOTALL)
+    else:
+        block = (
+            f'\n[mcp_servers.velomesh]\n'
+            f'command = "{node_bin}"\n'
+            f'args = ["{mcp_script_path}"]\n'
+        )
+        toml_text = toml_text.rstrip() + "\n" + block
+    codex_toml_file.write_text(toml_text, encoding="utf-8")
+    configured.append("codex")
+
+    # 4. Claude Code (~/.claude/mcp.json)
+    claude_dir = HOME / ".claude"
+    claude_dir.mkdir(parents=True, exist_ok=True)
+    claude_mcp_file = claude_dir / "mcp.json"
+    try:
+        claude_data = json.loads(claude_mcp_file.read_text(encoding="utf-8")) if claude_mcp_file.is_file() else {}
+        if not isinstance(claude_data, dict):
+            claude_data = {}
+    except Exception:
+        claude_data = {}
+    claude_data.setdefault("mcpServers", {})["velomesh"] = {"command": node_bin, "args": [mcp_script_path]}
+    claude_mcp_file.write_text(json.dumps(claude_data, indent=2) + "\n", encoding="utf-8")
+    configured.append("claude-code")
+
+    return configured
 
 
 def uninstall_rules():
@@ -301,6 +414,7 @@ def uninstall_rules():
         HOME / ".gemini" / "config" / "AGENTS.md",
         HOME / ".cursorrules",
         HOME / ".cursor" / "rules" / "agent-fusion.mdc",
+        HOME / ".copilot" / "copilot-instructions.md",
     ]
     for p in paths:
         if remove_managed_rule(p):
@@ -398,9 +512,11 @@ def setup(args):
             say(f"  Could not add {name}: {e}")
     linked, skipped = sync(state, core_only=True)
     install_rules()
+    configured = auto_configure_harnesses()
     save_state(state)
     say(f"Done. {installed} library skills; {linked} links/copies across targets; {collisions} duplicate names avoided; {skipped} existing custom skills preserved.")
-    say("Restart your agent apps. In GitHub Copilot App also paste the generated App instructions once.")
+    say(f"Auto-configured MCP & hooks for: {', '.join(configured)}")
+    say("Zero-config setup complete! VeloMesh is now active automatically in all your AI coding agents.")
 
 
 def tokenize(words):

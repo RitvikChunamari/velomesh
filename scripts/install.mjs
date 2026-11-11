@@ -16,7 +16,8 @@ function attachJson(file,container,key,entry){writeJson(file,obj=>{if(!obj||Arra
 function appPlugin(){const dest=path.join(home,'.gemini','config','plugins','agent-fusion');log(`${uninstall?'Remove':'Install'} Antigravity global plugin: ${dest}`);if(dry)return;
   if(fs.existsSync(dest))snapshot(dest);
   if(uninstall){if(fs.existsSync(path.join(dest,'plugin.json'))){const old=JSON.parse(fs.readFileSync(path.join(dest,'plugin.json')));if(old.name!=='agent-fusion')throw new Error('Refusing to delete another plugin');fs.rmSync(dest,{recursive:true,force:true})}return}
-  fs.mkdirSync(path.dirname(dest),{recursive:true});fs.rmSync(dest,{recursive:true,force:true});fs.cpSync(path.join(base,'plugin'),dest,{recursive:true});fs.cpSync(path.join(base,'scripts'),path.join(dest,'scripts'),{recursive:true});
+  const pluginSrc=fs.existsSync(path.join(base,'plugin'))?path.join(base,'plugin'):base;
+  fs.mkdirSync(path.dirname(dest),{recursive:true});fs.rmSync(dest,{recursive:true,force:true});fs.cpSync(pluginSrc,dest,{recursive:true});if(pluginSrc!==base)fs.cpSync(path.join(base,'scripts'),path.join(dest,'scripts'),{recursive:true});
   const mcp=JSON.parse(fs.readFileSync(path.join(dest,'mcp_config.json')));mcp.mcpServers.orchestrator=configEntry();mcp.mcpServers.orchestrator.args=[path.join(dest,'scripts','mcp-server.mjs')];fs.writeFileSync(path.join(dest,'mcp_config.json'),JSON.stringify(mcp,null,2)+'\n');
   const hooks=JSON.parse(fs.readFileSync(path.join(dest,'hooks.json')));const quote=s=>"'"+s.replaceAll("'","'\\''")+"'";
   for(const [v,mode] of [['agent-fusion-session-discovery','session'],['agent-fusion-preinvoke','invocation']]){const h=hooks[v],kind=mode==='session'?'SessionStart':'PreInvocation';h[kind][0].command=`${quote(node)} ${quote(path.join(dest,'scripts','hooks.mjs'))} ${mode}`;}

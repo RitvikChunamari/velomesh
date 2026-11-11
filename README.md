@@ -2,178 +2,116 @@
 
 # ⚡ VeloMesh
 
-**Universal Zero-Latency Capability Mesh & Autonomous Skill Router for AI Coding Agents**
+### **Install Once in 1 Command. Works Automatically in Every AI Coding Agent.**
+**Zero Slash Commands · Zero Config Files · 398+ Skills · Automatic On-The-Fly Capability Discovery**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Node.js 18+](https://img.shields.io/badge/node-18+-green.svg)](https://nodejs.org/)
-[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple.svg)](https://modelcontextprotocol.io)
-[![Tests Passing](https://img.shields.io/badge/tests-100%25%20passing-brightgreen.svg)]()
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](CONTRIBUTING.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![MCP Compatible](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-8A2BE2)](https://modelcontextprotocol.io)
+[![Skills: 398+](https://img.shields.io/badge/Skills%20Library-398%2B%20Packaged-success)](#what-happens-automatically-under-the-hood)
 
-*Connects Claude Code, Codex, Cursor, GitHub Copilot, Antigravity, and OpenCode into one cohesive, self-routing agent mesh.*
-
-[Features](#-key-features) • [Architecture](#-architecture) • [Quickstart](#-quickstart) • [Harness Support](#-multi-harness-support) • [Comparison](#-comparison) • [Security](#-security--sandboxing)
-
----
+**Supported AI Agents (Auto-Configured):**  
+`Claude Code` · `OpenAI Codex` · `Cursor` · `GitHub Copilot` · `Google Antigravity` · `OpenCode` · `VS Code`
 
 </div>
 
-## 🚀 What is VeloMesh?
-
-**VeloMesh** is an open-source, zero-dependency capability router and on-the-fly provisioning mesh for AI coding agents. 
-
-Developers using modern coding assistants (like Claude Code, Codex, Cursor, and Copilot) face a constant struggle with **context bloat**, **manual skill invocation**, and **fragmented tools**. You shouldn't have to manually prompt `/using-superpowers` or copy rules between different editors.
-
-**VeloMesh solves this permanently:**
-1. **Always-On Autonomous Orchestration:** Evaluates your natural language prompt on every turn and automatically invokes the exact right skills—without manual slash commands.
-2. **Smart Dynamic Linking:** Pre-links high-priority core skills while maintaining an extensive local library (ECC, Superpowers, Design Systems, MCPs) that hot-links on demand to prevent system prompt context budget exhaustion.
-3. **On-the-Fly Internet Provisioning:** When a task demands an uninstalled library, API, or MCP server, VeloMesh queries the ecosystem, verifies the source, safely clones it, and hot-links it across all your active editor harnesses in seconds.
-
 ---
 
-## 🏛 Architecture
+## 🚀 1-Command Installation
 
-```text
- ┌────────────────────────────────────────────────────────────────────────┐
- │                      User Natural Language Prompt                      │
- └───────────────────────────────────┬────────────────────────────────────┘
-                                     │
-                                     ▼
- ┌────────────────────────────────────────────────────────────────────────┐
- │                        VeloMesh Always-On Hook                         │
- │           PreInvocation Router & Dynamic Specialist Matcher             │
- └───────┬───────────────────────────┬────────────────────────────┬───────┘
-         │                           │                            │
-         ▼                           ▼                            ▼
- ┌─────────────────┐       ┌─────────────────┐       ┌────────────────────┐
- │  Local Library  │       │ Dynamic Linking │       │ On-the-Fly Web/MCP │
- │ 398+ Validated  │◄─────►│ Core Pre-links  │◄─────►│ GitHub & Registry  │
- │ Portable Skills │       │ Anti-Saturation │       │ Auto-Provisioning  │
- └─────────────────┘       └─────────────────┘       └────────────────────┘
-         │                           │                            │
-         └───────────────────────────┼────────────────────────────┘
-                                     │ (Hot-linked symlinks & rules)
-                                     ▼
- ┌────────────────────────────────────────────────────────────────────────┐
- │                       Unified Multi-Harness Mesh                       │
- │  Claude Code  │   Codex   │  Cursor (.mdc)  │  Copilot  │  Antigravity │
- └────────────────────────────────────────────────────────────────────────┘
+Run this single command in your terminal. It automatically downloads **VeloMesh**, provisions **398+ skills**, and auto-configures **all** of your AI coding agents (`Claude Code`, `Cursor`, `Codex`, `GitHub Copilot`, `Antigravity`, `OpenCode`):
+
+### macOS & Linux
+```bash
+curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash
 ```
 
----
+### Windows (PowerShell)
+```powershell
+irm https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.ps1 | iex
+```
 
-## ✨ Key Features
-
-- **🌐 Global Multi-Harness Sync:** Simultaneously synchronizes declarative skills across:
-  - **Claude Code** (`~/.claude/skills`)
-  - **Codex CLI** (`~/.codex/skills` & `~/.agents/skills`)
-  - **Cursor IDE** (`~/.cursor/skills`, `~/.cursorrules`, and `.cursor/rules/*.mdc`)
-  - **GitHub Copilot** (`~/.copilot/skills` & workspace agent rules)
-  - **Antigravity App** (`~/.gemini/config/skills`)
-  - **OpenCode** (`~/.config/opencode/skills`)
-- **📦 Pre-Integrated Top Ecosystem Repositories:**
-  - Full **Everything Claude Code (`affaan-m/ECC`)** — 300+ battle-tested engineering playbooks.
-  - Full **Superpowers (`obra/superpowers`)** — TDD, plan execution, brainstorming, and systematic debugging.
-  - **Awesome DESIGN.md (`VoltAgent/awesome-design-md`)** — 86+ brand design guidelines (Apple, Linear, Stripe, Vercel).
-  - Official & Community MCP Server Catalogs (`modelcontextprotocol/servers`, `punkpeye/awesome-mcp-servers`).
-- **🛡 Zero Unsafe Execution:** No arbitrary shell scripts or binaries executed during discovery. Strictly copies declarative `SKILL.md` bundles, reference documentation, and tool contracts.
-- **⚡ Zero External Dependencies:** Core runs on standard Python 3.9+ and Node.js 18+ (ES modules) with zero pip or npm installs required.
+*That’s it. No JSON files to edit. No API keys required. No manual setup.*
 
 ---
 
-## 📊 Comparison
+## ✨ How to Use: Do Nothing. Just Prompt.
 
-| Feature | Standard Coding Assistant | Raw Skill Plugins | **VeloMesh** |
-| :--- | :---: | :---: | :---: |
-| **Skill Selection** | Manual prompts only | Manual slash commands | **Autonomous on every prompt** |
-| **Cross-Harness Sync** | ❌ Walled garden | ❌ Single tool only | **6 Harnesses simultaneously** |
-| **Context Window Protection** | ❌ Drops/truncates skills | ❌ Prompts overflow | **Smart Dynamic Hot-Linking** |
-| **On-the-Fly Web Discovery** | ❌ Fails on missing tools | ❌ Manual setup | **Auto-downloads & hot-links** |
-| **MCP Schema Generation** | ❌ Manual config | ❌ Manual JSON edits | **Automatic declarative wrappers** |
-| **Path Traversal Protection** | ⚠️ Varies | ⚠️ Unsanitized | **Strict regex & sandboxed copy** |
+Once installed, **you never need to type a command, slash command, or mention VeloMesh again.**
+
+1. **Open any AI coding tool** (Claude Code, Cursor, Codex, GitHub Copilot, Antigravity, or OpenCode) in **any project**.
+2. **Type your normal prompt** (e.g., *"Build a SaaS dashboard with Stripe billing"* or *"Fix the race condition in my auth middleware"*).
+3. **VeloMesh runs 100% automatically in the background:**
+   - **Auto-Activates Relevant Skills:** Automatically selects the best 1–3 engineering, UI/UX, debugging, or TDD skills for your prompt.
+   - **Auto-Downloads Missing Capabilities:** If your task needs a specialized framework, API, or MCP server you don't have yet, VeloMesh automatically finds, validates, downloads, and hot-links it on the fly.
+   - **Protects Your Context Window:** Uses **Smart Dynamic Linking** so your AI agent stays fast and inside its peak reasoning zone without prompt bloat.
 
 ---
 
-## ⚡ Quickstart
+## 🧠 What Happens Automatically Under the Hood
 
-### 1. Installation
+```mermaid
+flowchart LR
+    A["You Type Any Prompt"] --> B["VeloMesh Always-On Hook"]
+    B --> C{"Skill Already Installed?"}
+    C -- "Yes (398+ Local Library)" --> D["Instant Hot-Link to Active Agent"]
+    C -- "No (New Tech / API)" --> E["Auto-Discover & Download from GitHub"]
+    E --> D
+    D --> F["AI Agent Executes with Elite Engineering & Design Skills"]
+```
 
-Clone and initialize VeloMesh in seconds:
+### Why Developers Love VeloMesh
+| Without VeloMesh | With VeloMesh |
+| :--- | :--- |
+| Manually copy-pasting `.cursorrules`, `CLAUDE.md`, and `AGENTS.md` into every repo | **Global & automatic** across every project on your machine |
+| Typing `/skill` or remembering which workflow command to run | **Zero commands** — triggers automatically on every prompt |
+| Installing 300+ skills breaks your AI's context budget | **Smart Dynamic Linking** keeps ~60 core skills active and hot-links the other 330+ on demand |
+| Hunting GitHub for MCP servers and editing `mcp.json` by hand | **Automatic MCP wiring** + on-the-fly GitHub skill/MCP provisioning |
+
+---
+
+## 📦 Included Curated Ecosystem (398+ Skills & 86+ Design Systems)
+
+VeloMesh automatically aggregates and maintains skills from the top open-source agentic engineering repositories:
+- **[Everything Claude Code (ECC)](https://github.com/affaan-m/everything-claude-code)** — Full 300-skill catalog (TDD, security review, language idioms, DevOps, backend/frontend patterns).
+- **[Superpowers](https://github.com/obra/superpowers)** — Brainstorming, test-driven development, systematic debugging, parallel subagent dispatching.
+- **[Awesome Design MD](https://github.com/VoltAgent/awesome-design-md)** — 86+ real-world brand design systems (Linear, Stripe, Vercel, Raycast, Apple, Framer).
+- **[Awesome Agent Skills](https://github.com/VoltAgent/awesome-agent-skills)** & **[Official MCP Servers](https://github.com/modelcontextprotocol/servers)**.
+
+---
+
+<details>
+<summary><b>⚙️ Optional CLI Reference (For Power Users Only)</b></summary>
+
+<br>
+
+You never need to run these commands during normal usage, as VeloMesh operates autonomously. They are provided only if you want to inspect status or customize behavior:
 
 ```bash
-git clone https://github.com/RitvikChunamari/velomesh.git ~/.velomesh
-cd ~/.velomesh
+# Check installed skill count and connected AI agents
+velomesh status
 
-# Run initial setup and link core skills globally
-python3 scripts/velomesh.py setup --profile recommended --yes
+# Manually search or pre-install a specific GitHub skill/repo
+velomesh install-skill "stripe webhook"
+
+# Re-sync skills across all agent directories
+velomesh sync
+
+# Remove VeloMesh managed rules from your agents
+velomesh uninstall-rules
 ```
 
-### 2. Verify Your Harnesses
-
-Check your active multi-harness links:
-
-```bash
-python3 scripts/velomesh.py status
-```
-
-### 3. CLI Commands
-
-```bash
-# Sync installed skills across all 6 harnesses
-python3 scripts/velomesh.py sync
-
-# Hot-link a specific skill or fetch from GitHub on the fly
-python3 scripts/velomesh.py install-skill "react-testing"
-python3 scripts/velomesh.py install-skill "owner/repo"
-
-# Search GitHub and MCP catalogs for capabilities
-python3 scripts/velomesh.py discover "postgres optimization"
-
-# Cleanly remove managed rules (rollback anytime)
-python3 scripts/velomesh.py uninstall-rules
-```
+</details>
 
 ---
 
-## 🔌 Model Context Protocol (MCP) Integration
+## 🔒 Security & Privacy
 
-VeloMesh exposes an official MCP server for dynamic session capability resolution:
-
-```json
-{
-  "mcpServers": {
-    "velomesh": {
-      "command": "node",
-      "args": ["~/.velomesh/scripts/mcp-server.mjs"]
-    }
-  }
-}
-```
-
-### MCP Tools:
-- `discover_and_install_capability`: Autonomously searches online, validates security, and hot-links candidate skills/MCPs during a live conversation.
-- `search_online_capabilities`: Searches GitHub and curated catalogs without installing.
-- `fusion_start`: One-call orchestration bootstrap providing dependency-aware task routing and persistent project memory.
-
----
-
-## 🔒 Security & Sandboxing
-
-VeloMesh adheres to strict supply-chain and execution security standards:
-- **No Remote Code Execution:** Downloaded repositories are never executed (`postinstall`, make, or setup scripts are ignored). Only declarative Markdown bundles (`SKILL.md`) are extracted.
-- **Path Traversal Sanitization:** All skill identifiers are validated against `^[a-z0-9]+(?:-[a-z0-9]+)*$` with strict checks blocking `..`, slashes, and control characters.
-- **Symlink Defense:** Safe-copy never follows external symlinks from downloaded checkouts (`followlinks=False`), preventing directory escape attacks.
-- **Resource Constraints:** Caps files at 150KB per `SKILL.md` and 12MB / 250 files per skill directory.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) and check out our [SECURITY.md](SECURITY.md) guidelines.
-
----
+- **Zero External Dependencies:** Built purely on the Python 3.9+ and Node.js 18+ standard libraries.
+- **Non-Destructive:** Existing custom skills, MCP servers, and user rules are preserved and backed up automatically before any update.
+- **Path-Traversal & Symlink Hardened:** All downloaded repositories are validated before linking.
 
 ## 📄 License
 
-Distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
+Released under the [MIT License](LICENSE). Created by [Ritvik Chunamari](https://github.com/RitvikChunamari).

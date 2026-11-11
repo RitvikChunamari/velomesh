@@ -193,5 +193,42 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
                 self.assertEqual(state.get("schema"), 1)
                 self.assertIn("skills", state)
 
+    def test_auto_configure_harnesses_zero_config(self):
+        from velomesh import auto_configure_harnesses
+        with tempfile.TemporaryDirectory() as tmp_home:
+            home_dir = Path(tmp_home)
+            (home_dir / ".cursor").mkdir()
+            (home_dir / ".copilot").mkdir()
+            (home_dir / ".claude").mkdir()
+            (home_dir / ".codex").mkdir()
+            (home_dir / ".codex" / "config.toml").write_text('[mcp_servers.agent-fusion]\nenabled_tools = ["catalog"]\n')
+            
+            with patch("velomesh.HOME", home_dir):
+                configured = auto_configure_harnesses()
+                self.assertTrue(len(configured) >= 3)
+                
+                # Verify Cursor MCP auto-configured
+                cursor_mcp = json.loads((home_dir / ".cursor" / "mcp.json").read_text())
+                self.assertIn("velomesh", cursor_mcp["mcpServers"])
+                
+                # Verify Copilot MCP auto-configured
+                copilot_mcp = json.loads((home_dir / ".copilot" / "mcp-config.json").read_text())
+                self.assertIn("velomesh", copilot_mcp["mcpServers"])
+                
+                # Verify Codex config.toml updated with new tools
+                codex_toml = (home_dir / ".codex" / "config.toml").read_text()
+                self.assertIn("discover_and_install_capability", codex_toml)
+                self.assertIn("fusion_start", codex_toml)
+
+    def test_one_command_installers_exist_and_valid(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        install_sh = repo_root / "install.sh"
+        install_ps1 = repo_root / "install.ps1"
+        self.assertTrue(install_sh.is_file(), "install.sh must exist")
+        self.assertTrue(install_ps1.is_file(), "install.ps1 must exist")
+        import subprocess
+        res = subprocess.run(["bash", "-n", str(install_sh)], capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0, f"install.sh syntax error: {res.stderr}")
+
 if __name__ == "__main__":
     unittest.main()
