@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>velomesh: capability mesh for ai coding agents</title>
+  <meta name="description" content="Install once in 1 command. VeloMesh wires 398 engineering and design skills into Claude Code, Cursor, Codex, Copilot, Antigravity, and OpenCode automatically.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Geist:wght@400;500&family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="container masthead__inner">
+      <a href="#top" class="brand">
+        <span class="brand__name">velomesh</span>
+        <span class="brand__version">v4.0</span>
+      </a>
+      <nav class="masthead__nav" aria-label="primary navigation">
+        <a href="#workflow" class="masthead__link">architecture</a>
+        <a href="#comparison" class="masthead__link">comparison</a>
+        <a href="#harnesses" class="masthead__link">harnesses</a>
+        <a href="#catalog" class="masthead__link">catalog</a>
+      </nav>
+      <div class="masthead__actions">
+        <button type="button" class="btn btn--primary" id="nav-copy-btn">
+          copy installer
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero Corridor -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero__corridor">
+        <div class="hero__copy">
+          <h1 id="hero-title" class="hero__headline">
+            every coding agent <span class="verb">awakens</span> at once
+          </h1>
+          <p class="hero__lead">
+            One command wires 398 skills across seven coding agents automatically.
+          </p>
+
+          <div class="well install-box" role="region" aria-label="one-command installer">
+            <div class="install-box__bar">
+              <div class="os-switch" role="tablist" aria-label="operating system">
+                <button type="button" role="tab" class="os-btn" aria-selected="true" data-os="unix" id="tab-unix">macos &amp; linux</button>
+                <button type="button" role="tab" class="os-btn" aria-selected="false" data-os="win" id="tab-win">powershell</button>
+              </div>
+              <span class="readout readout--live" id="install-status">zero dependencies</span>
+            </div>
+            <div class="install-box__cmd-row">
+              <code class="install-box__code" id="install-code">curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash</code>
+            </div>
+            <div class="hero__actions">
+              <button type="button" class="btn btn--primary" id="hero-copy-btn">
+                copy command
+              </button>
+              <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener noreferrer" class="btn btn--secondary">
+                github repo
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signature Product Surface: Interactive Prompt-to-Mesh Live Routing Console -->
+        <div class="well--lifted console blueprint" role="region" aria-label="interactive prompt-to-mesh router console">
+          <div class="console__header">
+            <span class="readout">live pre-invocation router</span>
+            <span class="readout readout--live" id="console-latency">latency: 0.8ms</span>
+          </div>
+
+          <div class="console__presets" role="group" aria-label="sample developer prompts">
+            <button type="button" class="preset-pill" aria-pressed="true" data-preset="ui">
+              design product site
+            </button>
+            <button type="button" class="preset-pill" aria-pressed="false" data-preset="db">
+              postgres deadlock
+            </button>
+            <button type="button" class="preset-pill" aria-pressed="false" data-preset="stripe">
+              stripe webhooks
+            </button>
+            <button type="button" class="preset-pill" aria-pressed="false" data-preset="k8s">
+              kubernetes ingress
+            </button>
+          </div>
+
+          <div class="console__prompt-bar">
+            <label for="live-prompt-input" class="readout readout--brass">prompt&gt;</label>
+            <input
+              id="live-prompt-input"
+              type="text"
+              class="console__input"
+              value="create an awwwards level product website with editorial typography and motion"
+              aria-label="test any developer prompt in the live router"
+            >
+          </div>
+
+          <div class="console__split">
+            <div class="console__pane">
+              <span class="pane-label">manual setup</span>
+              <ul class="trace-list" id="slow-trace">
+                <li class="trace-item">
+                  <span class="readout readout--muted">1. skill lookup</span>
+                  <span class="readout readout--muted">none loaded</span>
+                </li>
+                <li class="trace-item">
+                  <span class="readout readout--muted">2. static rules</span>
+                  <span class="readout readout--muted">94,200 tok</span>
+                </li>
+                <li class="trace-item">
+                  <span class="readout readout--muted">3. missing repo</span>
+                  <span class="readout readout--muted">guessed api</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="console__pane">
+              <span class="pane-label">velomesh router</span>
+              <ul class="trace-list" id="fast-trace">
+                <li class="trace-item">
+                  <span class="readout readout--brass" id="fast-step-1">1. hallmark + frontend-design</span>
+                  <span class="readout readout--live">pre-linked</span>
+                </li>
+                <li class="trace-item">
+                  <span class="readout readout--brass" id="fast-step-2">2. emil-design-eng + gsap-core</span>
+                  <span class="readout readout--live">linked 4ms</span>
+                </li>
+                <li class="trace-item">
+                  <span class="readout readout--brass" id="fast-step-3">3. context window</span>
+                  <span class="readout readout--live" id="fast-budget">3,180 / 150k tok</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Path as a Diagram -->
+          <div class="path-diagram">
+            <svg class="path-svg" viewBox="0 0 680 124" role="img" aria-label="request routing diagram">
+              <line x1="36" y1="32" x2="644" y2="32" stroke="var(--color-rule-2)" stroke-width="1" stroke-dasharray="4 4" />
+              <circle cx="36" cy="32" r="4" fill="var(--color-muted)" />
+              <circle cx="240" cy="32" r="4" fill="var(--color-muted)" />
+              <circle cx="450" cy="32" r="4" fill="var(--color-muted)" />
+              <circle cx="644" cy="32" r="4" fill="var(--color-muted)" />
+              <text x="36" y="18" fill="var(--color-muted)" font-family="var(--font-outlier)" font-size="11">prompt</text>
+              <text x="240" y="18" text-anchor="middle" fill="var(--color-muted)" font-family="var(--font-outlier)" font-size="11">manual /slash</text>
+              <text x="450" y="18" text-anchor="middle" fill="var(--color-muted)" font-family="var(--font-outlier)" font-size="11">context overflow</text>
+              <text x="644" y="18" text-anchor="end" fill="var(--color-muted)" font-family="var(--font-outlier)" font-size="11">generic code</text>
+
+              <line x1="36" y1="88" x2="644" y2="88" stroke="var(--color-accent)" stroke-width="1.5" />
+              <circle cx="36" cy="88" r="5" fill="var(--color-accent)" />
+              <circle cx="240" cy="88" r="5" fill="var(--color-accent)" />
+              <circle cx="450" cy="88" r="5" fill="var(--color-accent)" />
+              <circle cx="644" cy="88" r="5" fill="var(--color-live)" />
+              <text x="36" y="110" fill="var(--color-ink)" font-family="var(--font-outlier)" font-size="11">prompt</text>
+              <text x="240" y="110" text-anchor="middle" fill="var(--color-accent)" font-family="var(--font-outlier)" font-size="11" id="svg-node-hook">pre-invocation hook</text>
+              <text x="450" y="110" text-anchor="middle" fill="var(--color-accent)" font-family="var(--font-outlier)" font-size="11" id="svg-node-link">dynamic hot-link</text>
+              <text x="644" y="110" text-anchor="end" fill="var(--color-live)" font-family="var(--font-outlier)" font-size="11" id="svg-node-out">4 skills active</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1: Interactive Architecture Switcher -->
+    <section id="workflow" class="section" aria-labelledby="workflow-title">
+      <div class="container">
+        <div class="section__header">
+          <h2 id="workflow-title">four stages inside every prompt</h2>
+          <p class="section__sub">
+            Intercepts prompts and provisions missing capabilities from GitHub on the fly.
+          </p>
+        </div>
+
+        <div class="workbench">
+          <div class="workbench__tabs" role="tablist" aria-label="architecture stages">
+            <button type="button" role="tab" class="tab-btn" aria-selected="true" data-stage="hook" id="stage-tab-hook">
+              <span class="tab-btn__title">pre-invocation hook</span>
+              <span class="readout">01</span>
+            </button>
+            <button type="button" role="tab" class="tab-btn" aria-selected="false" data-stage="linking" id="stage-tab-linking">
+              <span class="tab-btn__title">dynamic linking</span>
+              <span class="readout">02</span>
+            </button>
+            <button type="button" role="tab" class="tab-btn" aria-selected="false" data-stage="discovery" id="stage-tab-discovery">
+              <span class="tab-btn__title">github discovery</span>
+              <span class="readout">03</span>
+            </button>
+            <button type="button" role="tab" class="tab-btn" aria-selected="false" data-stage="wiring" id="stage-tab-wiring">
+              <span class="tab-btn__title">harness wiring</span>
+              <span class="readout">04</span>
+            </button>
+          </div>
+
+          <div class="well workbench__stage blueprint" role="tabpanel" id="stage-panel" aria-labelledby="stage-tab-hook">
+            <div class="stage-top">
+              <h3 id="stage-heading">pre-invocation hook telemetry</h3>
+              <span class="readout readout--brass" id="stage-badge">hooks.mjs, invocationNum &gt;= 0</span>
+            </div>
+            <p id="stage-copy" class="section__sub">
+              Attaches to SessionStart and PreInvocation globally so every prompt receives skill routing.
+            </p>
+            <pre class="code-block" id="stage-code"><code>{
+  "PreInvocation": [
+    {
+      "command": "node ~/.velomesh/scripts/hooks.mjs invocation",
+      "turnRestriction": "none"
+    }
+  ]
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Before & After Split Well -->
+    <section id="comparison" class="section section--band" aria-labelledby="comparison-title">
+      <div class="container">
+        <div class="section__header">
+          <h2 id="comparison-title">before and after installation</h2>
+          <p class="section__sub">
+            Context consumption and setup steps measured across seven coding harnesses.
+          </p>
+        </div>
+
+        <div class="well comparison-well">
+          <div class="comparison-col">
+            <h3 class="comparison-col__title">before velomesh</h3>
+            <div class="comparison-rows">
+              <div class="comparison-row">
+                <span>installation</span>
+                <span class="readout readout--muted">clone repo + edit 5 config files</span>
+              </div>
+              <div class="comparison-row">
+                <span>invocation</span>
+                <span class="readout readout--muted">manual /slash commands</span>
+              </div>
+              <div class="comparison-row">
+                <span>context cost</span>
+                <span class="readout readout--muted">94,200 tokens burned upfront</span>
+              </div>
+              <div class="comparison-row">
+                <span>unfamiliar sdk</span>
+                <span class="readout readout--muted">guesses from stale training data</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="comparison-col">
+            <h3 class="comparison-col__title">with velomesh</h3>
+            <div class="comparison-rows">
+              <div class="comparison-row">
+                <span>installation</span>
+                <span class="readout readout--brass">1 terminal command</span>
+              </div>
+              <div class="comparison-row">
+                <span>invocation</span>
+                <span class="readout readout--live">0 actions, runs automatically</span>
+              </div>
+              <div class="comparison-row">
+                <span>context cost</span>
+                <span class="readout readout--live">3,180 tokens (~60 core linked)</span>
+              </div>
+              <div class="comparison-row">
+                <span>unfamiliar sdk</span>
+                <span class="readout readout--brass">downloads and links github repo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Platforms Matrix -->
+    <section id="harnesses" class="section" aria-labelledby="harnesses-title">
+      <div class="container">
+        <div class="section__header">
+          <h2 id="harnesses-title">seven coding harnesses wired</h2>
+          <p class="section__sub">
+            Non-destructive registration across every agent on your machine.
+          </p>
+        </div>
+
+        <div class="well ledger-table-wrap">
+          <table class="ledger-table">
+            <thead>
+              <tr>
+                <th scope="col">harness</th>
+                <th scope="col">skills path</th>
+                <th scope="col">mcp &amp; rule surface</th>
+                <th scope="col">status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>claude code</td>
+                <td class="readout">~/.claude/skills</td>
+                <td class="readout">~/.claude/mcp.json + CLAUDE.md</td>
+                <td class="readout readout--live">automatic</td>
+              </tr>
+              <tr>
+                <td>cursor</td>
+                <td class="readout">~/.cursor/skills</td>
+                <td class="readout">~/.cursor/mcp.json + agent-fusion.mdc</td>
+                <td class="readout readout--live">automatic</td>
+              </tr>
+              <tr>
+                <td>openai codex</td>
+                <td class="readout">~/.codex/skills &amp; ~/.agents/skills</td>
+                <td class="readout">~/.codex/config.toml + AGENTS.md</td>
+                <td class="readout readout--live">automatic</td>
+              </tr>
+              <tr>
+                <td>github copilot</td>
+                <td class="readout">~/.copilot/skills</td>
+                <td class="readout">~/.copilot/mcp-config.json</td>
+                <td class="readout readout--live">automatic</td>
+              </tr>
+              <tr>
+                <td>antigravity</td>
+                <td class="readout">~/.gemini/config/skills</td>
+                <td class="readout">~/.gemini/config/plugins/agent-fusion</td>
+                <td class="readout readout--live">automatic</td>
+              </tr>
+              <tr>
+                <td>opencode</td>
+                <td class="readout">~/.config/opencode/skills</td>
+                <td class="readout">~/.config/opencode/opencode.json</td>
+                <td class="readout readout--live">automatic</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Interactive 398-Skill Catalog Explorer -->
+    <section id="catalog" class="section" aria-labelledby="catalog-title">
+      <div class="container">
+        <div class="section__header">
+          <h2 id="catalog-title">398 skills across 13 sources</h2>
+          <p class="section__sub">
+            Filter the capability mesh by domain or search packages.
+          </p>
+        </div>
+
+        <div class="ledger-controls">
+          <div class="filter-group" role="group" aria-label="filter skills by category">
+            <button type="button" class="filter-btn" aria-pressed="true" data-cat="all">all (398)</button>
+            <button type="button" class="filter-btn" aria-pressed="false" data-cat="design">design (42)</button>
+            <button type="button" class="filter-btn" aria-pressed="false" data-cat="workflow">tdd (34)</button>
+            <button type="button" class="filter-btn" aria-pressed="false" data-cat="backend">backend (182)</button>
+            <button type="button" class="filter-btn" aria-pressed="false" data-cat="security">security (140)</button>
+          </div>
+          <label for="skill-search" class="visually-hidden">search skills</label>
+          <input
+            type="search"
+            id="skill-search"
+            class="search-input"
+            placeholder="search skills or repos..."
+          >
+        </div>
+
+        <div class="well ledger-table-wrap">
+          <table class="ledger-table" id="catalog-table">
+            <thead>
+              <tr>
+                <th scope="col">package</th>
+                <th scope="col">upstream source</th>
+                <th scope="col">focus</th>
+                <th scope="col">policy</th>
+              </tr>
+            </thead>
+            <tbody id="catalog-tbody">
+              <tr data-cat="design">
+                <td class="readout readout--brass">hallmark</td>
+                <td class="readout">Nutlope/hallmark</td>
+                <td>anti-slop design system floor</td>
+                <td class="readout readout--live">core pre-linked</td>
+              </tr>
+              <tr data-cat="design">
+                <td class="readout readout--brass">emil-design-eng</td>
+                <td class="readout">emilkowalski/skills</td>
+                <td>micro-interactions and easing curves</td>
+                <td class="readout readout--live">core pre-linked</td>
+              </tr>
+              <tr data-cat="design">
+                <td class="readout readout--brass">design-system-references</td>
+                <td class="readout">VoltAgent/awesome-design-md</td>
+                <td>86 brand systems (linear, vercel, raycast)</td>
+                <td class="readout readout--live">core pre-linked</td>
+              </tr>
+              <tr data-cat="design">
+                <td class="readout readout--brass">gsap-core</td>
+                <td class="readout">greensock/gsap-skills</td>
+                <td>timeline and scroll choreography</td>
+                <td class="readout readout--live">core pre-linked</td>
+              </tr>
+              <tr data-cat="workflow">
+                <td class="readout readout--brass">using-superpowers</td>
+                <td class="readout">obra/superpowers</td>
+                <td>spec-first autonomous routing</td>
+                <td class="readout readout--live">core pre-linked</td>
+              </tr>
+              <tr data-cat="workflow">
+                <td class="readout readout--brass">test-driven-development</td>
+                <td class="readout">obra/superpowers</td>
+                <td>red-green-refactor verification</td>
+                <td class="readout readout--live">core pre-linked</td>
+              </tr>
+              <tr data-cat="backend">
+                <td class="readout readout--brass">postgres-patterns</td>
+                <td class="readout">affaan-m/ECC (300 skills)</td>
+                <td>indexing, rls, query plans</td>
+                <td class="readout">on-demand</td>
+              </tr>
+              <tr data-cat="backend">
+                <td class="readout readout--brass">python, rust, golang</td>
+                <td class="readout">affaan-m/ECC (300 skills)</td>
+                <td>concurrency and type safety</td>
+                <td class="readout readout--live">core pre-linked</td>
+              </tr>
+              <tr data-cat="security">
+                <td class="readout readout--brass">security-review</td>
+                <td class="readout">affaan-m/ECC (300 skills)</td>
+                <td>owasp audit and secret redaction</td>
+                <td class="readout readout--live">core pre-linked</td>
+              </tr>
+              <tr data-cat="security">
+                <td class="readout readout--brass">kubernetes-patterns</td>
+                <td class="readout">addyosmani/agent-skills</td>
+                <td>ingress and deployment gates</td>
+                <td class="readout">on-demand</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Closing Section -->
+    <section class="section section--band" aria-labelledby="closing-title">
+      <div class="container closing-split">
+        <div class="hero__copy">
+          <h2 id="closing-title">install once and just prompt</h2>
+          <p class="hero__lead">
+            Paste one line into your terminal and prompt normally.
+          </p>
+          <div class="hero__actions">
+            <button type="button" class="btn btn--primary" id="footer-copy-btn">
+              copy installer
+            </button>
+            <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener noreferrer" class="btn btn--secondary">
+              star on github
+            </a>
+          </div>
+        </div>
+
+        <div class="well workbench__stage">
+          <div class="stage-top">
+            <span class="readout">terminal: ~/.velomesh</span>
+            <span class="readout readout--live">exit code 0</span>
+          </div>
+          <pre class="code-block"><code>$ curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash
+Provisioning 398 skills and auto-configuring 7 harnesses...
+  codex: ~/.codex/skills
+  claude-code: ~/.claude/skills
+  cursor: ~/.cursor/skills
+  github-copilot: ~/.copilot/skills
+Zero-config setup complete.</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="colophon">
+    <div class="container colophon__inner">
+      <div>
+        <span class="brand__name">velomesh</span>
+        <p class="readout readout--muted">mit license, built by ritvik chunamari</p>
+      </div>
+      <div class="colophon__links">
+        <a href="https://github.com/RitvikChunamari/velomesh" class="masthead__link">github</a>
+        <a href="https://github.com/RitvikChunamari/velomesh/blob/main/install.sh" class="masthead__link">install.sh</a>
+        <a href="https://github.com/RitvikChunamari/velomesh/blob/main/install.ps1" class="masthead__link">install.ps1</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const COMMANDS = {
+        unix: "curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash",
+        win: "irm https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.ps1 | iex"
+      };
+      let activeOs = "unix";
+
+      const installCode = document.getElementById("install-code");
+      const osBtns = document.querySelectorAll(".os-btn");
+      osBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          activeOs = btn.dataset.os;
+          osBtns.forEach((b) => b.setAttribute("aria-selected", String(b === btn)));
+          installCode.textContent = COMMANDS[activeOs];
+        });
+      });
+
+      function copyCommand(btn) {
+        const text = COMMANDS[activeOs];
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(() => {});
+        }
+        const original = btn.textContent;
+        btn.textContent = "copied to clipboard";
+        setTimeout(() => {
+          btn.textContent = original;
+        }, 1600);
+      }
+
+      ["nav-copy-btn", "hero-copy-btn", "footer-copy-btn"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("click", () => copyCommand(el));
+      });
+
+      const PRESETS = {
+        ui: {
+          prompt: "create an awwwards level product website with editorial typography and motion",
+          step1: "1. hallmark + frontend-design",
+          step2: "2. emil-design-eng + gsap-core",
+          budget: "3,180 / 150k tok",
+          latency: "latency: 0.8ms",
+          svgOut: "4 skills active"
+        },
+        db: {
+          prompt: "fix intermittent deadlock and race condition in postgres connection pool",
+          step1: "1. systematic-debugging + root-cause",
+          step2: "2. postgres-patterns + migrations",
+          budget: "2,940 / 150k tok",
+          latency: "latency: 0.6ms",
+          svgOut: "3 db skills linked"
+        },
+        stripe: {
+          prompt: "implement stripe webhook signature verification and idempotent retries",
+          step1: "1. backend-patterns + security-review",
+          step2: "2. api-connector-builder + tdd",
+          budget: "3,090 / 150k tok",
+          latency: "latency: 0.9ms",
+          svgOut: "4 api skills active"
+        },
+        k8s: {
+          prompt: "audit kubernetes ingress controller tls and github actions deployment pipeline",
+          step1: "1. kubernetes-patterns + security-scan",
+          step2: "2. ci-cd-and-automation + docker",
+          budget: "3,250 / 150k tok",
+          latency: "latency: 1.1ms",
+          svgOut: "4 infra skills linked"
+        }
+      };
+
+      const promptInput = document.getElementById("live-prompt-input");
+      const fastStep1 = document.getElementById("fast-step-1");
+      const fastStep2 = document.getElementById("fast-step-2");
+      const fastBudget = document.getElementById("fast-budget");
+      const consoleLatency = document.getElementById("console-latency");
+      const svgNodeOut = document.getElementById("svg-node-out");
+      const presetBtns = document.querySelectorAll(".preset-pill");
+
+      function applyPreset(key) {
+        const data = PRESETS[key];
+        if (!data) return;
+        promptInput.value = data.prompt;
+        fastStep1.textContent = data.step1;
+        fastStep2.textContent = data.step2;
+        fastBudget.textContent = data.budget;
+        consoleLatency.textContent = data.latency;
+        svgNodeOut.textContent = data.svgOut;
+      }
+
+      presetBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          presetBtns.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+          applyPreset(btn.dataset.preset);
+        });
+      });
+
+      promptInput.addEventListener("input", () => {
+        const val = promptInput.value.toLowerCase();
+        presetBtns.forEach((b) => b.setAttribute("aria-pressed", "false"));
+        if (val.includes("postgres") || val.includes("sql") || val.includes("db")) {
+          applyPreset("db");
+        } else if (val.includes("stripe") || val.includes("webhook") || val.includes("api")) {
+          applyPreset("stripe");
+        } else if (val.includes("k8s") || val.includes("kubernetes") || val.includes("docker")) {
+          applyPreset("k8s");
+        } else {
+          const words = val.trim().split(/\s+/).filter(Boolean).slice(0, 2).join("-") || "custom-task";
+          fastStep1.textContent = "1. using-superpowers + tdd";
+          fastStep2.textContent = "2. hot-linked: " + words;
+          fastBudget.textContent = "3,120 / 150k tok";
+          svgNodeOut.textContent = "routed on the fly";
+        }
+      });
+
+      const STAGES = {
+        hook: {
+          heading: "pre-invocation hook telemetry",
+          badge: "hooks.mjs, invocationNum >= 0",
+          copy: "Attaches to SessionStart and PreInvocation globally with an automatic home-directory fallback so every prompt receives skill routing.",
+          code: `{
+  "agent-fusion-preinvoke": {
+    "PreInvocation": [
+      {
+        "command": "node ~/.gemini/config/plugins/agent-fusion/scripts/hooks.mjs invocation",
+        "workspaceFallback": "~/.velomesh",
+        "turnRestriction": "none"
+      }
+    ]
+  }
+}`
+        },
+        linking: {
+          heading: "smart dynamic linking engine",
+          badge: "60 core pre-linked, 338 on-demand",
+          copy: "Keeps ~60 foundational skills linked at startup and symlinks specialized domain skills in under 5ms when needed.",
+          code: `def sync(state, targets=None, core_only=True):
+    for name in sorted(state["skills"]):
+        if core_only and not is_core_skill(name):
+            continue
+        link.symlink_to(LIB / name, target_is_directory=True)`
+        },
+        discovery: {
+          heading: "on-the-fly github provisioning",
+          badge: "mcp tool: discover_and_install_capability",
+          copy: "Queries GitHub, clones the top candidate into ~/.agent-fusion/skill-hub-v4, validates SKILL.md safety, and hot-links it immediately.",
+          code: `{
+  "tool": "discover_and_install_capability",
+  "arguments": { "query": "stripe webhook idempotency", "kind": "skill" },
+  "result": {
+    "status": "linked_existing",
+    "skill": "api-connector-builder",
+    "links": 7
+  }
+}`
+        },
+        wiring: {
+          heading: "zero-config multi-harness wiring",
+          badge: "auto_configure_harnesses(), 7 targets",
+          copy: "Non-destructively merges the stdio MCP server and managed rule blocks into Cursor, Copilot, Codex, Claude Code, Antigravity, and OpenCode.",
+          code: `Auto-configured MCP & hooks for:
+  - ~/.cursor/mcp.json (mcpServers.velomesh)
+  - ~/.copilot/mcp-config.json + copilot-instructions.md
+  - ~/.codex/config.toml (fusion_start, discover_and_install_capability)
+  - ~/.claude/mcp.json + ~/.claude/CLAUDE.md`
+        }
+      };
+
+      const stageTabs = document.querySelectorAll(".tab-btn");
+      const stageHeading = document.getElementById("stage-heading");
+      const stageBadge = document.getElementById("stage-badge");
+      const stageCopy = document.getElementById("stage-copy");
+      const stageCode = document.getElementById("stage-code");
+      const stagePanel = document.getElementById("stage-panel");
+
+      stageTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          stageTabs.forEach((t) => t.setAttribute("aria-selected", String(t === tab)));
+          const data = STAGES[tab.dataset.stage];
+          if (!data) return;
+          stageHeading.textContent = data.heading;
+          stageBadge.textContent = data.badge;
+          stageCopy.textContent = data.copy;
+          stageCode.textContent = data.code;
+          stagePanel.setAttribute("aria-labelledby", tab.id);
+        });
+      });
+
+      const filterBtns = document.querySelectorAll(".filter-btn");
+      const searchInput = document.getElementById("skill-search");
+      const rows = document.querySelectorAll("#catalog-tbody tr");
+      let activeCat = "all";
+
+      function filterCatalog() {
+        const q = (searchInput.value || "").toLowerCase().trim();
+        rows.forEach((row) => {
+          const catMatch = activeCat === "all" || row.dataset.cat === activeCat;
+          const textMatch = !q || row.textContent.toLowerCase().includes(q);
+          row.hidden = !(catMatch && textMatch);
+        });
+      }
+
+      filterBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          activeCat = btn.dataset.cat;
+          filterBtns.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+          filterCatalog();
+        });
+      });
+
+      searchInput.addEventListener("input", filterCatalog);
+    })();
+  </script>
+</body>
+</html>
