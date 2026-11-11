@@ -280,6 +280,22 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
         self.assertIn("cannot get inside", rules.lower())
         self.assertIn("awwwards", rules.lower())
         self.assertIn("database", rules.lower())
+        self.assertIn("impeccable", rules.lower())
+
+    def test_audit_ui_detects_ai_slop_patterns(self):
+        from velomesh import audit_ui
+        with tempfile.TemporaryDirectory() as tmp:
+            bad_html = Path(tmp) / "index.html"
+            bad_html.write_text(
+                '<style>.grad { -webkit-background-clip: text; box-shadow: 0 0 20px #f59e0b; font-size: 10px; font-family: "Plus Jakarta Sans"; }</style>'
+                '<div class="grad">🧠 AI Slop Heading</div>',
+                encoding="utf-8"
+            )
+            report = audit_ui(str(bad_html))
+            self.assertEqual(report["status"], "slop_detected")
+            codes = {v["rule"] for v in report["violations"]}
+            self.assertIn("gradient-text", codes)
+            self.assertIn("emoji-in-ui", codes)
 
 if __name__ == "__main__":
     unittest.main()

@@ -240,9 +240,8 @@ def rule_body():
             "but it cannot get inside the user's brain to see their product vision or think like them. If a user's prompt is underspecified on *what* they want to build "
             "(missing target audience, core workflows, aesthetic direction, or domain rules), immediately invoke `brainstorming` / `grilling` to ask 2–3 sharp product-vision questions "
             "before generating generic slop. Once the user elaborates their vision, execute the entire full-stack software end-to-end in one shot.\n"
-            "- **Anti-AI-Slop Awwwards Frontend Standard:** Never generate flat static tables, generic dark SaaS cards, or unstyled boilerplate. "
-            "Combine `frontend-design`, `emil-design-eng`, `gsap-core`/`gsap-scrolltrigger`, interactive Canvas/WebGL visuals, custom cubic-bezier physics, "
-            "and reference design systems (`Linear`, `Raycast`, `Stripe`, `Vercel`, `Framer` from `design-system-references`).\n"
+            "- **Anti-AI-Slop Craft Floor (`impeccable` + `Linear`/`Cursor`/`Raycast` Discipline):** Never generate flat static tables, generic dark neon SaaS cards, `background-clip: text` gradient headings, colored neon `box-shadow` glows, infinite pulsing dots, cards nested inside cards, raw Unicode emojis as UI icons, `<12px` functional text, or overused AI default fonts (`Inter`, `Plus Jakarta Sans`, `Syne`, `Space Grotesk`, `Fraunces`). "
+            "Always run `impeccable detect` (or `velomesh.py audit-ui <target>`) on any frontend/website work and resolve 100% of findings before completion.\n"
             "- **Autonomous Internet Provisioning:** If any needed capability, MCP server, API SDK, agent, or skill is missing locally, automatically execute on-the-fly discovery and installation: "
             f"`python3 \"{script}\" install-skill \"<task or capability keywords>\"` "
             f"or `python3 \"{script}\" discover \"<task keywords>\"` to download, validate, synthesize, and hot-link it immediately.\n"
@@ -852,6 +851,62 @@ def recommend_fullstack_bundle(prompt: str) -> dict:
     }
 
 
+def audit_ui(target: str) -> dict:
+    """Audit a file, directory, or URL for AI-slop UI anti-patterns using both built-in craft-floor rules
+    and the impeccable detector binary when available.
+    """
+    violations = []
+    p = Path(target)
+    files_to_scan = []
+    if p.is_file():
+        files_to_scan.append(p)
+    elif p.is_dir():
+        for ext in ("*.html", "*.css", "*.jsx", "*.tsx", "*.vue", "*.svelte"):
+            files_to_scan.extend(p.rglob(ext))
+
+    emoji_re = re.compile(r"[\U0001F300-\U0001FAFF\u2600-\u27BF]")
+    for f in files_to_scan[:50]:
+        try:
+            text = f.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if "background-clip: text" in text or "-webkit-background-clip: text" in text:
+            violations.append({"file": str(f), "rule": "gradient-text", "message": "Avoid background-clip: text gradient headings (AI slop tell). Use solid typography weight and scale."})
+        if re.search(r"box-shadow:\s*0(?:px)?\s+0(?:px)?\s+\d+px\s+(?:#|rgba?\()", text):
+            violations.append({"file": str(f), "rule": "dark-glow", "message": "Avoid zero-offset colored neon box-shadow glows. Use neutral elevation or 1px structural hairlines."})
+        if re.search(r"font-size:\s*(?:0\.[0-6]\d*rem|[0-9]px|10px|11px)", text):
+            violations.append({"file": str(f), "rule": "undersized-ui-text", "message": "Functional UI text below 12px (0.75rem) fails the legibility floor."})
+        if re.search(r"Plus Jakarta Sans|Syne|Fraunces|Space Grotesk", text, re.IGNORECASE):
+            violations.append({"file": str(f), "rule": "overused-font", "message": "Avoid overused AI default display fonts (Plus Jakarta Sans, Syne, Fraunces, Space Grotesk)."})
+        if f.suffix in (".html", ".jsx", ".tsx") and emoji_re.search(text):
+            violations.append({"file": str(f), "rule": "emoji-in-ui", "message": "Do not use raw Unicode emojis as UI icons; use crisp monochrome SVG icons."})
+
+    # Also invoke impeccable detect if installed on machine
+    imp_candidates = [
+        HOME / ".gemini" / "config" / "skills" / "impeccable" / "scripts" / "impeccable",
+        ROOT / "skills" / "impeccable" / "scripts" / "impeccable",
+    ]
+    imp_bin = next((c for c in imp_candidates if c.is_file()), None)
+    imp_output = ""
+    if imp_bin:
+        try:
+            res = subprocess.run([str(imp_bin), "detect", target], capture_output=True, text=True, timeout=15)
+            imp_output = (res.stdout or "") + (res.stderr or "")
+            for line in imp_output.splitlines():
+                m = re.match(r"^\s+\[([a-z0-9-]+)\]\s+(.*)$", line)
+                if m:
+                    violations.append({"file": target, "rule": m.group(1), "message": m.group(2).strip()})
+        except Exception:
+            pass
+
+    return {
+        "target": target,
+        "status": "clean" if not violations else "slop_detected",
+        "violation_count": len(violations),
+        "violations": violations[:40],
+    }
+
+
 def discover(args):
     result = {"query": args.query, "installed_matches": local_recommend(args.query)}
     result["curated_mcp"] = [v for v in catalog()["mcp_recommendations"] if any(t in tokenize(v["name"] + " " + v["purpose"]) for t in tokenize(args.query))]
@@ -898,6 +953,8 @@ def main():
     p.add_argument("--local-only", action="store_true")
     p = sub.add_parser("bundle", help="Synthesize a full-stack one-prompt capability bundle and check vision clarity")
     p.add_argument("query", help="User prompt to evaluate and route across full-stack layers")
+    p = sub.add_parser("audit-ui", help="Audit a UI directory, file, or URL against the anti-AI-slop craft floor")
+    p.add_argument("target", help="File path, directory, or URL to audit")
     sub.add_parser("uninstall-rules", help="Remove managed rules from all harness configurations")
     sub.add_parser("status", help="Show manifest and destination paths")
     sub.add_parser("catalog", help="Show curated upstream repositories")
@@ -917,6 +974,8 @@ def main():
             discover(args)
         elif args.command == "bundle":
             say(json.dumps(recommend_fullstack_bundle(args.query), indent=2))
+        elif args.command == "audit-ui":
+            say(json.dumps(audit_ui(args.target), indent=2))
         elif args.command == "status":
             status(args)
         elif args.command == "catalog":

@@ -1,345 +1,298 @@
-// VeloMesh Interactive Awwwards Product Experience Engine
-// 1. 60fps Neural Capability Mesh Canvas + Cursor Physics
-// 2. Live 1-Prompt Full-Stack Architecture Synthesizer
-// 3. Real-Time Vision Clarity Analyzer ("VeloMesh Cannot Read Your Mind")
-// 4. GSAP + ScrollTrigger Choreography & Cursor Spotlight Cards
+// VeloMesh Interactive Full-Stack Workbench & Vision Clarity Engine
 
-const BLUEPRINTS = {
+const WORKBENCH_BLUEPRINTS = {
   treasury: {
     prompt:
-      "Build PulseLedger, a multi-tenant AI treasury & runway platform for Series-A CFOs. Use a dark Linear + Stripe editorial aesthetic with interactive WebGL cashflow projection graphs and GSAP scroll reveals. Build the backend in FastAPI + PostgreSQL with row-level security, live Stripe & Plaid webhook ingestion, and full Playwright E2E verification.",
-    frontend: {
-      skills: ["frontend-design", "impeccable", "design-system-references", "ui-ux-pro-max"],
-      code: `// Design System: Linear + Stripe Obsidian Tokens
-// Surface: #090A10 | Specular: 1px rgba(255,255,255,0.14)
-<RunwayForecastCanvas
-  burnRateSeries={tenantMetrics.burn30d}
-  shader="cashflow-ribbon-glsl"
-  reducedMotionFallback={true}
-/>`
-    },
-    motion: {
-      skills: ["gsap-core", "gsap-scrolltrigger", "emil-design-eng"],
-      code: `// Choreography: cubic-bezier(0.16, 1, 0.3, 1)
-gsap.fromTo(".kpi-ledger-card",
-  { y: 28, opacity: 0, rotateX: 6 },
-  { y: 0, opacity: 1, rotateX: 0, stagger: 0.06, duration: 0.75, ease: "expo.out" }
-);`
-    },
-    backend: {
-      skills: ["backend-patterns", "api-connector-builder", "security-review"],
-      code: `# FastAPI + HMAC Webhook Verification + RBAC
-@router.post("/v1/webhooks/stripe", status_code=202)
-async def ingest_stripe_event(
-    payload: bytes = Depends(verify_stripe_signature),
-    tenant: TenantCtx = Depends(require_cfo_role),
+      "Build PulseLedger, a multi-tenant AI treasury & runway platform for Series-A CFOs. Use a Linear + Stripe architectural aesthetic with interactive WebGL cashflow projection graphs and GSAP scroll reveals. Build the backend in FastAPI + PostgreSQL with row-level security, live Stripe & Plaid webhook ingestion, and full Playwright E2E verification.",
+    layers: {
+      frontend: {
+        file: "components/RunwayCanvas.tsx",
+        skills: ["frontend-design", "impeccable", "design-system-references", "ui-ux-pro-max"],
+        code: `// Synthesized Frontend Layer — Linear + Stripe Design System Tokens
+import { useEffect, useRef } from "react";
+import { mountCashflowShader } from "../shaders/cashflowRibbon";
+
+export function RunwayForecastStage({ tenantId, burnSeries }: RunwayProps) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    return mountCashflowShader(canvasRef.current, {
+      series: burnSeries,
+      strokeColor: "#E04006",
+      respectReducedMotion: true,
+    });
+  }, [burnSeries]);
+
+  return (
+    <section className="runway-stage" aria-label="36-Month Cashflow Runway Projection">
+      <canvas ref={canvasRef} width={960} height={360} />
+    </section>
+  );
+}`
+      },
+      motion: {
+        file: "motion/choreography.ts",
+        skills: ["gsap-core", "gsap-scrolltrigger", "emil-design-eng"],
+        code: `// Synthesized Motion Layer — Emil Kowalski Custom Easing & GSAP ScrollTrigger
+import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
+export function initLedgerChoreography(container: HTMLElement) {
+  const rows = container.querySelectorAll("[data-ledger-row]");
+  gsap.fromTo(
+    rows,
+    { y: 16, opacity: 0 },
+    {
+      y: 0,
+      opacity: 1,
+      duration: 0.42,
+      stagger: 0.035,
+      ease: "cubic-bezier(0.23, 1, 0.32, 1)",
+      scrollTrigger: { trigger: container, start: "top 82%" },
+    }
+  );
+}`
+      },
+      backend: {
+        file: "api/webhooks_stripe.py",
+        skills: ["backend-patterns", "api-connector-builder", "security-review"],
+        code: `# Synthesized Backend Layer — FastAPI + HMAC Webhook Verification + RBAC
+from fastapi import APIRouter, Depends, Header, HTTPException
+from app.security import verify_stripe_hmac, require_cfo_session
+from app.services.runway import recompute_tenant_runway
+
+router = APIRouter(prefix="/v1/webhooks", tags=["treasury-webhooks"])
+
+@router.post("/stripe", status_code=202)
+async def ingest_stripe_invoice_event(
+    payload: bytes = Depends(verify_stripe_hmac),
+    tenant = Depends(require_cfo_session),
 ):
-    return await ledger_engine.project_runway_delta(tenant.id, payload)`
-    },
-    database: {
-      skills: ["postgres-patterns", "prisma-patterns", "database-migrations"],
-      code: `-- PostgreSQL 16 + Row-Level Security (RLS)
+    delta = await recompute_tenant_runway(tenant_id=tenant.id, raw_event=payload)
+    return {"status": "accepted", "runway_months": delta.runway_months}`
+      },
+      database: {
+        file: "migrations/001_rls_ledger.sql",
+        skills: ["postgres-patterns", "prisma-patterns", "database-migrations"],
+        code: `-- Synthesized Database Layer — PostgreSQL 16 + Strict Row-Level Security (RLS)
 CREATE TABLE treasury_ledger_entries (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id UUID NOT NULL REFERENCES organizations(id),
+  entry_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  account_code VARCHAR(32) NOT NULL,
   amount_cents BIGINT NOT NULL,
-  occurred_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  occurred_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
 );
+
+CREATE INDEX idx_ledger_tenant_occurred
+  ON treasury_ledger_entries (tenant_id, occurred_at DESC);
+
 ALTER TABLE treasury_ledger_entries ENABLE ROW LEVEL SECURITY;
-CREATE POLICY tenant_isolation ON treasury_ledger_entries
-  USING (tenant_id = current_setting('app.current_tenant')::uuid);`
-    },
-    mcp: {
-      skills: ["discover_and_install_capability", "mcp-stripe-server", "mcp-postgres"],
-      code: `[00.08s] Querying GitHub Mesh: "stripe webhook mcp" + "plaid api"
-[00.24s] Provisioned & hot-linked: stripe/agent-toolkit (MCP)
-[00.39s] Synthesized capability wrapper: mcp-plaid-treasury-sync
-[00.41s] Linked across Claude Code, Cursor, Codex, Copilot & Antigravity`
-    },
-    qa: {
-      skills: ["test-driven-development", "browser-qa", "verification-before-completion"],
-      code: `✔ Vitest / Pytest: 24/24 unit & tenant RLS isolation tests PASS
-✔ Playwright Desktop (1440x900) & Mobile (390x844): 0 layout shifts
-✔ axe-core WCAG 2.2 AA Audit: 0 contrast or keyboard violations`
+
+CREATE POLICY enforce_tenant_isolation ON treasury_ledger_entries
+  USING (tenant_id = current_setting('app.current_tenant_id')::uuid);`
+      },
+      mcp: {
+        file: "velomesh-mcp.lock.json",
+        skills: ["discover_and_install_capability", "mcp-stripe-toolkit", "mcp-postgres"],
+        code: `{
+  "velomesh_Internet_Provisioning_Trace": [
+    "[00.07s] Querying GitHub Mesh for missing capabilities: stripe webhook mcp + plaid api",
+    "[00.22s] Discovered & validated: stripe/agent-toolkit (MCP Server, 4.8k stars)",
+    "[00.36s] Synthesized capability wrapper: mcp-plaid-treasury-sync",
+    "[00.41s] Hot-linked across Claude Code, Cursor, Codex, GitHub Copilot, Antigravity & OpenCode"
+  ]
+}`
+      },
+      qa: {
+        file: "qa/verification-receipt.txt",
+        skills: ["test-driven-development", "browser-qa", "verification-before-completion"],
+        code: `VELOMESH AUTONOMOUS VERIFICATION RECEIPT
+========================================
+[PASS] pytest tests/test_rls_isolation.py        — 18/18 cross-tenant SQL leak checks passed
+[PASS] vitest run src/components/RunwayCanvas    — 12/12 unit & shader fallback checks passed
+[PASS] playwright test --project=desktop,mobile  — Zero layout overflow at 1440px & 390px
+[PASS] impeccable detect http://localhost:4173   — 0 anti-pattern violations, 0 advisories`
+      }
     }
   },
   webglStudio: {
     prompt:
       "Create Kinetix, a real-time collaborative motion-design & shader studio in the browser inspired by Framer and Raycast. Include a 60fps node-graph timeline with GSAP scrubbers, WebSockets CRDT state sync in Node.js, PostgreSQL + Redis asset versioning, and S3 presigned uploads.",
-    frontend: {
-      skills: ["frontend-design", "emil-design-eng", "design-system-references"],
-      code: `// Framer + Raycast Floating Glass Inspector
-<ShaderViewportCanvas
-  fpsTarget={60}
-  crdtPeers={activeCursors}
-  colorSpace="display-p3"
-/>`
-    },
-    motion: {
-      skills: ["gsap-core", "gsap-scrolltrigger", "gsap-utils"],
-      code: `// Magnetic Timeline Scrubber + Spring Snapping
-const snapFrame = gsap.utils.snap(1 / 60);
-gsap.to(playhead, { x: snapFrame(cursorX), duration: 0.22, ease: "power3.out" });`
-    },
-    backend: {
-      skills: ["backend-patterns", "api-connector-builder", "security-review"],
-      code: `// WebSocket CRDT Delta Broadcast + Presigned S3 Pipeline
-wsServer.on("keyframe:mutate", async (session, delta) => {
-  const merged = crdtDoc.applyValidatedDelta(session.userId, delta);
-  await redisPub.publish(\`room:\${session.projectId}\`, merged);
+    layers: {
+      frontend: {
+        file: "components/ShaderViewport.tsx",
+        skills: ["frontend-design", "emil-design-eng", "design-system-references"],
+        code: `// Synthesized Frontend Layer — 60fps Display-P3 WebGL Viewport + Peer Cursors
+export function ShaderViewport({ sceneGraph, activePeers }: ViewportProps) {
+  return (
+    <div className="shader-viewport-frame" data-color-space="display-p3">
+      <WebGLNodeSurface graph={sceneGraph} targetFps={60} />
+      <CollaborativeCursorOverlay peers={activePeers} />
+    </div>
+  );
+}`
+      },
+      motion: {
+        file: "motion/timelineScrubber.ts",
+        skills: ["gsap-core", "gsap-utils", "emil-design-eng"],
+        code: `// Synthesized Motion Layer — Frame-Accurate 60fps Timeline Scrubber
+import gsap from "gsap";
+
+const snapToFrame = gsap.utils.snap(1 / 60);
+
+export function scrubPlayhead(playheadEl: HTMLElement, normalizedTime: number) {
+  const snapped = snapToFrame(normalizedTime);
+  gsap.to(playheadEl, {
+    xPercent: snapped * 100,
+    duration: 0.16,
+    ease: "cubic-bezier(0.23, 1, 0.32, 1)",
+  });
+}`
+      },
+      backend: {
+        file: "server/crdtSync.ts",
+        skills: ["backend-patterns", "api-connector-builder", "security-review"],
+        code: `// Synthesized Backend Layer — WebSocket CRDT State Sync + S3 Presigned Upload
+wsRouter.on("scene:keyframe:delta", async (socket, payload) => {
+  const verifiedDelta = validateCrdtEnvelope(socket.session, payload);
+  const mergedState = await sceneCrdtStore.applyDelta(verifiedDelta);
+  await redisPub.publish(\`scene:\${socket.projectId}\`, mergedState);
 });`
-    },
-    database: {
-      skills: ["postgres-patterns", "prisma-patterns"],
-      code: `-- Immutable Shader Scene Snapshots + GiST Indexing
+      },
+      database: {
+        file: "migrations/002_scene_revisions.sql",
+        skills: ["postgres-patterns", "prisma-patterns"],
+        code: `-- Synthesized Database Layer — Immutable CRDT Scene Snapshots
 CREATE TABLE scene_revisions (
   revision_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  project_id UUID NOT NULL REFERENCES projects(id),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   crdt_vector BYTEA NOT NULL,
-  created_by UUID NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now()
+  author_id UUID NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-CREATE INDEX idx_scene_proj_time ON scene_revisions(project_id, created_at DESC);`
-    },
-    mcp: {
-      skills: ["discover_and_install_capability", "mcp-aws-s3", "mcp-redis"],
-      code: `[00.06s] Querying GitHub Mesh: "cloudflare r2 s3 presigned mcp"
-[00.21s] Provisioned & validated: modelcontextprotocol/server-aws-kb
-[00.34s] Hot-linked 4 capability wrappers into active agent session`
-    },
-    qa: {
-      skills: ["test-driven-development", "browser-qa", "performance-lab"],
-      code: `✔ CRDT Concurrent Merge Fuzz Suite: 1,000/1,000 ops deterministic
-✔ Frame Budget Audit: 59.8 FPS sustained during 12-cursor scrub
-✔ Lighthouse Performance: 98 | Accessibility: 100`
+
+CREATE INDEX idx_scene_revisions_lookup
+  ON scene_revisions (project_id, created_at DESC);`
+      },
+      mcp: {
+        file: "velomesh-mcp.lock.json",
+        skills: ["discover_and_install_capability", "mcp-cloudflare-r2", "mcp-redis"],
+        code: `{
+  "velomesh_Internet_Provisioning_Trace": [
+    "[00.05s] Querying GitHub Mesh: cloudflare r2 s3 presigned mcp + yjs crdt",
+    "[00.19s] Provisioned & validated: modelcontextprotocol/server-aws-kb",
+    "[00.31s] Hot-linked 4 capability wrappers into active coding agent"
+  ]
+}`
+      },
+      qa: {
+        file: "qa/verification-receipt.txt",
+        skills: ["test-driven-development", "browser-qa", "performance-lab"],
+        code: `VELOMESH AUTONOMOUS VERIFICATION RECEIPT
+========================================
+[PASS] CRDT Concurrent Merge Fuzz Suite          — 1,000/1,000 concurrent ops deterministic
+[PASS] Chrome DevTools Frame Budget Audit        — 59.8 FPS sustained across 12 peer cursors
+[PASS] impeccable detect http://localhost:4173   — 0 anti-pattern violations, 0 advisories`
+      }
     }
   },
   clinical: {
     prompt:
-      "Build AetherMD, a HIPAA-compliant ambient clinical triage & diagnostic portal for emergency physicians. Use high-contrast Apple & Stripe typography, real-time HL7/FHIR patient vitals streaming, FastAPI backend with audit-logged PostgreSQL encryption, and RBAC session controls.",
-    frontend: {
-      skills: ["frontend-design", "ui-ux-pro-max", "fixing-accessibility"],
-      code: `// High-Contrast Zero-Latency Triage Telemetry Grid
-<PatientVitalsCard
-  acuityLevel="ESI-1"
-  waveformStream={hl7Stream}
-  aria-live="assertive"
-/>`
-    },
-    motion: {
-      skills: ["emil-design-eng", "gsap-core"],
-      code: `// Instantaneous Clinical Drawer Transition (<140ms)
-gsap.to(".triage-drawer", {
-  xPercent: 0,
-  duration: 0.14,
-  ease: "cubic-bezier(0.22, 1, 0.36, 1)"
-});`
-    },
-    backend: {
-      skills: ["hipaa-compliance", "backend-patterns", "security-review"],
-      code: `# HIPAA PHI Access Interceptor + Immutable Audit Envelope
+      "Build AetherMD, a HIPAA-compliant ambient clinical triage & diagnostic portal for emergency physicians. Use high-contrast Swiss & Stripe typography, real-time HL7/FHIR patient vitals streaming, FastAPI backend with audit-logged PostgreSQL encryption, and RBAC session controls.",
+    layers: {
+      frontend: {
+        file: "components/TriageVitalsGrid.tsx",
+        skills: ["frontend-design", "ui-ux-pro-max", "fixing-accessibility"],
+        code: `// Synthesized Frontend Layer — High-Contrast Zero-Latency ER Triage Grid
+export function TriageVitalsGrid({ patientId, hl7Stream }: TriageProps) {
+  return (
+    <article className="triage-panel" aria-live="polite">
+      <header className="triage-header">
+        <h3>Acuity Level ESI-1 — Continuous Telemetry</h3>
+      </header>
+      <WaveformCanvas stream={hl7Stream} highContrast={true} />
+    </article>
+  );
+}`
+      },
+      motion: {
+        file: "motion/drawerTransition.ts",
+        skills: ["emil-design-eng", "gsap-core"],
+        code: `// Synthesized Motion Layer — Sub-140ms Clinical Drawer Response
+import gsap from "gsap";
+
+export function openDiagnosticDrawer(drawerEl: HTMLElement) {
+  gsap.to(drawerEl, {
+    xPercent: 0,
+    duration: 0.14,
+    ease: "cubic-bezier(0.32, 0.72, 0, 1)",
+  });
+}`
+      },
+      backend: {
+        file: "api/fhir_patient.py",
+        skills: ["hipaa-compliance", "backend-patterns", "security-review"],
+        code: `# Synthesized Backend Layer — HIPAA PHI Access Interceptor + Audit Envelope
 @router.get("/v1/fhir/Patient/{patient_id}")
-async def read_patient_chart(
+async def get_patient_record(
     patient_id: UUID,
-    clinician: Clinician = Depends(verify_mfa_session),
+    clinician: Clinician = Depends(require_mfa_clinician),
 ):
-    await phi_audit_log.record_access(clinician.id, patient_id, reason="ER_TRIAGE")
-    return await fhir_repo.fetch_decrypted_chart(patient_id)`
-    },
-    database: {
-      skills: ["postgres-patterns", "security-review"],
-      code: `-- Tamper-Evident HIPAA Audit Trail + pgcrypto Envelope
+    await phi_audit_ledger.append_access(clinician.id, patient_id, reason="ER_TRIAGE")
+    return await fhir_repository.read_decrypted_patient(patient_id)`
+      },
+      database: {
+        file: "migrations/003_hipaa_audit.sql",
+        skills: ["postgres-patterns", "security-review"],
+        code: `-- Synthesized Database Layer — Tamper-Evident Chained HIPAA Audit Log
 CREATE TABLE phi_access_audit_log (
-  event_id BIGSERIAL PRIMARY KEY,
+  sequence_id BIGSERIAL PRIMARY KEY,
   clinician_id UUID NOT NULL,
   patient_id UUID NOT NULL,
-  prev_hash CHAR(64) NOT NULL,
+  prev_chain_hash CHAR(64) NOT NULL,
   entry_hash CHAR(64) NOT NULL,
   accessed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
 );`
-    },
-    mcp: {
-      skills: ["discover_and_install_capability", "mcp-fhir-hl7"],
-      code: `[00.09s] Querying GitHub Mesh: "hl7 fhir r4 mcp server"
-[00.28s] Synthesized validated wrapper: mcp-fhir-clinical-schema
-[00.37s] Enforced zero-PHI-in-logs security guardrail across harnesses`
-    },
-    qa: {
-      skills: ["test-driven-development", "security-review", "browser-qa"],
-      code: `✔ HIPAA PHI Redaction & Audit-Chain Integrity Tests: 18/18 PASS
-✔ WCAG 2.2 AAA High-Contrast & Keyboard-Only Navigation: PASS
-✔ Zero unauthenticated FHIR endpoint exposure verified`
+      },
+      mcp: {
+        file: "velomesh-mcp.lock.json",
+        skills: ["discover_and_install_capability", "mcp-hl7-fhir-r4"],
+        code: `{
+  "velomesh_Internet_Provisioning_Trace": [
+    "[00.08s] Querying GitHub Mesh: hl7 fhir r4 mcp server + hipaa phi audit",
+    "[00.25s] Synthesized validated wrapper: mcp-fhir-clinical-schema",
+    "[00.34s] Enforced zero-PHI-in-logs security guardrail across all harnesses"
+  ]
+}`
+      },
+      qa: {
+        file: "qa/verification-receipt.txt",
+        skills: ["test-driven-development", "security-review", "browser-qa"],
+        code: `VELOMESH AUTONOMOUS VERIFICATION RECEIPT
+========================================
+[PASS] HIPAA PHI Redaction & Hash-Chain Suite    — 22/22 tamper-evidence checks passed
+[PASS] axe-core WCAG 2.2 AAA High-Contrast       — 0 contrast or keyboard-trap findings
+[PASS] impeccable detect http://localhost:4173   — 0 anti-pattern violations, 0 advisories`
+      }
     }
   }
 };
 
-function initNeuralCanvas() {
-  const canvas = document.getElementById("mesh-canvas");
-  if (!canvas) return () => {};
-  const ctx = canvas.getContext("2d");
-  let width = (canvas.width = window.innerWidth);
-  let height = (canvas.height = window.innerHeight);
-
-  const mouse = { x: width * 0.5, y: height * 0.35, active: false };
-  window.addEventListener("mousemove", (e) => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-    mouse.active = true;
-  });
-
-  window.addEventListener("resize", () => {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-  });
-
-  const nodeCount = Math.min(48, Math.max(24, Math.floor(width / 34)));
-  const colors = ["#f59e0b", "#38bdf8", "#10b981", "#a855f7"];
-  const nodes = Array.from({ length: nodeCount }, (_, i) => ({
-    x: Math.random() * width,
-    y: Math.random() * height,
-    vx: (Math.random() - 0.5) * 0.45,
-    vy: (Math.random() - 0.5) * 0.45,
-    radius: i % 5 === 0 ? 3.2 : 1.8,
-    color: colors[i % colors.length]
-  }));
-
-  const pulses = [];
-  function triggerPulseBurst() {
-    for (let i = 0; i < 8; i++) {
-      const a = nodes[Math.floor(Math.random() * nodes.length)];
-      const b = nodes[Math.floor(Math.random() * nodes.length)];
-      if (a && b && a !== b) {
-        pulses.push({ a, b, t: 0, speed: 0.025 + Math.random() * 0.02, color: "#fbbf24" });
-      }
-    }
-  }
-
-  function render() {
-    ctx.clearRect(0, 0, width, height);
-
-    for (let i = 0; i < nodes.length; i++) {
-      const n = nodes[i];
-      n.x += n.vx;
-      n.y += n.vy;
-
-      if (n.x < 0 || n.x > width) n.vx *= -1;
-      if (n.y < 0 || n.y > height) n.vy *= -1;
-
-      if (mouse.active) {
-        const dx = mouse.x - n.x;
-        const dy = mouse.y - n.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < 220 && dist > 1) {
-          n.x += (dx / dist) * 0.35;
-          n.y += (dy / dist) * 0.35;
-        }
-      }
-
-      for (let j = i + 1; j < nodes.length; j++) {
-        const m = nodes[j];
-        const dx = n.x - m.x;
-        const dy = n.y - m.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < 165) {
-          const alpha = (1 - dist / 165) * 0.18;
-          ctx.strokeStyle = `rgba(148, 163, 184, ${alpha})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(n.x, n.y);
-          ctx.lineTo(m.x, m.y);
-          ctx.stroke();
-        }
-      }
-
-      ctx.fillStyle = n.color;
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    if (Math.random() < 0.08 && pulses.length < 18) {
-      const a = nodes[Math.floor(Math.random() * nodes.length)];
-      const b = nodes[Math.floor(Math.random() * nodes.length)];
-      if (a && b && a !== b) {
-        pulses.push({ a, b, t: 0, speed: 0.018, color: a.color });
-      }
-    }
-
-    for (let i = pulses.length - 1; i >= 0; i--) {
-      const p = pulses[i];
-      p.t += p.speed;
-      if (p.t >= 1) {
-        pulses.splice(i, 1);
-        continue;
-      }
-      const px = p.a.x + (p.b.x - p.a.x) * p.t;
-      const py = p.a.y + (p.b.y - p.a.y) * p.t;
-      ctx.fillStyle = p.color;
-      ctx.shadowColor = p.color;
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.arc(px, py, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    requestAnimationFrame(render);
-  }
-
-  requestAnimationFrame(render);
-  return triggerPulseBurst;
-}
-
-function renderBlueprint(key, customPromptText = null) {
-  const bp = BLUEPRINTS[key] || BLUEPRINTS.treasury;
-  const promptInput = document.getElementById("synth-prompt-input");
-  if (promptInput && !customPromptText) {
-    promptInput.value = bp.prompt;
-  }
-
-  const bindings = [
-    ["frontend", bp.frontend],
-    ["motion", bp.motion],
-    ["backend", bp.backend],
-    ["database", bp.database],
-    ["mcp", bp.mcp],
-    ["qa", bp.qa]
-  ];
-
-  bindings.forEach(([layer, data]) => {
-    const skillsEl = document.getElementById(`skills-${layer}`);
-    const codeEl = document.getElementById(`code-${layer}`);
-    if (skillsEl) {
-      skillsEl.innerHTML = data.skills
-        .map((s) => `<span class="skill-pill">${s}</span>`)
-        .join("");
-    }
-    if (codeEl) {
-      codeEl.textContent = data.code;
-    }
-  });
-
-  if (window.gsap) {
-    window.gsap.fromTo(
-      ".synth-card",
-      { y: 14, opacity: 0.35 },
-      { y: 0, opacity: 1, stagger: 0.045, duration: 0.42, ease: "power2.out" }
-    );
-  }
-}
-
-function evaluateLiveVisionClarity(text) {
-  const clean = String(text || "").trim();
+function scoreVisionClarity(promptText) {
+  const clean = String(promptText || "").trim();
   const words = clean.toLowerCase().split(/[^a-z0-9_-]+/).filter(Boolean);
   const wordSet = new Set(words);
 
   const domainHits = [
     "saas", "dashboard", "fintech", "cfo", "healthcare", "clinical", "ecommerce", "marketplace",
     "crm", "developer", "cli", "studio", "platform", "analytics", "workflow", "treasury", "billing",
-    "portfolio", "fitness", "booking", "editor", "collab", "multitenant", "multi-tenant", "b2b", "portal"
+    "portfolio", "fitness", "booking", "editor", "collab", "multitenant", "multi-tenant", "b2b", "portal", "athletes"
   ].filter((w) => wordSet.has(w)).length;
 
-  const featureHits = [
+  const workflowHits = [
     "auth", "login", "webhook", "stripe", "chart", "graph", "forecast", "table", "search", "upload",
     "realtime", "websocket", "notification", "export", "crud", "ledger", "payment", "pipeline",
     "subscription", "onboarding", "interactive", "canvas", "webgl", "api", "schema", "rls", "fhir", "crdt"
@@ -347,86 +300,138 @@ function evaluateLiveVisionClarity(text) {
 
   const aestheticHits = [
     "linear", "vercel", "stripe", "raycast", "framer", "apple", "awwwards", "dark", "minimal",
-    "editorial", "glass", "brutalist", "cinematic", "react", "nextjs", "fastapi", "postgres",
+    "editorial", "swiss", "architectural", "cinematic", "react", "nextjs", "fastapi", "postgres",
     "postgresql", "supabase", "tailwind", "gsap", "webgl", "three", "typescript", "node", "python"
   ].filter((w) => wordSet.has(w)).length;
 
-  const domainScore = Math.min(100, Math.round((domainHits * 38) + Math.min(40, words.length * 1.5)));
-  const featureScore = Math.min(100, Math.round((featureHits * 34) + Math.min(35, words.length * 1.2)));
-  const aestheticScore = Math.min(100, Math.round((aestheticHits * 36) + Math.min(30, words.length)));
+  const domainScore = Math.min(100, Math.round(domainHits * 38 + Math.min(40, words.length * 1.5)));
+  const workflowScore = Math.min(100, Math.round(workflowHits * 34 + Math.min(35, words.length * 1.2)));
+  const aestheticScore = Math.min(100, Math.round(aestheticHits * 36 + Math.min(30, words.length)));
 
-  const ready = words.length >= 12 && (domainScore >= 55 && featureScore >= 50 && aestheticScore >= 45);
-  return { words: words.length, domainScore, featureScore, aestheticScore, ready };
+  const ready = words.length >= 12 && domainScore >= 55 && workflowScore >= 50 && aestheticScore >= 45;
+  return { domainScore, workflowScore, aestheticScore, ready };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const triggerBurst = initNeuralCanvas();
-
-  // 1. OS Installer Switcher & Copy Button
-  const osTabs = document.querySelectorAll(".os-tab");
-  const cmdTextEl = document.getElementById("install-cmd-code");
+  // 1. OS 1-Command Installer Switcher
+  const osBtns = document.querySelectorAll(".os-btn");
+  const installCodeEl = document.getElementById("install-cmd-code");
   const copyBtn = document.getElementById("copy-install-btn");
   const commands = {
     unix: "curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash",
     windows: "irm https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.ps1 | iex"
   };
-  let activeOs = "unix";
+  let currentOs = "unix";
 
-  osTabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      osTabs.forEach((t) => t.classList.remove("active"));
-      tab.classList.add("active");
-      activeOs = tab.dataset.os || "unix";
-      if (cmdTextEl) cmdTextEl.textContent = commands[activeOs];
+  osBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      osBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentOs = btn.dataset.os || "unix";
+      if (installCodeEl) installCodeEl.textContent = commands[currentOs];
     });
   });
 
   if (copyBtn) {
     copyBtn.addEventListener("click", async () => {
       try {
-        await navigator.clipboard.writeText(commands[activeOs]);
-        copyBtn.textContent = "Copied ✓";
+        await navigator.clipboard.writeText(commands[currentOs]);
+        copyBtn.textContent = "Copied";
         setTimeout(() => {
-          copyBtn.textContent = "Copy 1-Command";
-        }, 2000);
+          copyBtn.textContent = "Copy Command";
+        }, 1800);
       } catch {
         copyBtn.textContent = "Ready";
       }
     });
   }
 
-  // 2. Initialize 1-Prompt Full-Stack Synthesizer
-  renderBlueprint("treasury");
-  const presetBtns = document.querySelectorAll(".preset-btn");
-  presetBtns.forEach((btn) => {
+  // 2. Interactive Multi-File Full-Stack Workbench
+  let currentBlueprint = "treasury";
+  let currentLayer = "frontend";
+
+  const promptInput = document.getElementById("synth-prompt-input");
+  const skillsStrip = document.getElementById("active-skills-strip");
+  const codeOutput = document.getElementById("workbench-code-output");
+  const blueprintTabs = document.querySelectorAll(".blueprint-tab");
+  const fileTabs = document.querySelectorAll(".file-tab-btn");
+
+  function renderWorkbench(updatePromptText = true) {
+    const bp = WORKBENCH_BLUEPRINTS[currentBlueprint] || WORKBENCH_BLUEPRINTS.treasury;
+    if (promptInput && updatePromptText) {
+      promptInput.value = bp.prompt;
+    }
+
+    // Update file names on sidebar tabs
+    fileTabs.forEach((tab) => {
+      const layerKey = tab.dataset.layer;
+      const nameSpan = tab.querySelector(".file-tab-name");
+      if (layerKey && bp.layers[layerKey] && nameSpan) {
+        nameSpan.textContent = bp.layers[layerKey].file;
+      }
+      tab.classList.toggle("active", layerKey === currentLayer);
+    });
+
+    const activeData = bp.layers[currentLayer] || bp.layers.frontend;
+    if (skillsStrip) {
+      skillsStrip.innerHTML =
+        `<span>Auto-linked skills &amp; MCPs:</span>` +
+        activeData.skills.map((s) => `<span class="skill-chip">${s}</span>`).join("");
+    }
+    if (codeOutput) {
+      codeOutput.textContent = activeData.code;
+    }
+
+    // Pulse SVG schematic path in Hero if GSAP is loaded
+    if (window.gsap) {
+      window.gsap.fromTo(
+        ".signal-node",
+        { attr: { r: 6 } },
+        { attr: { r: 4.5 }, duration: 0.35, stagger: 0.04, ease: "power2.out" }
+      );
+    }
+  }
+
+  blueprintTabs.forEach((btn) => {
     btn.addEventListener("click", () => {
-      presetBtns.forEach((b) => b.classList.remove("active"));
+      blueprintTabs.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      renderBlueprint(btn.dataset.blueprint);
-      triggerBurst();
+      currentBlueprint = btn.dataset.blueprint || "treasury";
+      renderWorkbench(true);
     });
   });
 
-  const synthRunBtn = document.getElementById("run-synth-btn");
-  const synthInput = document.getElementById("synth-prompt-input");
-  if (synthRunBtn && synthInput) {
-    synthRunBtn.addEventListener("click", () => {
-      const val = synthInput.value.toLowerCase();
-      if (val.includes("shader") || val.includes("framer") || val.includes("kinetix")) {
-        renderBlueprint("webglStudio", synthInput.value);
-      } else if (val.includes("hipaa") || val.includes("clinical") || val.includes("patient")) {
-        renderBlueprint("clinical", synthInput.value);
+  fileTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      currentLayer = tab.dataset.layer || "frontend";
+      renderWorkbench(false);
+    });
+  });
+
+  const runSynthBtn = document.getElementById("run-synth-btn");
+  if (runSynthBtn && promptInput) {
+    runSynthBtn.addEventListener("click", () => {
+      const text = promptInput.value.toLowerCase();
+      if (text.includes("shader") || text.includes("webgl") || text.includes("kinetix")) {
+        currentBlueprint = "webglStudio";
+      } else if (text.includes("hipaa") || text.includes("clinical") || text.includes("fhir")) {
+        currentBlueprint = "clinical";
       } else {
-        renderBlueprint("treasury", synthInput.value);
+        currentBlueprint = "treasury";
       }
-      triggerBurst();
+      blueprintTabs.forEach((b) =>
+        b.classList.toggle("active", b.dataset.blueprint === currentBlueprint)
+      );
+      renderWorkbench(false);
     });
   }
 
-  // 3. Live Vision Clarity Analyzer ("VeloMesh Cannot Read Your Mind")
-  const visionTester = document.getElementById("live-vision-input");
-  const badgeOut = document.getElementById("live-vision-badge");
-  const msgOut = document.getElementById("live-vision-guidance");
+  renderWorkbench(true);
+
+  // 3. Interactive Vision Clarity Inspector ("VeloMesh Cannot Read Your Mind")
+  const visionInput = document.getElementById("live-vision-input");
+  const visionBadge = document.getElementById("live-vision-badge");
+  const visionGuidance = document.getElementById("live-vision-guidance");
   const barDomain = document.getElementById("bar-domain");
   const barWorkflow = document.getElementById("bar-workflow");
   const barAesthetic = document.getElementById("bar-aesthetic");
@@ -434,70 +439,43 @@ document.addEventListener("DOMContentLoaded", () => {
   const valWorkflow = document.getElementById("val-workflow");
   const valAesthetic = document.getElementById("val-aesthetic");
 
-  function updateVisionMeter() {
-    if (!visionTester) return;
-    const res = evaluateLiveVisionClarity(visionTester.value);
-    if (barDomain) barDomain.style.width = `${res.domainScore}%`;
-    if (barWorkflow) barWorkflow.style.width = `${res.featureScore}%`;
-    if (barAesthetic) barAesthetic.style.width = `${res.aestheticScore}%`;
-    if (valDomain) valDomain.textContent = `${res.domainScore}%`;
-    if (valWorkflow) valWorkflow.textContent = `${res.featureScore}%`;
-    if (valAesthetic) valAesthetic.textContent = `${res.aestheticScore}%`;
+  function refreshVisionInspector() {
+    if (!visionInput) return;
+    const result = scoreVisionClarity(visionInput.value);
+    if (barDomain) barDomain.style.width = `${result.domainScore}%`;
+    if (barWorkflow) barWorkflow.style.width = `${result.workflowScore}%`;
+    if (barAesthetic) barAesthetic.style.width = `${result.aestheticScore}%`;
+    if (valDomain) valDomain.textContent = `${result.domainScore}%`;
+    if (valWorkflow) valWorkflow.textContent = `${result.workflowScore}%`;
+    if (valAesthetic) valAesthetic.textContent = `${result.aestheticScore}%`;
 
-    if (badgeOut && msgOut) {
-      if (res.ready) {
-        badgeOut.className = "vision-status-badge status-ready";
-        badgeOut.textContent = "✓ READY_FOR_FULLSTACK_EXECUTION (One-Shot Autonomous Build)";
-        msgOut.textContent =
-          "Your product vision is clear. VeloMesh autonomously chains Frontend + GSAP Motion + Backend API + PostgreSQL Schema + Live Internet MCPs + Browser QA in a single shot—zero slash commands required.";
+    if (visionBadge && visionGuidance) {
+      if (result.ready) {
+        visionBadge.className = "ledger-status status-verified";
+        visionBadge.textContent = "READY_FOR_FULLSTACK_EXECUTION (One-Shot Autonomous Build)";
+        visionGuidance.textContent =
+          "Product vision is clear. VeloMesh chains Frontend UI, GSAP Motion, Backend API, PostgreSQL RLS Schema, Live Internet MCPs, and Browser QA in one shot without slash commands.";
       } else {
-        badgeOut.className = "vision-status-badge status-warn";
-        badgeOut.textContent = "⚠ NEEDS_ELABORATION — VeloMesh Cannot Read Your Mind";
-        msgOut.textContent =
-          "VeloMesh automates 100% of skills, MCPs, APIs, and databases—but it cannot get inside your brain to see your vision. Elaborate who it's for, core workflows, and visual vibe (or let VeloMesh's brainstorming gate ask you 2–3 sharp questions first).";
+        visionBadge.className = "ledger-status status-blocked";
+        visionBadge.textContent = "NEEDS_ELABORATION — VeloMesh Cannot Read Your Mind";
+        visionGuidance.textContent =
+          "VeloMesh automates 100% of skills, MCP servers, APIs, and databases—but it cannot get inside your brain. Elaborate who it is for, core workflows, and aesthetic direction so VeloMesh doesn't have to guess.";
       }
     }
   }
 
-  if (visionTester) {
-    visionTester.addEventListener("input", updateVisionMeter);
-    updateVisionMeter();
+  if (visionInput) {
+    visionInput.addEventListener("input", refreshVisionInspector);
+    refreshVisionInspector();
   }
 
   document.querySelectorAll(".vision-sample-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      if (!visionTester) return;
-      visionTester.value = btn.dataset.sample || "";
-      updateVisionMeter();
-      triggerBurst();
+      if (!visionInput) return;
+      document.querySelectorAll(".vision-sample-btn").forEach((b) => b.classList.remove("btn-signal"));
+      btn.classList.add("btn-signal");
+      visionInput.value = btn.dataset.sample || "";
+      refreshVisionInspector();
     });
   });
-
-  // 4. Cursor Spotlight Tracking on Bento Cards
-  document.querySelectorAll(".bento-card").forEach((card) => {
-    card.addEventListener("mousemove", (e) => {
-      const rect = card.getBoundingClientRect();
-      card.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
-      card.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
-    });
-  });
-
-  // 5. GSAP + ScrollTrigger Entrance Choreography
-  if (window.gsap && window.ScrollTrigger) {
-    window.gsap.registerPlugin(window.ScrollTrigger);
-    window.gsap.from(".hero-eyebrow, .hero-title, .hero-subtitle, .vision-callout-banner, .install-dock", {
-      y: 26,
-      opacity: 0,
-      stagger: 0.08,
-      duration: 0.85,
-      ease: "power3.out"
-    });
-    window.gsap.from(".hero-visual-card", {
-      y: 34,
-      opacity: 0,
-      duration: 0.95,
-      delay: 0.2,
-      ease: "power3.out"
-    });
-  }
 });
