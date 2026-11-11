@@ -467,7 +467,7 @@ def sync(state, targets=None, core_only=False):
 def setup(args):
     if not shutil.which("git") and not args.offline:
         raise RuntimeError("Git is required for fetching sources. Install Git first, or rerun --offline after caching.")
-    say("Agent Fusion Skill Hub v4 -- add-on (existing Agent Fusion core is untouched)")
+    say("VeloMesh — Autonomous Internet Capability Mesh (Skills · MCP Servers · APIs · Agents)")
     say(f"Install root: {ROOT}")
     if not args.yes and not args.offline:
         answer = input("Fetch the curated public GitHub repos and link skills globally? [y/N] ").strip().lower()
@@ -544,11 +544,16 @@ def local_recommend(query, limit=6):
     return [{"skill": name, "source": repo, "score": score} for score, name, repo in sorted(scored, reverse=True)[:limit]]
 
 
-def github_search(query, kind, limit=6):
-    modifiers = {"skill": "agent skills", "mcp": "mcp server", "agent": "coding agent"}
+def github_search(query, kind="skill", limit=6):
+    modifiers = {
+        "skill": "agent skills",
+        "mcp": "mcp server modelcontextprotocol",
+        "api": "api sdk openapi client",
+        "agent": "coding agent autonomous agent",
+    }
     q = f"{query} {modifiers.get(kind, 'agent skills')} in:name,description,readme archived:false"
     url = "https://api.github.com/search/repositories?" + urllib.parse.urlencode({"q": q, "sort": "stars", "order": "desc", "per_page": min(limit, 10)})
-    headers = {"Accept": "application/vnd.github+json", "User-Agent": "agent-fusion-skill-hub-v4"}
+    headers = {"Accept": "application/vnd.github+json", "User-Agent": "velomesh-autonomous-capability-engine"}
     token = os.environ.get("GITHUB_TOKEN", "").strip()
     if token:
         headers["Authorization"] = "Bearer " + token
@@ -556,7 +561,7 @@ def github_search(query, kind, limit=6):
     try:
         with urllib.request.urlopen(request, timeout=12) as response:
             raw = json.loads(response.read(2_000_000).decode("utf-8"))
-        return [{"repo": item.get("full_name"), "url": item.get("html_url"), "stars": item.get("stargazers_count"), "updated": item.get("updated_at"), "description": (item.get("description") or "")[:150]} for item in raw.get("items", [])[:limit]]
+        return [{"repo": item.get("full_name"), "url": item.get("html_url"), "stars": item.get("stargazers_count"), "updated": item.get("updated_at"), "description": (item.get("description") or "")[:150], "kind": kind} for item in raw.get("items", [])[:limit]]
     except Exception as e:
         say(f"  GitHub search rate limit or network error ({e}); using local candidates")
         return []
@@ -610,44 +615,47 @@ def hot_link_skill(skill_name: str, targets=None) -> int:
     return linked
 
 
-def create_mcp_skill_wrapper(name: str, repo_or_url: str, purpose: str, tools_spec: str = "") -> Path:
+def create_mcp_skill_wrapper(name: str, repo_or_url: str, purpose: str, tools_spec: str = "", targets=None) -> Path:
     clean = sanitize_skill_name(name) or "unnamed-mcp"
-    wrapper_name = f"mcp-{clean}"
+    wrapper_name = clean if clean.startswith(("mcp-", "api-", "agent-")) else f"mcp-{clean}"
     dest = LIB / wrapper_name
     dest.mkdir(parents=True, exist_ok=True)
     skill_file = dest / "SKILL.md"
     body = (
         f"---\n"
         f"name: {wrapper_name}\n"
-        f"description: \"Declarative guidance for MCP server '{name}': {purpose}\"\n"
+        f"description: \"Autonomous capability wrapper for '{name}': {purpose}\"\n"
         f"---\n\n"
-        f"# MCP Integration: {name}\n\n"
+        f"# Live Internet Capability: {name}\n\n"
         f"- **Source/Repository:** {repo_or_url}\n"
         f"- **Purpose:** {purpose}\n\n"
-        f"## Usage Guidelines\n"
-        f"When invoking this MCP capability in your coding harness:\n"
-        f"1. Check if the tool is available in the harness's registered MCP tools.\n"
-        f"2. Use parameter types and contracts according to the specification.\n"
-        f"3. Never transmit credentials or raw environment secrets.\n"
+        f"## Autonomous Execution Guidelines\n"
+        f"1. Check if this MCP server, API, or agent tool is active in the current harness.\n"
+        f"2. Follow the repository's official contracts, endpoints, and authentication patterns.\n"
+        f"3. Never expose raw secrets or environment tokens.\n"
     )
     if tools_spec:
-        body += f"\n## Tool Specifications\n{tools_spec}\n"
+        body += f"\n## Specifications & Documentation\n{tools_spec}\n"
     skill_file.write_text(body, encoding="utf-8")
-    hot_link_skill(wrapper_name)
+    hot_link_skill(wrapper_name, targets=targets)
     return dest
 
 
-def install_skill(query_or_repo: str, force: bool = False, targets=None) -> dict:
+def provision_capability(query_or_repo: str, kind: str = "auto", force: bool = False, targets=None) -> dict:
+    return install_skill(query_or_repo, force=force, targets=targets, kind=kind)
+
+
+def install_skill(query_or_repo: str, force: bool = False, targets=None, kind: str = "auto") -> dict:
     state = load_state()
     targets = targets or TARGETS
-    
+
     clean = sanitize_skill_name(query_or_repo)
     if clean and (LIB / clean).is_dir():
         links = hot_link_skill(clean, targets=targets)
         state["skills"].setdefault(clean, {"repo": "local/installed", "path": str(LIB / clean)})
         save_state(state)
         return {"status": "linked_existing", "skill": clean, "links": links}
-        
+
     matches = local_recommend(query_or_repo, limit=1)
     if matches and matches[0]["score"] >= 8:
         matched_name = matches[0]["skill"]
@@ -655,46 +663,86 @@ def install_skill(query_or_repo: str, force: bool = False, targets=None) -> dict
         return {"status": "linked_existing", "skill": matched_name, "score": matches[0]["score"], "links": links}
 
     repo_target = None
+    candidate_meta = {}
     if "/" in query_or_repo and not query_or_repo.startswith("http"):
         parts = query_or_repo.strip().split("/")
         if len(parts) == 2 and all(p.replace("-", "").replace("_", "").isalnum() for p in parts):
             repo_target = query_or_repo.strip()
-    
-    if not repo_target:
-        try:
-            candidates = github_search(query_or_repo, "skill", limit=3)
-            if candidates and isinstance(candidates, list) and "repo" in candidates[0]:
-                repo_target = candidates[0]["repo"]
-        except Exception as e:
-            say(f"GitHub search notice: {e}")
 
     if not repo_target:
-        return {"status": "not_found", "query": query_or_repo, "message": "No matching skill or repository found"}
+        q_lower = query_or_repo.lower()
+        if kind == "auto":
+            if "mcp" in q_lower:
+                search_order = ["mcp", "skill", "api", "agent"]
+            elif "api" in q_lower or "sdk" in q_lower or "webhook" in q_lower:
+                search_order = ["api", "mcp", "skill", "agent"]
+            elif "agent" in q_lower:
+                search_order = ["agent", "skill", "mcp", "api"]
+            else:
+                search_order = ["skill", "mcp", "api", "agent"]
+        else:
+            search_order = [kind]
 
-    say(f"Fetching candidate repository: {repo_target} ...")
+        for k in search_order:
+            try:
+                candidates = github_search(query_or_repo, k, limit=3)
+                if candidates and isinstance(candidates, list) and "repo" in candidates[0]:
+                    candidate_meta = candidates[0]
+                    repo_target = candidate_meta["repo"]
+                    break
+            except Exception as e:
+                say(f"GitHub search notice: {e}")
+
+    if not repo_target:
+        return {"status": "not_found", "query": query_or_repo, "message": "No matching skill, MCP, API, or agent found"}
+
+    say(f"Fetching candidate capability from internet: {repo_target} ...")
     try:
         checkout, revision = fetch_repo(repo_target, allow_network=True)
         found = discover_skills(checkout)
-        if not found:
-            return {"status": "no_skills_found", "repo": repo_target}
-        
-        added = []
-        for name, folder, desc in found:
-            clean_name = sanitize_skill_name(name)
-            if not clean_name:
-                continue
-            dst = LIB / clean_name
-            if dst.exists() and not force:
-                continue
-            safe_copy(folder, dst)
-            state["skills"][clean_name] = {"repo": repo_target, "commit": revision, "path": str(dst)}
-            hot_link_skill(clean_name, targets=targets)
-            added.append(clean_name)
-        
-        state["sources"][repo_target] = {"commit": revision, "discovered": len(found), "selected": len(added)}
+        if found:
+            added = []
+            for name, folder, desc in found:
+                clean_name = sanitize_skill_name(name)
+                if not clean_name:
+                    continue
+                dst = LIB / clean_name
+                if dst.exists() and not force:
+                    continue
+                safe_copy(folder, dst)
+                state["skills"][clean_name] = {"repo": repo_target, "commit": revision, "path": str(dst)}
+                hot_link_skill(clean_name, targets=targets)
+                added.append(clean_name)
+
+            state["sources"][repo_target] = {"commit": revision, "discovered": len(found), "selected": len(added)}
+            save_state(state)
+            return {"status": "installed", "repo": repo_target, "skills_added": added, "skill": added[0] if added else None}
+
+        # Repo is an MCP Server, API SDK, or Agent without literal SKILL.md — synthesize wrapper from README
+        readme_excerpt = ""
+        for rname in ("README.md", "readme.md", "package.json"):
+            rfile = checkout / rname
+            if rfile.is_file():
+                try:
+                    readme_excerpt = rfile.read_text(encoding="utf-8", errors="ignore")[:2000]
+                    break
+                except OSError:
+                    pass
+        slug = sanitize_skill_name(repo_target.split("/")[-1]) or "capability"
+        purpose = candidate_meta.get("description") or f"Internet-provisioned capability from {repo_target}"
+        dest = create_mcp_skill_wrapper(slug, f"https://github.com/{repo_target}", purpose, tools_spec=readme_excerpt, targets=targets)
+        state["skills"][dest.name] = {"repo": repo_target, "commit": revision, "path": str(dest)}
         save_state(state)
-        return {"status": "installed", "repo": repo_target, "skills_added": added}
+        return {"status": "synthesized_capability", "repo": repo_target, "skill": dest.name}
     except Exception as exc:
+        # Fallback: synthesize capability wrapper from GitHub search metadata so the agent can still use it
+        if repo_target:
+            slug = sanitize_skill_name(repo_target.split("/")[-1]) or "capability"
+            purpose = candidate_meta.get("description") or f"Internet capability {repo_target}"
+            dest = create_mcp_skill_wrapper(slug, candidate_meta.get("url") or f"https://github.com/{repo_target}", purpose, targets=targets)
+            state["skills"][dest.name] = {"repo": repo_target, "commit": "metadata", "path": str(dest)}
+            save_state(state)
+            return {"status": "synthesized_capability", "repo": repo_target, "skill": dest.name, "note": str(exc)}
         return {"status": "error", "repo": repo_target, "error": str(exc)}
 
 

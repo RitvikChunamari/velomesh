@@ -230,5 +230,27 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
         res = subprocess.run(["bash", "-n", str(install_sh)], capture_output=True, text=True)
         self.assertEqual(res.returncode, 0, f"install.sh syntax error: {res.stderr}")
 
+    def test_internet_multi_capability_provisioning_mcp_api_agent_skill(self):
+        from velomesh import provision_capability
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            lib_dir = tmp_path / "lib"
+            lib_dir.mkdir()
+            target_dir = tmp_path / "target"
+            target_dir.mkdir()
+            manifest_file = tmp_path / "manifest.json"
+            
+            fake_candidates = [
+                {"repo": "acme/stripe-mcp-server", "url": "https://github.com/acme/stripe-mcp-server", "stars": 420, "description": "Official Stripe MCP Server and REST API toolkit"}
+            ]
+            with patch("velomesh.LIB", lib_dir), \
+                 patch("velomesh.TARGETS", {"cursor": target_dir}), \
+                 patch("velomesh.MANIFEST", manifest_file), \
+                 patch("velomesh.github_search", return_value=fake_candidates), \
+                 patch("velomesh.fetch_repo", side_effect=RuntimeError("repo has no SKILL.md, synthesize MCP/API wrapper")):
+                res = provision_capability("stripe billing api mcp", kind="auto")
+                self.assertIn(res["status"], ("synthesized_capability", "installed", "linked_existing"))
+                self.assertTrue((target_dir / res["skill"] / "SKILL.md").exists())
+
 if __name__ == "__main__":
     unittest.main()
