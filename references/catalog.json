@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "sources": [
+    {"repo": "obra/superpowers", "category": "workflows", "level": "core", "selection": "all", "notes": "using-superpowers, planning, testing and debugging; native hooks are separate"},
+    {"repo": "affaan-m/ECC", "category": "engineering", "level": "core", "selection": "all", "notes": "Everything Claude Code; complete portable engineering and verification skills"},
+    {"repo": "anthropics/skills", "category": "design", "level": "core", "selection": "all", "notes": "frontend-design and reusable authoring skills"},
+    {"repo": "vercel-labs/agent-skills", "category": "frontend", "level": "core", "selection": "all", "notes": "React, Next.js, web design, accessibility, performance"},
+    {"repo": "emilkowalski/skills", "category": "motion", "level": "core", "selection": "all", "notes": "Animation design critique and implementation"},
+    {"repo": "greensock/gsap-skills", "category": "motion", "level": "core", "selection": "all", "notes": "Official GSAP, ScrollTrigger and performance expertise"},
+    {"repo": "nextlevelbuilder/ui-ux-pro-max-skill", "category": "design", "level": "recommended", "selection": "all", "notes": "Design-system intelligence"},
+    {"repo": "Leonxlnx/taste-skill", "category": "design", "level": "recommended", "selection": "all", "notes": "Visual taste and frontend art direction"},
+    {"repo": "pbakaus/impeccable", "category": "design", "level": "recommended", "selection": "all", "notes": "Design audit and visual polish"},
+    {"repo": "Nutlope/hallmark", "category": "design", "level": "recommended", "selection": "all", "notes": "Design quality and accessibility"},
+    {"repo": "VoltAgent/awesome-agent-skills", "category": "ecosystem", "level": "recommended", "selection": "all", "notes": "Curated collection of 1,000+ real-world agent skills"},
+    {"repo": "VoltAgent/awesome-design-md", "category": "design", "level": "recommended", "selection": "all", "notes": "Design-system rules, tokens, and art direction playbooks"},
+    {"repo": "addyosmani/agent-skills", "category": "engineering", "level": "recommended", "selection": "all", "notes": "Specify, build, verify and ship"},
+    {"repo": "wshobson/agents", "category": "agents", "level": "everything", "selection": "all", "notes": "Large catalog of multi-harness agents and skills"},
+    {"repo": "MicrosoftDocs/Agent-Skills", "category": "documentation", "level": "everything", "selection": "all", "notes": "Microsoft and Azure expertise"},
+    {"repo": "google/skills", "category": "documentation", "level": "everything", "selection": "all", "notes": "Google technology skills"},
+    {"repo": "openai/skills", "category": "engineering", "level": "everything", "selection": "all", "notes": "OpenAI agent skills"},
+    {"repo": "github/awesome-copilot", "category": "discovery", "level": "everything", "selection": "all", "notes": "Skill resources and Copilot customizations"}
+  ],
+  "mcp_recommendations": [
+    {"name": "Context7", "repo": "upstash/context7", "purpose": "current framework and library docs"},
+    {"name": "Playwright MCP", "repo": "microsoft/playwright-mcp", "purpose": "browser testing and verification"},
+    {"name": "Chrome DevTools MCP", "repo": "ChromeDevTools/chrome-devtools-mcp", "purpose": "diagnostics and browser debugging"},
+    {"name": "Official MCP Servers", "repo": "modelcontextprotocol/servers", "purpose": "official reference implementations (filesystem, fetch, sqlite, git)"},
+    {"name": "Awesome MCP Servers", "repo": "punkpeye/awesome-mcp-servers", "purpose": "catalog of 60,000+ community MCP integrations"},
+    {"name": "Figma MCP", "url": "https://developers.figma.com/docs/figma-mcp-server/", "purpose": "design context and components"}
+  ]
+}
