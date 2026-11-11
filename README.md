@@ -5,6 +5,9 @@
 ### **Install Once in 1 Command. Works Automatically in Every AI Coding Agent.**
 **Zero Slash Commands · Zero Config Files · 398+ Skills · Automatic On-The-Fly Capability Discovery**
 
+### 🌐 **[Live Interactive Product Website → ritvikchunamari.github.io/velomesh](https://ritvikchunamari.github.io/velomesh/)**
+
+[![Website](https://img.shields.io/badge/Website-Live%20Demo-E5A93C?style=flat&logo=vercel)](https://ritvikchunamari.github.io/velomesh/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
