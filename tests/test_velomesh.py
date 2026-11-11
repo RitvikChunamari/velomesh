@@ -252,5 +252,34 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
                 self.assertIn(res["status"], ("synthesized_capability", "installed", "linked_existing"))
                 self.assertTrue((target_dir / res["skill"] / "SKILL.md").exists())
 
+    def test_fullstack_bundle_and_vision_elaboration_check(self):
+        from velomesh import recommend_fullstack_bundle, rule_body
+        # 1. Vague prompt -> needs_elaboration (VeloMesh cannot read your mind)
+        vague = recommend_fullstack_bundle("build a website")
+        self.assertEqual(vague["vision_check"]["status"], "needs_elaboration")
+        self.assertIn("brain", vague["vision_check"]["guidance"].lower())
+        self.assertTrue(len(vague["vision_check"]["missing_dimensions"]) >= 2)
+
+        # 2. Elaborated vision prompt -> ready_for_autonomous_build across full-stack layers
+        elaborated = recommend_fullstack_bundle(
+            "Build a multi-tenant AI treasury dashboard for CFOs with dark Linear-inspired typography, "
+            "interactive WebGL cashflow forecasting graph, FastAPI + PostgreSQL ledger database with row-level security, "
+            "Stripe webhook ingestion API, and Playwright end-to-end verification."
+        )
+        self.assertEqual(elaborated["vision_check"]["status"], "ready_for_autonomous_build")
+        self.assertIn("frontend_ui", elaborated["layers"])
+        self.assertIn("motion_interactive", elaborated["layers"])
+        self.assertIn("backend_api", elaborated["layers"])
+        self.assertIn("database_state", elaborated["layers"])
+        self.assertIn("testing_qa", elaborated["layers"])
+        self.assertIn("gsap-scrolltrigger", elaborated["layers"]["motion_interactive"])
+        self.assertIn("postgres-patterns", elaborated["layers"]["database_state"])
+
+        # 3. Rule body must enforce both One-Prompt Full-Stack execution and Vision Elaboration
+        rules = rule_body()
+        self.assertIn("cannot get inside", rules.lower())
+        self.assertIn("awwwards", rules.lower())
+        self.assertIn("database", rules.lower())
+
 if __name__ == "__main__":
     unittest.main()

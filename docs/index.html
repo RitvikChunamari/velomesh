@@ -1,673 +1,422 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>velomesh: autonomous internet capability engine for ai agents</title>
-  <meta name="description" content="VeloMesh automatically searches the internet to discover, wire, and invoke the right Skills, MCP Servers, APIs, and Agents on every prompt with zero manual setup.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Geist:wght@400;500&family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VeloMesh — One-Prompt Full-Stack &amp; Autonomous Internet Capability Engine</title>
+  <meta name="description" content="Build polished Awwwards-level websites, full-stack products, backends, frontends, and databases from a single elaborated prompt. VeloMesh autonomously discovers and hot-links MCP servers, APIs, subagents, and 398+ skills across Claude Code, Cursor, Codex, Copilot, Antigravity, and OpenCode." />
+  <meta name="keywords" content="VeloMesh, AI coding agent, full-stack AI engine, MCP server discovery, Claude Code, Cursor, OpenAI Codex, GitHub Copilot, Antigravity, OpenCode, autonomous software engineering" />
+  <link rel="canonical" href="https://ritvikchunamari.github.io/velomesh/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="VeloMesh — Build Full-Stack Software, Websites, Backends &amp; Databases in One Prompt" />
+  <meta property="og:description" content="Elaborate your product vision once. VeloMesh autonomously discovers and wires the skills, MCP servers, APIs, database schemas, and QA agents to build it end-to-end." />
+  <meta property="og:url" content="https://ritvikchunamari.github.io/velomesh/" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "VeloMesh",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "macOS, Linux, Windows",
+    "url": "https://ritvikchunamari.github.io/velomesh/",
+    "codeRepository": "https://github.com/RitvikChunamari/velomesh",
+    "description": "Autonomous Full-Stack & Internet Capability Engine that builds polished websites, products, backends, frontends, and databases from one elaborated prompt across Claude Code, Cursor, Codex, Copilot, Antigravity, and OpenCode."
+  }
+  </script>
 </head>
 <body>
-  <header class="masthead">
-    <div class="container masthead__inner">
-      <a href="#top" class="brand">
-        <span class="brand__name">velomesh</span>
-        <span class="brand__version">v4.0</span>
-      </a>
-      <nav class="masthead__nav" aria-label="primary navigation">
-        <a href="#workflow" class="masthead__link">engine</a>
-        <a href="#comparison" class="masthead__link">comparison</a>
-        <a href="#harnesses" class="masthead__link">harnesses</a>
-        <a href="#catalog" class="masthead__link">mesh</a>
+  <canvas id="mesh-canvas" aria-hidden="true"></canvas>
+  <div class="ambient-aura" aria-hidden="true"></div>
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <div class="page-shell">
+    <!-- Floating Glass Header -->
+    <header class="site-header container">
+      <nav class="nav-glass" aria-label="Primary Navigation">
+        <a href="#" class="brand-mark">
+          <span class="brand-orb">V</span>
+          <span>VeloMesh</span>
+          <span class="brand-tag">v4.2 FULL-STACK MESH</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#synthesizer">1-Prompt Synthesizer</a></li>
+          <li><a href="#vision-studio">Why Elaborate Your Vision</a></li>
+          <li><a href="#architecture">6-Layer Mesh</a></li>
+          <li><a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener">GitHub Repo ↗</a></li>
+        </ul>
+        <div class="nav-actions">
+          <a href="#vision-studio" class="btn btn-ghost">Test Vision Meter</a>
+          <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener" class="btn btn-primary">Star on GitHub ★</a>
+        </div>
       </nav>
-      <div class="masthead__actions">
-        <button type="button" class="btn btn--primary" id="nav-copy-btn">
-          copy installer
-        </button>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <main id="top">
-    <!-- Hero Corridor -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="container hero__corridor">
-        <div class="hero__copy">
-          <h1 id="hero-title" class="hero__headline">
-            your agent <span class="verb">fetches</span> any capability live
-          </h1>
-          <p class="hero__lead">
-            Auto-discovers and wires internet skills, MCPs, APIs, and subagents on every prompt.
-          </p>
-
-          <div class="well install-box" role="region" aria-label="one-command installer">
-            <div class="install-box__bar">
-              <div class="os-switch" role="tablist" aria-label="operating system">
-                <button type="button" role="tab" class="os-btn" aria-selected="true" data-os="unix" id="tab-unix">macos &amp; linux</button>
-                <button type="button" role="tab" class="os-btn" aria-selected="false" data-os="win" id="tab-win">powershell</button>
-              </div>
-              <span class="readout readout--live" id="install-status">skills, mcps, apis, agents</span>
+    <main>
+      <!-- HERO SECTION -->
+      <section class="hero-section container">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <div class="hero-eyebrow">
+              <span class="pulse-dot"></span>
+              <span>LIVE INTERNET MESH · MCPs · APIs · SUBAGENTS · 398+ SKILLS · 86+ DESIGN SYSTEMS</span>
             </div>
-            <div class="install-box__cmd-row">
-              <code class="install-box__code" id="install-code">curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash</code>
-            </div>
-            <div class="hero__actions">
-              <button type="button" class="btn btn--primary" id="hero-copy-btn">
-                copy command
-              </button>
-              <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener noreferrer" class="btn btn--secondary">
-                github repo
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Signature Product Surface: Interactive Prompt-to-Mesh Live Routing Console -->
-        <div class="well--lifted console blueprint" role="region" aria-label="interactive internet capability router console">
-          <div class="console__header">
-            <span class="readout">live internet capability engine</span>
-            <span class="readout readout--live" id="console-latency">zero prompt tags needed</span>
-          </div>
-
-          <div class="console__presets" role="group" aria-label="sample developer prompts">
-            <button type="button" class="preset-pill" aria-pressed="true" data-preset="ui">
-              awwwards ui + gsap
-            </button>
-            <button type="button" class="preset-pill" aria-pressed="false" data-preset="stripe">
-              stripe mcp + api
-            </button>
-            <button type="button" class="preset-pill" aria-pressed="false" data-preset="db">
-              postgres + bigquery mcp
-            </button>
-            <button type="button" class="preset-pill" aria-pressed="false" data-preset="k8s">
-              security subagents
-            </button>
-          </div>
-
-          <div class="console__prompt-bar">
-            <label for="live-prompt-input" class="readout readout--brass">prompt&gt;</label>
-            <input
-              id="live-prompt-input"
-              type="text"
-              class="console__input"
-              value="build an awwwards product website with editorial typography and motion"
-              aria-label="test any developer prompt in the live router"
-            >
-          </div>
-
-          <div class="console__split">
-            <div class="console__pane">
-              <span class="pane-label">without velomesh</span>
-              <ul class="trace-list" id="slow-trace">
-                <li class="trace-item">
-                  <span class="readout readout--muted">1. manual prompt tags</span>
-                  <span class="readout readout--muted">user must type /skill</span>
-                </li>
-                <li class="trace-item">
-                  <span class="readout readout--muted">2. missing mcp or api</span>
-                  <span class="readout readout--muted">manual json edit</span>
-                </li>
-                <li class="trace-item">
-                  <span class="readout readout--muted">3. unfamiliar sdk</span>
-                  <span class="readout readout--muted">hallucinated endpoints</span>
-                </li>
-              </ul>
-            </div>
-
-            <div class="console__pane">
-              <span class="pane-label">velomesh autonomous engine</span>
-              <ul class="trace-list" id="fast-trace">
-                <li class="trace-item">
-                  <span class="readout readout--brass" id="fast-step-1">1. skills: hallmark + emil-design</span>
-                  <span class="readout readout--live">auto-routed</span>
-                </li>
-                <li class="trace-item">
-                  <span class="readout readout--brass" id="fast-step-2">2. mcp &amp; api: 21st.dev + gsap</span>
-                  <span class="readout readout--live">fetched live</span>
-                </li>
-                <li class="trace-item">
-                  <span class="readout readout--brass" id="fast-step-3">3. agent: browser qa verifier</span>
-                  <span class="readout readout--live" id="fast-budget">dispatched</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Path as a Diagram -->
-          <div class="path-diagram">
-            <svg class="path-svg" viewBox="0 0 680 124" role="img" aria-label="request routing diagram">
-              <line x1="36" y1="32" x2="644" y2="32" stroke="var(--color-rule-2)" stroke-width="1" stroke-dasharray="4 4" />
-              <circle cx="36" cy="32" r="4" fill="var(--color-muted)" />
-              <circle cx="240" cy="32" r="4" fill="var(--color-muted)" />
-              <circle cx="450" cy="32" r="4" fill="var(--color-muted)" />
-              <circle cx="644" cy="32" r="4" fill="var(--color-muted)" />
-              <text x="36" y="18" fill="var(--color-muted)" font-family="var(--font-outlier)" font-size="11">prompt</text>
-              <text x="240" y="18" text-anchor="middle" fill="var(--color-muted)" font-family="var(--font-outlier)" font-size="11">manual /slash</text>
-              <text x="450" y="18" text-anchor="middle" fill="var(--color-muted)" font-family="var(--font-outlier)" font-size="11">missing mcp / api</text>
-              <text x="644" y="18" text-anchor="end" fill="var(--color-muted)" font-family="var(--font-outlier)" font-size="11">generic output</text>
-
-              <line x1="36" y1="88" x2="644" y2="88" stroke="var(--color-accent)" stroke-width="1.5" />
-              <circle cx="36" cy="88" r="5" fill="var(--color-accent)" />
-              <circle cx="240" cy="88" r="5" fill="var(--color-accent)" />
-              <circle cx="450" cy="88" r="5" fill="var(--color-accent)" />
-              <circle cx="644" cy="88" r="5" fill="var(--color-live)" />
-              <text x="36" y="110" fill="var(--color-ink)" font-family="var(--font-outlier)" font-size="11">plain prompt</text>
-              <text x="240" y="110" text-anchor="middle" fill="var(--color-accent)" font-family="var(--font-outlier)" font-size="11" id="svg-node-hook">intent analyzer</text>
-              <text x="450" y="110" text-anchor="middle" fill="var(--color-accent)" font-family="var(--font-outlier)" font-size="11" id="svg-node-link">internet fetch &amp; link</text>
-              <text x="644" y="110" text-anchor="end" fill="var(--color-live)" font-family="var(--font-outlier)" font-size="11" id="svg-node-out">skills + mcp + api live</text>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section 1: Interactive Architecture Switcher -->
-    <section id="workflow" class="section" aria-labelledby="workflow-title">
-      <div class="container">
-        <div class="section__header">
-          <h2 id="workflow-title">not a static plugin, an internet engine</h2>
-          <p class="section__sub">
-            Autonomously fetches skills, MCPs, APIs, and subagents from the internet.
-          </p>
-        </div>
-
-        <div class="workbench">
-          <div class="workbench__tabs" role="tablist" aria-label="architecture stages">
-            <button type="button" role="tab" class="tab-btn" aria-selected="true" data-stage="hook" id="stage-tab-hook">
-              <span class="tab-btn__title">internet fetch</span>
-              <span class="readout">01</span>
-            </button>
-            <button type="button" role="tab" class="tab-btn" aria-selected="false" data-stage="linking" id="stage-tab-linking">
-              <span class="tab-btn__title">zero-mention routing</span>
-              <span class="readout">02</span>
-            </button>
-            <button type="button" role="tab" class="tab-btn" aria-selected="false" data-stage="discovery" id="stage-tab-discovery">
-              <span class="tab-btn__title">wrapper synthesis</span>
-              <span class="readout">03</span>
-            </button>
-            <button type="button" role="tab" class="tab-btn" aria-selected="false" data-stage="wiring" id="stage-tab-wiring">
-              <span class="tab-btn__title">harness sync</span>
-              <span class="readout">04</span>
-            </button>
-          </div>
-
-          <div class="well workbench__stage blueprint" role="tabpanel" id="stage-panel" aria-labelledby="stage-tab-hook">
-            <div class="stage-top">
-              <h3 id="stage-heading">autonomous internet discovery</h3>
-              <span class="readout readout--brass" id="stage-badge">skills, mcps, apis, agents</span>
-            </div>
-            <p id="stage-copy" class="section__sub">
-              Searches GitHub and MCP registries live, downloads the best match, and wires it into your agent mid-turn.
+            <h1 class="hero-title">
+              One Prompt.<br />
+              <span class="gradient-text">Complete Full-Stack Software.</span>
+            </h1>
+            <p class="hero-subtitle">
+              Build <strong>Awwwards-grade websites, full-stack products, backends, frontends, and PostgreSQL databases</strong> from a single prompt. VeloMesh runs invisibly inside Claude Code, Cursor, Codex, Copilot, Antigravity, and OpenCode—autonomously going to the internet to fetch and hot-link the exact <strong>MCP servers, APIs, agents, and skills</strong> your build requires.
             </p>
-            <pre class="code-block" id="stage-code"><code>{
-  "tool": "discover_and_install_capability",
-  "search_order": ["mcp", "api", "skill", "agent"],
-  "action": "auto-download, synthesize, and hot-link"
-}</code></pre>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Section 2: Before & After Split Well -->
-    <section id="comparison" class="section section--band" aria-labelledby="comparison-title">
-      <div class="container">
-        <div class="section__header">
-          <h2 id="comparison-title">stop babysitting your agent</h2>
-          <p class="section__sub">
-            Replaces static plugins, slash commands, and manual MCP edits.
-          </p>
-        </div>
+            <!-- Explicit Mind-Reading / Elaboration Callout -->
+            <div class="vision-callout-banner" role="note" aria-label="Vision Elaboration Principle">
+              <div class="vision-callout-icon">🧠</div>
+              <div class="vision-callout-text">
+                <strong>We Automate 100% of the Stack — Not Your Brain:</strong> You never need slash commands, skill flags, or MCP config files. <strong>But you still must elaborate what you want to build</strong> (your product vision, users, workflows, and aesthetic vibe) because VeloMesh cannot get inside your head or think like you.
+              </div>
+            </div>
 
-        <div class="well comparison-well">
-          <div class="comparison-col">
-            <h3 class="comparison-col__title">static plugins</h3>
-            <div class="comparison-rows">
-              <div class="comparison-row">
-                <span>prompting</span>
-                <span class="readout readout--muted">must type /slash or skill names</span>
+            <!-- 1-Command Global Installer Dock -->
+            <div class="install-dock">
+              <div class="install-dock-header">
+                <div class="os-tabs" role="tablist" aria-label="Operating System Installer">
+                  <button type="button" class="os-tab active" data-os="unix">macOS &amp; Linux (1-Command)</button>
+                  <button type="button" class="os-tab" data-os="windows">Windows PowerShell</button>
+                </div>
+                <span class="install-meta">● Auto-wires all 7 AI coding agents globally</span>
               </div>
-              <div class="comparison-row">
-                <span>scope</span>
-                <span class="readout readout--muted">markdown files only</span>
-              </div>
-              <div class="comparison-row">
-                <span>new api or mcp</span>
-                <span class="readout readout--muted">manual github search &amp; json edit</span>
-              </div>
-              <div class="comparison-row">
-                <span>context cost</span>
-                <span class="readout readout--muted">94,200 tokens upfront</span>
+              <div class="install-cmd-box">
+                <div class="install-cmd-text">
+                  <span class="prompt-char">$</span>
+                  <span id="install-cmd-code">curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash</span>
+                </div>
+                <button type="button" id="copy-install-btn" class="copy-btn">Copy 1-Command</button>
               </div>
             </div>
           </div>
 
-          <div class="comparison-col">
-            <h3 class="comparison-col__title">velomesh engine</h3>
-            <div class="comparison-rows">
-              <div class="comparison-row">
-                <span>prompting</span>
-                <span class="readout readout--live">type normally, mention nothing</span>
+          <!-- Right Column: Live Multi-Layer Full-Stack Orchestration Telemetry -->
+          <aside class="hero-visual-card" aria-label="Live Full-Stack Orchestration Stack">
+            <div class="window-bar">
+              <div class="window-dots"><span></span><span></span><span></span></div>
+              <span class="window-title">velomesh://autonomous-fullstack-pipeline</span>
+              <span class="brand-tag">0 SLASH COMMANDS</span>
+            </div>
+            <div class="live-stack-layers">
+              <div class="stack-layer-pill">
+                <div class="layer-left">
+                  <span class="layer-badge badge-ui">01 · FRONTEND</span>
+                  <div>
+                    <div class="layer-name">Awwwards UI &amp; Brand Tokens</div>
+                    <div class="layer-sub">Linear · Raycast · Stripe · Vercel · 86+ DESIGN.md</div>
+                  </div>
+                </div>
+                <span class="install-meta">ACTIVE</span>
               </div>
-              <div class="comparison-row">
-                <span>scope</span>
-                <span class="readout readout--brass">skills + mcps + apis + agents</span>
+
+              <div class="stack-layer-pill">
+                <div class="layer-left">
+                  <span class="layer-badge badge-motion">02 · MOTION</span>
+                  <div>
+                    <div class="layer-name">GSAP ScrollTrigger &amp; WebGL Canvas</div>
+                    <div class="layer-sub">gsap-core · emil-design-eng · 60fps physics</div>
+                  </div>
+                </div>
+                <span class="install-meta">ACTIVE</span>
               </div>
-              <div class="comparison-row">
-                <span>new api or mcp</span>
-                <span class="readout readout--live">fetched &amp; wired live</span>
+
+              <div class="stack-layer-pill">
+                <div class="layer-left">
+                  <span class="layer-badge badge-api">03 · BACKEND</span>
+                  <div>
+                    <div class="layer-name">Production APIs, Auth &amp; Security</div>
+                    <div class="layer-sub">FastAPI · Next.js · RBAC · HMAC Webhooks · OWASP</div>
+                  </div>
+                </div>
+                <span class="install-meta">ACTIVE</span>
               </div>
-              <div class="comparison-row">
-                <span>context cost</span>
-                <span class="readout readout--brass">3,180 tokens via hot-linking</span>
+
+              <div class="stack-layer-pill">
+                <div class="layer-left">
+                  <span class="layer-badge badge-db">04 · DATABASE</span>
+                  <div>
+                    <div class="layer-name">PostgreSQL Schemas &amp; Row-Level Security</div>
+                    <div class="layer-sub">postgres-patterns · Prisma · Zero-downtime DDL</div>
+                  </div>
+                </div>
+                <span class="install-meta">ACTIVE</span>
               </div>
+
+              <div class="stack-layer-pill">
+                <div class="layer-left">
+                  <span class="layer-badge badge-mcp">05 · INTERNET</span>
+                  <div>
+                    <div class="layer-name">Live GitHub MCP, API &amp; Agent Synthesis</div>
+                    <div class="layer-sub">discover_and_install_capability · 0.4s hot-link</div>
+                  </div>
+                </div>
+                <span class="install-meta">AUTO-FETCH</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Supported Harnesses Strip -->
+        <div class="harness-strip">
+          <span class="harness-label">Global Zero-Config Auto-Injection Across Every Harness:</span>
+          <div class="harness-badges">
+            <span class="harness-chip"><i></i>Claude Code</span>
+            <span class="harness-chip"><i></i>Cursor</span>
+            <span class="harness-chip"><i></i>OpenAI Codex</span>
+            <span class="harness-chip"><i></i>GitHub Copilot</span>
+            <span class="harness-chip"><i></i>Google Antigravity</span>
+            <span class="harness-chip"><i></i>OpenCode</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 1: INTERACTIVE 1-PROMPT FULL-STACK SYNTHESIZER -->
+      <section id="synthesizer" class="section-block container">
+        <div class="section-header">
+          <span class="section-kicker">// 01 · INTERACTIVE 1-PROMPT FULL-STACK SYNTHESIZER</span>
+          <h2 class="section-title">Watch One Vision Prompt Assemble the Entire Stack.</h2>
+          <p class="section-desc">
+            Select a product blueprint below—or edit the prompt yourself—to inspect how VeloMesh simultaneously routes <strong>Frontend Design</strong>, <strong>GSAP &amp; WebGL Choreography</strong>, <strong>Backend APIs</strong>, <strong>PostgreSQL Schemas</strong>, <strong>Internet MCPs</strong>, and <strong>Playwright QA</strong> without a single slash command.
+          </p>
+        </div>
+
+        <div class="synthesizer-shell">
+          <div class="preset-bar" role="group" aria-label="Full-Stack Product Blueprints">
+            <button type="button" class="preset-btn active" data-blueprint="treasury">⚡ PulseLedger AI CFO Treasury (FastAPI + Postgres RLS + Stripe MCP)</button>
+            <button type="button" class="preset-btn" data-blueprint="webglStudio">🎨 Kinetix 60fps WebGL Shader Studio (GSAP + WebSockets CRDT + S3)</button>
+            <button type="button" class="preset-btn" data-blueprint="clinical">🛡️ AetherMD HIPAA Clinical Triage (FHIR API + Encrypted Audit DB)</button>
+          </div>
+
+          <div class="prompt-composer">
+            <textarea id="synth-prompt-input" class="prompt-input" rows="2" aria-label="Elaborated Product Vision Prompt"></textarea>
+            <button type="button" id="run-synth-btn" class="btn btn-primary">Synthesize Full Stack ↵</button>
+          </div>
+
+          <div class="synthesizer-grid">
+            <article class="synth-card">
+              <div class="synth-card-head">
+                <h3 class="synth-card-title">01 · Frontend UI &amp; Design System</h3>
+                <span class="layer-badge badge-ui">UI LAYER</span>
+              </div>
+              <div id="skills-frontend" class="skill-tag-list"></div>
+              <pre id="code-frontend" class="synth-code"></pre>
+            </article>
+
+            <article class="synth-card">
+              <div class="synth-card-head">
+                <h3 class="synth-card-title">02 · GSAP &amp; Interactive Motion</h3>
+                <span class="layer-badge badge-motion">60FPS MOTION</span>
+              </div>
+              <div id="skills-motion" class="skill-tag-list"></div>
+              <pre id="code-motion" class="synth-code"></pre>
+            </article>
+
+            <article class="synth-card">
+              <div class="synth-card-head">
+                <h3 class="synth-card-title">03 · Backend API &amp; Auth Security</h3>
+                <span class="layer-badge badge-api">API LAYER</span>
+              </div>
+              <div id="skills-backend" class="skill-tag-list"></div>
+              <pre id="code-backend" class="synth-code"></pre>
+            </article>
+
+            <article class="synth-card">
+              <div class="synth-card-head">
+                <h3 class="synth-card-title">04 · Database Schema &amp; RLS</h3>
+                <span class="layer-badge badge-db">POSTGRES DDL</span>
+              </div>
+              <div id="skills-database" class="skill-tag-list"></div>
+              <pre id="code-database" class="synth-code"></pre>
+            </article>
+
+            <article class="synth-card">
+              <div class="synth-card-head">
+                <h3 class="synth-card-title">05 · Live Internet MCP &amp; API Mesh</h3>
+                <span class="layer-badge badge-mcp">GITHUB AUTO-FETCH</span>
+              </div>
+              <div id="skills-mcp" class="skill-tag-list"></div>
+              <pre id="code-mcp" class="synth-code"></pre>
+            </article>
+
+            <article class="synth-card">
+              <div class="synth-card-head">
+                <h3 class="synth-card-title">06 · Autonomous TDD &amp; Browser QA</h3>
+                <span class="layer-badge badge-db">VERIFIED</span>
+              </div>
+              <div id="skills-qa" class="skill-tag-list"></div>
+              <pre id="code-qa" class="synth-code"></pre>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: VISION ELABORATION STUDIO ("VELOMESH CANNOT READ YOUR MIND") -->
+      <section id="vision-studio" class="section-block container">
+        <div class="section-header">
+          <span class="section-kicker">// 02 · THE GOLDEN RULE OF 1-PROMPT ENGINEERING</span>
+          <h2 class="section-title">We Automate the Stack, Not Your Mind. Why You Must Elaborate Your Vision.</h2>
+          <p class="section-desc">
+            VeloMesh eliminates 100% of technical babysitting—you never need to remember skill names, wire MCP servers, or run slash commands. <strong>However, VeloMesh cannot get inside your brain to see what you want or think like you.</strong> To get an Awwwards-level product instead of generic AI guesses, describe <em>what</em> you want to build in rich product detail—and VeloMesh will handle <em>how</em> to engineer every layer automatically.
+          </p>
+        </div>
+
+        <div class="vision-studio-wrapper">
+          <!-- Left: Underspecified Prompt -->
+          <article class="vision-card vague-card">
+            <div>
+              <span class="vision-status-badge status-warn">✕ UNDERSPECIFIED PROMPT · NEEDS_ELABORATION</span>
+              <h3 class="bento-title">When You Give a 5-Word Vague Prompt</h3>
+              <div class="prompt-quote">"Make me a SaaS website and backend."</div>
+              <ul class="dimension-checklist" style="margin-top: 1rem;">
+                <li><span>❌</span> <div><strong>Missing Product Domain:</strong> Who is the customer? CFOs, clinicians, 3D artists, or logistics teams?</div></li>
+                <li><span>❌</span> <div><strong>Missing Core Workflows:</strong> What data flows through the API and database? Webhooks, CRDTs, or ledgers?</div></li>
+                <li><span>❌</span> <div><strong>Missing Aesthetic Direction:</strong> Editorial dark Linear precision, kinetic Framer shaders, or high-contrast Stripe clarity?</div></li>
+              </ul>
+            </div>
+            <div class="synth-code">
+[VeloMesh Vision Clarity Gate Triggered]
+→ Refusing to generate generic "AI slop" boilerplate.
+→ Auto-invoking `brainstorming` + `grilling` skill:
+  Asking user 3 high-leverage product vision questions before writing code.</div>
+          </article>
+
+          <!-- Right: Vision-Elaborated One-Shot Prompt -->
+          <article class="vision-card elaborated-card">
+            <div>
+              <span class="vision-status-badge status-ready">✓ VISION ELABORATED · 1-SHOT FULL-STACK BUILD</span>
+              <h3 class="bento-title">When You Elaborate Your Vision (Still Just 1 Prompt!)</h3>
+              <div class="prompt-quote">"Build PulseLedger, a multi-tenant AI treasury dashboard for Series-A CFOs with a dark Linear + Stripe editorial UI, interactive WebGL cashflow forecasting, FastAPI + PostgreSQL row-level security, and Stripe webhook ingestion."</div>
+              <ul class="dimension-checklist" style="margin-top: 1rem;">
+                <li><span>✅</span> <div><strong>Zero Tooling Mentions Needed:</strong> You didn't mention a single skill name, MCP server, or slash command.</div></li>
+                <li><span>✅</span> <div><strong>Clear Product Vision:</strong> VeloMesh knows your exact audience, aesthetic taste, and domain data model.</div></li>
+                <li><span>✅</span> <div><strong>Autonomous End-to-End Execution:</strong> VeloMesh provisions Stripe MCP, Postgres RLS, GSAP ScrollTrigger, and Playwright QA automatically.</div></li>
+              </ul>
+            </div>
+            <div class="synth-code">
+[VeloMesh Full-Stack Pipeline Unleashed]
+→ Provisioned 6 architectural layers + 2 live GitHub MCP servers
+→ Generated Frontend + GSAP Motion + FastAPI + Postgres DDL + E2E QA</div>
+          </article>
+        </div>
+
+        <!-- Live Interactive Vision Clarity Meter -->
+        <div class="live-vision-analyzer">
+          <div class="install-dock-header">
+            <div>
+              <strong style="font-family: var(--font-display); font-size: 1.1rem;">Try the Live Vision Clarity Gate:</strong>
+              <span style="color: var(--text-secondary); font-size: 0.88rem; margin-left: 0.5rem;">Type any prompt below—or click a sample—to see how VeloMesh evaluates whether it has enough of your product vision.</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" class="os-tab vision-sample-btn" data-sample="build a fitness app">Test Vague Prompt</button>
+              <button type="button" class="os-tab active vision-sample-btn" data-sample="Build TempoForge, a biometric recovery & training platform for endurance athletes with a dark Raycast + Linear aesthetic, interactive GSAP heart-rate variability charts, FastAPI + PostgreSQL time-series schema, and Garmin/Strava webhook sync.">Test Vision-Rich Prompt</button>
+            </div>
+          </div>
+
+          <textarea id="live-vision-input" class="prompt-input" rows="2" style="background: #05060a; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 0.85rem; margin-bottom: 1rem;" aria-label="Test your prompt clarity">Build TempoForge, a biometric recovery &amp; training platform for endurance athletes with a dark Raycast + Linear aesthetic, interactive GSAP heart-rate variability charts, FastAPI + PostgreSQL time-series schema, and Garmin/Strava webhook sync.</textarea>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+            <span id="live-vision-badge" class="vision-status-badge status-ready">✓ READY_FOR_FULLSTACK_EXECUTION</span>
+            <p id="live-vision-guidance" style="font-size: 0.86rem; color: var(--text-secondary); max-width: 72ch;"></p>
+          </div>
+
+          <div class="analyzer-bars">
+            <div class="meter-box">
+              <div class="meter-top"><span>01 · Product Domain &amp; Audience</span><span id="val-domain">95%</span></div>
+              <div class="meter-track"><div id="bar-domain" class="meter-fill" style="width: 95%;"></div></div>
+            </div>
+            <div class="meter-box">
+              <div class="meter-top"><span>02 · Core Workflows &amp; Data Flow</span><span id="val-workflow">92%</span></div>
+              <div class="meter-track"><div id="bar-workflow" class="meter-fill" style="width: 92%;"></div></div>
+            </div>
+            <div class="meter-box">
+              <div class="meter-top"><span>03 · Aesthetic &amp; Stack Direction</span><span id="val-aesthetic">96%</span></div>
+              <div class="meter-track"><div id="bar-aesthetic" class="meter-fill" style="width: 96%;"></div></div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Section 3: Platforms Matrix -->
-    <section id="harnesses" class="section" aria-labelledby="harnesses-title">
-      <div class="container">
-        <div class="section__header">
-          <h2 id="harnesses-title">every coding agent wired</h2>
-          <p class="section__sub">
-            Connects your local agents to VeloMesh’s internet router.
+      <!-- SECTION 3: 6-LAYER CAPABILITY MESH BENTO GRID -->
+      <section id="architecture" class="section-block container">
+        <div class="section-header">
+          <span class="section-kicker">// 03 · UNDER THE HOOD OF THE CAPABILITY ENGINE</span>
+          <h2 class="section-title">Not Just a Skill Plugin. An Autonomous Internet Capability Mesh.</h2>
+          <p class="section-desc">
+            Most setups dump static markdown files into a folder and choke your context window. VeloMesh combines a curated local core with live GitHub discovery across <strong>MCP servers, REST/GraphQL APIs, specialized subagents, and 398+ engineering skills</strong>.
           </p>
         </div>
 
-        <div class="well ledger-table-wrap">
-          <table class="ledger-table">
-            <thead>
-              <tr>
-                <th scope="col">agent</th>
-                <th scope="col">capability path</th>
-                <th scope="col">mcp &amp; hook surface</th>
-                <th scope="col">mode</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>claude code</td>
-                <td class="readout">~/.claude/skills</td>
-                <td class="readout">~/.claude/mcp.json + CLAUDE.md</td>
-                <td class="readout readout--live">zero-touch</td>
-              </tr>
-              <tr>
-                <td>cursor</td>
-                <td class="readout">~/.cursor/skills</td>
-                <td class="readout">~/.cursor/mcp.json + rules</td>
-                <td class="readout readout--live">zero-touch</td>
-              </tr>
-              <tr>
-                <td>openai codex</td>
-                <td class="readout">~/.codex/skills &amp; ~/.agents/skills</td>
-                <td class="readout">~/.codex/config.toml + AGENTS.md</td>
-                <td class="readout readout--live">zero-touch</td>
-              </tr>
-              <tr>
-                <td>github copilot</td>
-                <td class="readout">~/.copilot/skills</td>
-                <td class="readout">~/.copilot/mcp-config.json</td>
-                <td class="readout readout--live">zero-touch</td>
-              </tr>
-              <tr>
-                <td>antigravity</td>
-                <td class="readout">~/.gemini/config/skills</td>
-                <td class="readout">PreInvocation &amp; SessionStart hooks</td>
-                <td class="readout readout--live">zero-touch</td>
-              </tr>
-              <tr>
-                <td>opencode</td>
-                <td class="readout">~/.config/opencode/skills</td>
-                <td class="readout">~/.config/opencode/opencode.json</td>
-                <td class="readout readout--live">zero-touch</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="bento-grid">
+          <article class="bento-card span-7">
+            <span class="layer-badge badge-mcp">LIVE INTERNET PROVISIONING</span>
+            <h3 class="bento-title">Autonomous GitHub Discovery &amp; Wrapper Synthesis</h3>
+            <p class="bento-text">
+              Ask for an integration your machine has never seen before—like Stripe billing webhooks, FHIR clinical schemas, or Cloudflare R2 presigned uploads. VeloMesh's <code>discover_and_install_capability</code> searches GitHub across <strong>MCP servers, API SDKs, skills, and agents</strong>, validates security constraints, synthesizes a structured capability wrapper if the repo has no native <code>SKILL.md</code>, and hot-links it into all 7 harnesses in under 500ms.
+            </p>
+          </article>
+
+          <article class="bento-card span-5">
+            <span class="layer-badge badge-ui">ANTI-SLOP AESTHETIC ENGINE</span>
+            <h3 class="bento-title">86+ Real-World Brand Design Systems + GSAP</h3>
+            <p class="bento-text">
+              Built-in orchestration for <code>Linear</code>, <code>Raycast</code>, <code>Stripe</code>, <code>Vercel</code>, and <code>Framer</code> design tokens paired with <code>gsap-scrolltrigger</code> and Emil Kowalski's interaction physics—eliminating generic AI-slop layouts forever.
+            </p>
+          </article>
+
+          <article class="bento-card span-4">
+            <span class="layer-badge badge-db">SMART DYNAMIC LINKING</span>
+            <h3 class="bento-title">Zero Context-Window Bloat</h3>
+            <p class="bento-text">
+              Loading 400 skills at startup degrades LLM reasoning. VeloMesh keeps ~38 high-leverage core skills active and dynamically hot-links the other 360+ domain specialists only when your prompt needs them.
+            </p>
+          </article>
+
+          <article class="bento-card span-4">
+            <span class="layer-badge badge-api">BACKEND &amp; DB RIGOR</span>
+            <h3 class="bento-title">Production APIs &amp; Postgres RLS</h3>
+            <p class="bento-text">
+              Enforces schema migrations, row-level security, input validation, rate limiting, and OWASP security reviews across Python, TypeScript, Go, and Rust backends.
+            </p>
+          </article>
+
+          <article class="bento-card span-4">
+            <span class="layer-badge badge-motion">VERIFIED COMPLETION</span>
+            <h3 class="bento-title">TDD + Live Browser QA</h3>
+            <p class="bento-text">
+              Every build stage is paired with automated unit tests, Playwright desktop/mobile visual checks, and axe-core WCAG 2.2 AA accessibility audits before handoff.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer container">
+      <div class="footer-inner">
+        <div>
+          <strong>⚡ VeloMesh (Agent Fusion Universal v4)</strong> — Open-Source Autonomous Full-Stack &amp; Internet Capability Engine.
+        </div>
+        <div>
+          <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener" style="color: var(--accent-amber-bright); text-decoration: none; font-family: var(--font-mono);">github.com/RitvikChunamari/velomesh ↗</a>
         </div>
       </div>
-    </section>
+    </footer>
+  </div>
 
-    <!-- Section 4: Interactive Capability Mesh Explorer -->
-    <section id="catalog" class="section" aria-labelledby="catalog-title">
-      <div class="container">
-        <div class="section__header">
-          <h2 id="catalog-title">live internet discovery</h2>
-          <p class="section__sub">
-            Four capability classes routed and provisioned automatically.
-          </p>
-        </div>
-
-        <div class="ledger-controls">
-          <div class="filter-group" role="group" aria-label="filter capabilities by type">
-            <button type="button" class="filter-btn" aria-pressed="true" data-cat="all">all</button>
-            <button type="button" class="filter-btn" aria-pressed="false" data-cat="mcp">mcps</button>
-            <button type="button" class="filter-btn" aria-pressed="false" data-cat="api">apis</button>
-            <button type="button" class="filter-btn" aria-pressed="false" data-cat="agent">agents</button>
-            <button type="button" class="filter-btn" aria-pressed="false" data-cat="design">skills</button>
-          </div>
-          <label for="skill-search" class="visually-hidden">search capabilities</label>
-          <input
-            type="search"
-            id="skill-search"
-            class="search-input"
-            placeholder="search mcps, apis, agents, skills..."
-          >
-        </div>
-
-        <div class="well ledger-table-wrap">
-          <table class="ledger-table" id="catalog-table">
-            <thead>
-              <tr>
-                <th scope="col">capability</th>
-                <th scope="col">class</th>
-                <th scope="col">autonomous action</th>
-                <th scope="col">source</th>
-              </tr>
-            </thead>
-            <tbody id="catalog-tbody">
-              <tr data-cat="mcp">
-                <td class="readout readout--brass">playwright, devtools, context7</td>
-                <td class="readout">mcp</td>
-                <td>browser qa and live docs lookup</td>
-                <td class="readout readout--live">auto-wired</td>
-              </tr>
-              <tr data-cat="mcp">
-                <td class="readout readout--brass">github, postgres, cloudflare, sentry</td>
-                <td class="readout">mcp</td>
-                <td>synthesizes mcp wrapper live</td>
-                <td class="readout readout--live">internet fetch</td>
-              </tr>
-              <tr data-cat="api">
-                <td class="readout readout--brass">stripe, openai, supabase, vercel</td>
-                <td class="readout">api</td>
-                <td>fetches openapi/sdk contracts live</td>
-                <td class="readout readout--live">internet fetch</td>
-              </tr>
-              <tr data-cat="agent">
-                <td class="readout readout--brass">builder, verifier, auditor</td>
-                <td class="readout">agent</td>
-                <td>dispatches isolated tdd workers</td>
-                <td class="readout readout--live">superpowers</td>
-              </tr>
-              <tr data-cat="design">
-                <td class="readout readout--brass">hallmark, emil-design, gsap</td>
-                <td class="readout">skill</td>
-                <td>anti-slop tokens and motion</td>
-                <td class="readout readout--live">core linked</td>
-              </tr>
-              <tr data-cat="design">
-                <td class="readout readout--brass">86 brand systems (linear, raycast)</td>
-                <td class="readout">tokens</td>
-                <td>palettes and type scales</td>
-                <td class="readout readout--live">design-md</td>
-              </tr>
-              <tr data-cat="design">
-                <td class="readout readout--brass">300 engineering packages</td>
-                <td class="readout">skill</td>
-                <td>idioms, db tuning, owasp</td>
-                <td class="readout readout--live">affaan-m/ECC</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- Closing Section -->
-    <section class="section section--band" aria-labelledby="closing-title">
-      <div class="container closing-split">
-        <div class="hero__copy">
-          <h2 id="closing-title">install once and just prompt</h2>
-          <p class="hero__lead">
-            Paste one line into your terminal and prompt normally.
-          </p>
-          <div class="hero__actions">
-            <button type="button" class="btn btn--primary" id="footer-copy-btn">
-              copy installer
-            </button>
-            <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener noreferrer" class="btn btn--secondary">
-              star on github
-            </a>
-          </div>
-        </div>
-
-        <div class="well workbench__stage">
-          <div class="stage-top">
-            <span class="readout">terminal: ~/.velomesh</span>
-            <span class="readout readout--live">exit code 0</span>
-          </div>
-          <pre class="code-block"><code>$ curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash
-VeloMesh: Autonomous Internet Capability Mesh (Skills, MCPs, APIs, Agents)
-Auto-configured MCP &amp; hooks for: cursor, github-copilot, codex, claude-code
-Zero-config setup complete.</code></pre>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="colophon">
-    <div class="container colophon__inner">
-      <div>
-        <span class="brand__name">velomesh</span>
-        <p class="readout readout--muted">mit license, built by ritvik chunamari</p>
-      </div>
-      <div class="colophon__links">
-        <a href="https://github.com/RitvikChunamari/velomesh" class="masthead__link">github</a>
-        <a href="https://github.com/RitvikChunamari/velomesh/blob/main/install.sh" class="masthead__link">install.sh</a>
-        <a href="https://github.com/RitvikChunamari/velomesh/blob/main/install.ps1" class="masthead__link">install.ps1</a>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    (function () {
-      const COMMANDS = {
-        unix: "curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash",
-        win: "irm https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.ps1 | iex"
-      };
-      let activeOs = "unix";
-
-      const installCode = document.getElementById("install-code");
-      const osBtns = document.querySelectorAll(".os-btn");
-      osBtns.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          activeOs = btn.dataset.os;
-          osBtns.forEach((b) => b.setAttribute("aria-selected", String(b === btn)));
-          installCode.textContent = COMMANDS[activeOs];
-        });
-      });
-
-      function copyCommand(btn) {
-        const text = COMMANDS[activeOs];
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).catch(() => {});
-        }
-        const original = btn.textContent;
-        btn.textContent = "copied to clipboard";
-        setTimeout(() => {
-          btn.textContent = original;
-        }, 1600);
-      }
-
-      ["nav-copy-btn", "hero-copy-btn", "footer-copy-btn"].forEach((id) => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener("click", () => copyCommand(el));
-      });
-
-      const PRESETS = {
-        ui: {
-          prompt: "build an awwwards product website with editorial typography and motion",
-          step1: "1. skills: hallmark + emil-design",
-          step2: "2. mcp & api: 21st.dev + gsap",
-          budget: "dispatched",
-          latency: "zero prompt tags needed",
-          svgOut: "skills + mcp + api live"
-        },
-        stripe: {
-          prompt: "add stripe subscriptions with webhook retries and customer portal",
-          step1: "1. internet mcp: stripe-mcp-server",
-          step2: "2. api sdk: stripe openapi contract",
-          budget: "verified",
-          latency: "fetched from github live",
-          svgOut: "stripe mcp + api wired"
-        },
-        db: {
-          prompt: "optimize slow postgres analytical query and sync to bigquery",
-          step1: "1. mcp: bigquery + postgres server",
-          step2: "2. skills: postgres-patterns + rls",
-          budget: "linked 4ms",
-          latency: "auto-routed mid-turn",
-          svgOut: "db mcp + skills active"
-        },
-        k8s: {
-          prompt: "audit kubernetes ingress, scan secrets, and run parallel pr review",
-          step1: "1. subagents: security + code-review",
-          step2: "2. skills: kubernetes + osv-scanner",
-          budget: "3 agents live",
-          latency: "parallel dispatch",
-          svgOut: "subagents + mcp active"
-        }
-      };
-
-      const promptInput = document.getElementById("live-prompt-input");
-      const fastStep1 = document.getElementById("fast-step-1");
-      const fastStep2 = document.getElementById("fast-step-2");
-      const fastBudget = document.getElementById("fast-budget");
-      const consoleLatency = document.getElementById("console-latency");
-      const svgNodeOut = document.getElementById("svg-node-out");
-      const presetBtns = document.querySelectorAll(".preset-pill");
-
-      function applyPreset(key) {
-        const data = PRESETS[key];
-        if (!data) return;
-        promptInput.value = data.prompt;
-        fastStep1.textContent = data.step1;
-        fastStep2.textContent = data.step2;
-        fastBudget.textContent = data.budget;
-        consoleLatency.textContent = data.latency;
-        svgNodeOut.textContent = data.svgOut;
-      }
-
-      presetBtns.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          presetBtns.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
-          applyPreset(btn.dataset.preset);
-        });
-      });
-
-      promptInput.addEventListener("input", () => {
-        const val = promptInput.value.toLowerCase();
-        presetBtns.forEach((b) => b.setAttribute("aria-pressed", "false"));
-        if (val.includes("postgres") || val.includes("sql") || val.includes("db")) {
-          applyPreset("db");
-        } else if (val.includes("stripe") || val.includes("webhook") || val.includes("api")) {
-          applyPreset("stripe");
-        } else if (val.includes("k8s") || val.includes("kubernetes") || val.includes("security")) {
-          applyPreset("k8s");
-        } else {
-          const words = val.trim().split(/\s+/).filter(Boolean).slice(0, 2).join("-") || "custom-task";
-          fastStep1.textContent = "1. internet search: " + words;
-          fastStep2.textContent = "2. mcp + api + skill synthesized";
-          fastBudget.textContent = "hot-linked";
-          svgNodeOut.textContent = "fetched & wired live";
-        }
-      });
-
-      const STAGES = {
-        hook: {
-          heading: "autonomous internet discovery",
-          badge: "skills, mcps, apis, agents",
-          copy: "When your prompt touches an unfamiliar API, database, or service, VeloMesh searches GitHub and MCP registries live, downloads the best match, and wires it into your agent mid-turn.",
-          code: `{
-  "tool": "discover_and_install_capability",
-  "search_order": ["mcp", "api", "skill", "agent"],
-  "action": "auto-download, synthesize wrapper, and hot-link across all 7 harnesses"
-}`
-        },
-        linking: {
-          heading: "zero-mention prompt interception",
-          badge: "PreInvocation hook, every turn",
-          copy: "You never type slash commands or mention skill names. VeloMesh analyzes your natural prompt before the model responds and injects the exact capabilities needed.",
-          code: `{
-  "PreInvocation": [
-    {
-      "command": "node ~/.velomesh/scripts/hooks.mjs invocation",
-      "turnRestriction": "none (runs on every prompt automatically)"
-    }
-  ]
-}`
-        },
-        discovery: {
-          heading: "on-the-fly mcp & api wrapper synthesis",
-          badge: "provision_capability(kind='auto')",
-          copy: "Even if a GitHub MCP server or REST SDK has no SKILL.md, VeloMesh parses its README and package metadata to synthesize an executable capability wrapper on the spot.",
-          code: `def provision_capability(query, kind="auto"):
-    # Searches GitHub across MCPs, APIs, Skills, and Agents
-    # Synthesizes live wrapper if repo only has README/OpenAPI spec
-    dest = create_mcp_skill_wrapper(slug, repo_url, purpose, tools_spec)`
-        },
-        wiring: {
-          heading: "universal multi-harness auto-wiring",
-          badge: "7 coding agents unified",
-          copy: "Everything VeloMesh discovers on the internet is immediately available across Claude Code, Cursor, Codex, GitHub Copilot, Antigravity, and OpenCode.",
-          code: `Auto-configured MCP & capability directories:
-  - ~/.cursor/mcp.json + ~/.cursor/skills
-  - ~/.copilot/mcp-config.json + ~/.copilot/skills
-  - ~/.codex/config.toml + ~/.codex/skills
-  - ~/.claude/mcp.json + ~/.claude/skills`
-        }
-      };
-
-      const stageTabs = document.querySelectorAll(".tab-btn");
-      const stageHeading = document.getElementById("stage-heading");
-      const stageBadge = document.getElementById("stage-badge");
-      const stageCopy = document.getElementById("stage-copy");
-      const stageCode = document.getElementById("stage-code");
-      const stagePanel = document.getElementById("stage-panel");
-
-      stageTabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          stageTabs.forEach((t) => t.setAttribute("aria-selected", String(t === tab)));
-          const data = STAGES[tab.dataset.stage];
-          if (!data) return;
-          stageHeading.textContent = data.heading;
-          stageBadge.textContent = data.badge;
-          stageCopy.textContent = data.copy;
-          stageCode.textContent = data.code;
-          stagePanel.setAttribute("aria-labelledby", tab.id);
-        });
-      });
-
-      const filterBtns = document.querySelectorAll(".filter-btn");
-      const searchInput = document.getElementById("skill-search");
-      const rows = document.querySelectorAll("#catalog-tbody tr");
-      let activeCat = "all";
-
-      function filterCatalog() {
-        const q = (searchInput.value || "").toLowerCase().trim();
-        rows.forEach((row) => {
-          const catMatch = activeCat === "all" || row.dataset.cat === activeCat;
-          const textMatch = !q || row.textContent.toLowerCase().includes(q);
-          row.hidden = !(catMatch && textMatch);
-        });
-      }
-
-      filterBtns.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          activeCat = btn.dataset.cat;
-          filterBtns.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
-          filterCatalog();
-        });
-      });
-
-      searchInput.addEventListener("input", filterCatalog);
-    })();
-  </script>
+  <!-- GSAP + ScrollTrigger for Awwwards Choreography -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="./app.js" defer></script>
 </body>
 </html>

@@ -13,6 +13,7 @@ import { createPlan,updateStage,getPlan,listPlans,remember,recall,doctor } from 
 const str=(description)=>({type:'string',description});
 const tool=(name,description,properties={},required=[])=>({name,description,inputSchema:{type:'object',properties,required,additionalProperties:false}});
 export const tools=[
+  tool('synthesize_fullstack_architecture','Synthesize a complete one-prompt full-stack capability bundle (Frontend, Motion, Backend, Database, QA, Internet MCPs) and run the Vision Elaboration check.',{prompt:str('The user prompt to evaluate and route across full-stack layers')},['prompt']),
   tool('discover_and_install_capability','Search GitHub and local index for missing skills, MCPs or capabilities, download/validate, and hot-link them across all harnesses on the fly.',{query:str('Skill name, keywords, or owner/repo to provision')},['query']),
   tool('search_online_capabilities','Search GitHub and ecosystem catalog for candidate skills, MCP servers, and agent tools without installing.',{query:str('Keywords or domain description'),kind:{type:'string',enum:['all','skill','mcp','agent']}},['query']),
   tool('catalog','List available agent and skill metadata across Antigravity, Claude, Gemini, OpenCode, Cursor, Codex and Copilot locations. No automatic execution.',{workspacePath:str('Absolute project directory')}),
@@ -41,6 +42,15 @@ const response=(id,result)=>send({jsonrpc:'2.0',id,result});
 const fail=(id,code,message)=>send({jsonrpc:'2.0',id,error:{code,message}});
 async function call(name,args){
   const w=args.workspacePath; const cat=()=>discover(w);
+  if(name==='synthesize_fullstack_architecture'){
+    const script = path.join(os.homedir(), '.agent-fusion', 'skill-hub-v4', 'skills', 'agent-fusion-orchestrator', 'scripts', 'agent_fusion.py');
+    return new Promise((resolve) => {
+      execFile('python3', [script, 'bundle', String(args.prompt || '')], { timeout: 20000 }, (error, stdout, stderr) => {
+        if(error) return resolve({ status: 'error', error: stderr || error.message });
+        try { resolve(JSON.parse(stdout)); } catch { resolve({ status: 'completed', output: stdout.trim() }); }
+      });
+    });
+  }
   if(name==='discover_and_install_capability'){
     const script = path.join(os.homedir(), '.agent-fusion', 'skill-hub-v4', 'skills', 'agent-fusion-orchestrator', 'scripts', 'agent_fusion.py');
     return new Promise((resolve) => {

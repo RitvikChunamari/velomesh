@@ -26,11 +26,52 @@ export function rank(task,agents,options={}) {
   }).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
 }
 const stageTitle={research:'Inspect requirements and existing project state',architecture:'Define integration boundaries and interfaces',design:'Design UI and visual interaction',frontend:'Implement frontend changes',backend:'Implement backend changes',infrastructure:'Configure environment and deployment',performance:'Optimize measurable bottlenecks',security:'Review security and privacy',testing:'Run relevant tests and regression checks',documentation:'Document verified changes'};
+
+export function assessVisionClarity(prompt) {
+  const clean = String(prompt || '').trim();
+  const words = clean.toLowerCase().split(/[^a-z0-9_-]+/).filter(Boolean);
+  const wordSet = new Set(words);
+  const isBuildIntent = /\b(build|create|make|design|develop|ship|generate|launch|website|app|product|software|platform|saas|dashboard|backend|frontend|database)\b/i.test(clean);
+  if (!isBuildIntent) {
+    return { status: 'NOT_A_BUILD_PROMPT', wordCount: words.length, missingDimensions: [] };
+  }
+  const hasDomain = ['saas','dashboard','fintech','cfo','healthcare','ecommerce','marketplace','crm','developer','cli','studio','platform','analytics','workflow','treasury','billing','portfolio','fitness','booking','editor','collab','multitenant','multi-tenant','b2b','consumer','portal'].some(w => wordSet.has(w)) && words.length >= 8;
+  const hasFeatures = ['auth','login','webhook','stripe','chart','graph','forecast','table','search','upload','realtime','websocket','notification','export','crud','ledger','payment','pipeline','subscription','onboarding','interactive','canvas','webgl','api','schema','rls'].some(w => wordSet.has(w));
+  const hasAestheticOrStack = ['linear','vercel','stripe','raycast','framer','awwwards','dark','minimal','editorial','glass','brutalist','cinematic','react','nextjs','fastapi','postgres','postgresql','supabase','tailwind','gsap','webgl','three','typescript','node','python'].some(w => wordSet.has(w));
+
+  const missing = [];
+  if (!hasDomain) missing.push('target_audience_and_domain');
+  if (!hasFeatures) missing.push('core_workflows_and_features');
+  if (!hasAestheticOrStack) missing.push('aesthetic_direction_or_stack');
+
+  const needsElaboration = words.length < 10 || missing.length >= 2;
+  return {
+    status: needsElaboration ? 'NEEDS_ELABORATION' : 'READY_FOR_FULLSTACK_EXECUTION',
+    wordCount: words.length,
+    missingDimensions: missing,
+    guidance: needsElaboration
+      ? 'VeloMesh automates 100% of skills, MCPs, APIs, databases, and subagents, but CANNOT read the user\'s brain or invent their product vision. Invoke `brainstorming` / `grilling` to ask 2-3 high-leverage questions about target users, key workflows, and visual vibe before generating generic AI slop.'
+      : 'Vision is elaborated. Execute the complete full-stack architecture (Awwwards Frontend + GSAP/Canvas Motion + Backend API + Database Schema + Live Browser QA) in one shot without manual slash commands.'
+  };
+}
+
+export function buildFullStackLayers() {
+  return {
+    frontend_ui: ['frontend-design', 'impeccable', 'ui-ux-pro-max', 'web-design-guidelines', 'design-system-references'],
+    motion_interactive: ['gsap-core', 'gsap-scrolltrigger', 'emil-design-eng'],
+    backend_api: ['backend-patterns', 'api-connector-builder', 'security-review'],
+    database_state: ['postgres-patterns', 'prisma-patterns', 'database-migrations'],
+    testing_qa: ['test-driven-development', 'browser-qa', 'systematic-debugging', 'verification-before-completion']
+  };
+}
+
 export function routeTask(task,catalog,options={}) {
   const prompt=String(task||'').trim().slice(0,12000);
   if(!prompt)throw new Error('task is required');
   const max=Math.max(1,Math.min(5,Number(options.maxAgents)||3));
   const trivial=isTrivial(prompt), domains=domainSignals(prompt), ranked=rank(prompt,catalog.agents,options);
+  const visionCheck=assessVisionClarity(prompt);
+  const fullStackLayers=buildFullStackLayers();
   // A host cannot natively invoke another host's markdown agent definition.
   // Foreign agents remain visible as discovery candidates; execution needs a real adapter.
   const native=options.currentHost?ranked.filter(x=>x.host===options.currentHost):ranked;
@@ -57,6 +98,7 @@ export function routeTask(task,catalog,options={}) {
   const parallelSafe=false; // Never assume concurrent writes are safe before file ownership is established.
   return {
     task:prompt,complexity:trivial?'trivial':domains.length>1?'multi-domain':'focused',domainSignals:domains,
+    visionCheck,fullStackLayers,
     catalog:{agents:catalog.agents.length,eligible:catalog.agents.filter(a=>a.eligible).length,skills:catalog.skills.length},
     selectedAgents:picks,foreignCandidates:options.currentHost?ranked.filter(x=>x.host!==options.currentHost).slice(0,5):[],stages,
     routing:trivial?'main-only':picks.length?'native-delegation-if-supported':'main-with-skills',

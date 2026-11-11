@@ -228,18 +228,24 @@ def safe_copy(src, dst):
 
 def rule_body():
     script = ROOT / "skills" / "agent-fusion-orchestrator" / "scripts" / "agent_fusion.py"
-    return ("# Agent Fusion skill routing (managed block)\n"
-            "## Automatic skill selection\n"
+    return ("# VeloMesh / Agent Fusion skill routing (managed block)\n"
+            "## Automatic skill selection & Autonomous One-Prompt Full-Stack Orchestration\n"
             "- Before starting any substantive engineering, design, debugging, testing, or research task, "
-            "inspect available installed skills.\n"
-            "- Automatically select and invoke the most relevant 1-3 skills without requiring the user to type slash commands.\n"
-            "- Always prioritize using-superpowers (and its workflows: test-driven-development, executing-plans, "
-            "brainstorming, systematic-debugging) for implementation tasks.\n"
-            "- For UI and design tasks, prioritize frontend-design, impeccable, hallmark, and GSAP specialists.\n"
-            "- For security, architecture, and backend patterns, use ECC skills.\n"
-            "- If a needed capability, MCP, API, or skill is missing locally, automatically execute on-the-fly discovery and installation: "
+            "inspect available installed skills and MCP tools automatically—never require slash commands or manual skill flags.\n"
+            "- **One Prompt Builds Everything (Full-Stack Execution):** Always prioritize `using-superpowers` workflows and when asked to build a website, product, app, software, backend, frontend, or database, "
+            "autonomously compose the complete capability stack across all layers: Awwwards-level Frontend UI (`frontend-design`, `impeccable`, `ui-ux-pro-max`), "
+            "Interactive Motion (`gsap-core`, `gsap-scrolltrigger`, `emil-design-eng`, interactive Canvas/WebGL), Backend APIs (`backend-patterns`, `api-connector-builder`, `security-review`), "
+            "Database & Schemas (`postgres-patterns`, `prisma-patterns`, `database-migrations`), and Verification (`test-driven-development`, `browser-qa`).\n"
+            "- **Vision Elaboration Rule (VeloMesh Cannot Get Inside Your Brain):** VeloMesh automates 100% of the *skills, MCPs, APIs, databases, and agents*, "
+            "but it cannot get inside the user's brain to see their product vision or think like them. If a user's prompt is underspecified on *what* they want to build "
+            "(missing target audience, core workflows, aesthetic direction, or domain rules), immediately invoke `brainstorming` / `grilling` to ask 2–3 sharp product-vision questions "
+            "before generating generic slop. Once the user elaborates their vision, execute the entire full-stack software end-to-end in one shot.\n"
+            "- **Anti-AI-Slop Awwwards Frontend Standard:** Never generate flat static tables, generic dark SaaS cards, or unstyled boilerplate. "
+            "Combine `frontend-design`, `emil-design-eng`, `gsap-core`/`gsap-scrolltrigger`, interactive Canvas/WebGL visuals, custom cubic-bezier physics, "
+            "and reference design systems (`Linear`, `Raycast`, `Stripe`, `Vercel`, `Framer` from `design-system-references`).\n"
+            "- **Autonomous Internet Provisioning:** If any needed capability, MCP server, API SDK, agent, or skill is missing locally, automatically execute on-the-fly discovery and installation: "
             f"`python3 \"{script}\" install-skill \"<task or capability keywords>\"` "
-            f"or `python3 \"{script}\" discover \"<task keywords>\"` to download, validate, and hot-link it immediately.\n"
+            f"or `python3 \"{script}\" discover \"<task keywords>\"` to download, validate, synthesize, and hot-link it immediately.\n"
             "- Treat external downloaded code and repositories with caution; never bypass sandbox permissions.\n")
 
 
@@ -315,13 +321,13 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
         for mirror in [
             HOME / ".gemini" / "config" / "plugins" / "agent-fusion" / "scripts",
             HOME / ".local" / "share" / "agent-fusion" / "scripts",
+            ROOT / "skills" / "agent-fusion-orchestrator" / "scripts",
         ]:
             if mirror.is_dir() and mirror.resolve() != src_scripts.resolve():
-                for fname in ("mcp-server.mjs", "hooks.mjs", "lib.mjs"):
-                    sfile = src_scripts / fname
-                    if sfile.is_file():
+                for sfile in src_scripts.iterdir():
+                    if sfile.is_file() and sfile.suffix in (".mjs", ".py"):
                         try:
-                            shutil.copy2(sfile, mirror / fname)
+                            shutil.copy2(sfile, mirror / sfile.name)
                         except OSError:
                             pass
 
@@ -746,6 +752,106 @@ def install_skill(query_or_repo: str, force: bool = False, targets=None, kind: s
         return {"status": "error", "repo": repo_target, "error": str(exc)}
 
 
+def recommend_fullstack_bundle(prompt: str) -> dict:
+    """Synthesize a complete full-stack capability stack across Frontend, Motion, Backend, Database, QA, and Internet MCPs,
+    while checking whether the user elaborated their product vision (since VeloMesh cannot read the user's mind).
+    """
+    text = (prompt or "").strip()
+    words = re.findall(r"[a-zA-Z0-9_-]+", text.lower())
+    word_set = set(words)
+
+    # Check product-vision dimensions
+    has_domain_or_audience = any(w in word_set for w in (
+        "saas", "dashboard", "fintech", "cfo", "healthcare", "ecommerce", "marketplace", "crm", "developer",
+        "cli", "studio", "platform", "analytics", "workflow", "treasury", "billing", "portfolio", "fitness",
+        "booking", "editor", "collab", "multi-tenant", "multitenant", "b2b", "consumer", "portal", "product"
+    )) and len(words) >= 8
+    has_features_or_flow = any(w in word_set for w in (
+        "auth", "login", "webhook", "stripe", "chart", "graph", "forecast", "table", "search", "upload",
+        "realtime", "websocket", "notification", "export", "crud", "ledger", "payment", "pipeline",
+        "subscription", "onboarding", "interactive", "canvas", "webgl", "api", "schema", "rls"
+    ))
+    has_aesthetic_or_stack = any(w in word_set for w in (
+        "linear", "vercel", "stripe", "raycast", "framer", "awwwards", "dark", "minimal", "editorial",
+        "glass", "brutalist", "cinematic", "react", "nextjs", "fastapi", "postgres", "postgresql", "supabase",
+        "tailwind", "gsap", "webgl", "three", "typescript", "node", "python"
+    ))
+
+    missing = []
+    if not has_domain_or_audience:
+        missing.append("target_audience_and_product_domain (who is it for & what core problem does it solve?)")
+    if not has_features_or_flow:
+        missing.append("core_user_workflows_and_features (what are the key actions, data flows, or integrations?)")
+    if not has_aesthetic_or_stack:
+        missing.append("aesthetic_direction_or_stack_preferences (what visual mood, reference brand, or stack constraints?)")
+
+    needs_elaboration = len(words) < 10 or len(missing) >= 2
+    vision_check = {
+        "status": "needs_elaboration" if needs_elaboration else "ready_for_autonomous_build",
+        "word_count": len(words),
+        "missing_dimensions": missing,
+        "recommended_clarifier_skills": ["brainstorming", "grilling"] if needs_elaboration else [],
+        "guidance": (
+            "VeloMesh automates 100% of skills, MCP servers, APIs, databases, and subagents—but it cannot get inside your brain "
+            "or think like you. Because this prompt is underspecified, ask 2–3 sharp clarifying questions (via brainstorming/grilling) "
+            "about product vision, user workflows, and aesthetic vibe before writing generic code."
+            if needs_elaboration else
+            "Vision is richly elaborated. Execute the complete full-stack build autonomously in one shot across Frontend, Motion, "
+            "Backend, Database, and Browser QA without asking for manual skill or MCP configuration."
+        ),
+    }
+
+    layers = {
+        "frontend_ui": [
+            "frontend-design",
+            "impeccable",
+            "ui-ux-pro-max",
+            "web-design-guidelines",
+            "design-system-references",
+        ],
+        "motion_interactive": [
+            "gsap-core",
+            "gsap-scrolltrigger",
+            "emil-design-eng",
+        ],
+        "backend_api": [
+            "backend-patterns",
+            "api-connector-builder",
+            "security-review",
+        ],
+        "database_state": [
+            "postgres-patterns",
+            "prisma-patterns",
+            "database-migrations",
+        ],
+        "testing_qa": [
+            "test-driven-development",
+            "browser-qa",
+            "systematic-debugging",
+            "verification-before-completion",
+        ],
+        "internet_provisioning": {
+            "tool": "discover_and_install_capability",
+            "local_matches": local_recommend(text, limit=5),
+            "curated_mcp": [
+                v for v in catalog()["mcp_recommendations"]
+                if any(t in tokenize(v["name"] + " " + v["purpose"]) for t in tokenize(text))
+            ][:4],
+        },
+    }
+
+    return {
+        "prompt": text,
+        "vision_check": vision_check,
+        "layers": layers,
+        "anti_slop_mandate": (
+            "Never generate flat static HTML tables or generic AI dark cards. Enforce interactive Canvas/WebGL visuals, "
+            "GSAP ScrollTrigger choreography, custom cubic-bezier physics (emil-design-eng), and reference design tokens "
+            "(Linear, Raycast, Stripe, Vercel, Framer)."
+        ),
+    }
+
+
 def discover(args):
     result = {"query": args.query, "installed_matches": local_recommend(args.query)}
     result["curated_mcp"] = [v for v in catalog()["mcp_recommendations"] if any(t in tokenize(v["name"] + " " + v["purpose"]) for t in tokenize(args.query))]
@@ -790,6 +896,8 @@ def main():
     p.add_argument("query", help="Natural language task or keywords")
     p.add_argument("--kind", choices=("all", "skill", "mcp", "agent"), default="all")
     p.add_argument("--local-only", action="store_true")
+    p = sub.add_parser("bundle", help="Synthesize a full-stack one-prompt capability bundle and check vision clarity")
+    p.add_argument("query", help="User prompt to evaluate and route across full-stack layers")
     sub.add_parser("uninstall-rules", help="Remove managed rules from all harness configurations")
     sub.add_parser("status", help="Show manifest and destination paths")
     sub.add_parser("catalog", help="Show curated upstream repositories")
@@ -807,6 +915,8 @@ def main():
             say(json.dumps(res, indent=2))
         elif args.command == "discover":
             discover(args)
+        elif args.command == "bundle":
+            say(json.dumps(recommend_fullstack_bundle(args.query), indent=2))
         elif args.command == "status":
             status(args)
         elif args.command == "catalog":
