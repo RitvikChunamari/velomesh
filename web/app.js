@@ -1,32 +1,32 @@
-// VeloMesh — Swiss Editorial Product Experience (21st.dev Navbar Dropdowns + Lattice Hero + Halftone Wordmark Footer)
+// VeloMesh — Pure Black & White 21st.dev Swiss Product Experience
 
 const WORKBENCH_BLUEPRINTS = {
   treasury: {
     prompt:
-      "Build PulseLedger, a multi-tenant AI treasury & runway platform for Series-A CFOs. Use a Black Swiss architectural UI with interactive WebGL cashflow projection graphs and GSAP scroll reveals. Build the backend in FastAPI + PostgreSQL with row-level security, live Stripe & Plaid webhook ingestion, and full Playwright E2E verification.",
+      "Build PulseLedger, a multi-tenant AI treasury platform for Series-A CFOs with Black and White Swiss typography, interactive spring cashflow graphs, FastAPI + PostgreSQL RLS, and Stripe webhooks.",
     layers: {
       frontend: {
         file: "components/RunwayCanvas.tsx",
-        skills: ["frontend-design", "impeccable", "design-system-references", "ui-ux-pro-max"],
-        code: `// Synthesized Frontend Layer — Black Swiss Design System Tokens
+        skills: ["frontend-design", "impeccable", "design-system", "apple-design"],
+        code: `// Synthesized Frontend Layer — Achromatic Swiss Tokens
 import { useEffect, useRef } from "react";
-import { mountCashflowShader } from "../shaders/cashflowRibbon";
+import { mountCashflowMesh } from "../shaders/cashflowRibbon";
 
 export function RunwayForecastStage({ tenantId, burnSeries }: RunwayProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    return mountCashflowShader(canvasRef.current, {
+    return mountCashflowMesh(canvasRef.current, {
       series: burnSeries,
-      strokeColor: "#FF3B2F",
-      gridColor: "#222220",
+      strokeColor: "#F8F8FA",
+      gridColor: "#222226",
       respectReducedMotion: true,
     });
   }, [burnSeries]);
 
   return (
-    <section className="runway-stage" aria-label="36-Month Cashflow Runway Projection">
+    <section className="runway-stage" aria-label="36-Month Cashflow Projection">
       <canvas ref={canvasRef} width={960} height={360} />
     </section>
   );
@@ -34,32 +34,23 @@ export function RunwayForecastStage({ tenantId, burnSeries }: RunwayProps) {
       },
       motion: {
         file: "motion/choreography.ts",
-        skills: ["gsap-core", "gsap-scrolltrigger", "emil-design-eng"],
-        code: `// Synthesized Motion Layer — Reduced-Motion Safe GSAP MatchMedia
-import gsap from "gsap";
-import ScrollTrigger from "gsap/ScrollTrigger";
+        skills: ["apple-design", "emil-design-eng", "gsap-core"],
+        code: `// Synthesized Motion Layer — Critically Damped Spring + Reduced Motion
+export function stepDampedSpring(pos: number, vel: number, target: number) {
+  const stiffness = 0.085;
+  const damping = 0.84;
+  const nextVel = (vel + (target - pos) * stiffness) * damping;
+  return { pos: pos + nextVel, vel: nextVel };
+}
 
-gsap.registerPlugin(ScrollTrigger);
-
-export function initLedgerChoreography(container: HTMLElement) {
-  const mm = gsap.matchMedia();
-  mm.add("(prefers-reduced-motion: no-preference)", () => {
-    const rows = container.querySelectorAll("[data-ledger-row]");
-    gsap.from(rows, {
-      y: 12,
-      duration: 0.36,
-      stagger: 0.03,
-      ease: "power3.out",
-      scrollTrigger: { trigger: container, start: "top 85%" },
-    });
-  });
-  return () => mm.revert();
+export function prefersReducedMotion(): boolean {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }`
       },
       backend: {
         file: "api/webhooks_stripe.py",
         skills: ["backend-patterns", "api-connector-builder", "security-review"],
-        code: `# Synthesized Backend Layer — FastAPI + HMAC Webhook Verification + RBAC
+        code: `# Synthesized Backend Layer — FastAPI + HMAC Verification + RBAC
 from fastapi import APIRouter, Depends
 from app.security import verify_stripe_hmac, require_cfo_session
 from app.services.runway import recompute_tenant_runway
@@ -77,7 +68,7 @@ async def ingest_stripe_invoice_event(
       database: {
         file: "migrations/001_rls_ledger.sql",
         skills: ["postgres-patterns", "prisma-patterns", "database-migrations"],
-        code: `-- Synthesized Database Layer — PostgreSQL 16 + Strict Row-Level Security (RLS)
+        code: `-- Synthesized Database Layer — PostgreSQL 16 + Strict Row-Level Security
 CREATE TABLE treasury_ledger_entries (
   entry_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -96,190 +87,217 @@ CREATE POLICY enforce_tenant_isolation ON treasury_ledger_entries
       },
       mcp: {
         file: "velomesh-mcp.lock.json",
-        skills: ["discover_and_install_capability", "mcp-stripe-toolkit", "mcp-postgres"],
+        skills: ["find-skills", "skill-scout", "mcp-connector-forge"],
         code: `{
   "velomesh_internet_provisioning": [
-    "[00.07s] Querying GitHub Mesh: stripe webhook mcp + plaid api",
+    "[00.07s] Querying GitHub + 21st.dev + Context7: stripe webhook mcp",
     "[00.22s] Discovered & validated: stripe/agent-toolkit (MCP Server)",
-    "[00.36s] Synthesized capability wrapper: mcp-plaid-treasury-sync",
-    "[00.41s] Hot-linked across Claude Code, Cursor, Codex, Copilot, Antigravity & OpenCode"
+    "[00.36s] Synthesized local skill wrapper: plaid-treasury-sync",
+    "[00.41s] Wired across Claude Code, Cursor, Codex, Copilot, Antigravity & OpenCode"
   ]
 }`
       },
       qa: {
         file: "qa/verification-receipt.txt",
-        skills: ["test-driven-development", "browser-qa", "verification-before-completion"],
+        skills: ["tdd", "browser-qa", "impeccable"],
         code: `VELOMESH AUTONOMOUS VERIFICATION RECEIPT
 ========================================
 [PASS] pytest tests/test_rls_isolation.py        -- 18/18 cross-tenant checks passed
-[PASS] vitest run src/components/RunwayCanvas    -- 12/12 unit & fallback checks passed
-[PASS] playwright test --project=desktop,mobile  -- Zero layout overflow at 1440px & 390px
+[PASS] node --test tests/website.test.mjs        -- 3/3 monochrome & contract checks passed
+[PASS] playwright --viewport=1440,390,320        -- Zero layout overflow across viewports
 [PASS] impeccable detect http://localhost:4173   -- 0 anti-patterns, 0 advisories`
       }
     }
   },
   webglStudio: {
     prompt:
-      "Create Kinetix, a real-time collaborative motion-design & shader studio in the browser inspired by Swiss editorial grids. Include a 60fps node-graph timeline with GSAP scrubbers, WebSockets CRDT state sync in Node.js, PostgreSQL + Redis asset versioning, and S3 presigned uploads.",
+      "Create Kinetix, a real-time collaborative shader & UI studio in Black and White Swiss minimalism with WebSockets CRDT state sync in Node.js, PostgreSQL versioning, and R2 uploads.",
     layers: {
       frontend: {
         file: "components/ShaderViewport.tsx",
-        skills: ["frontend-design", "emil-design-eng", "design-system-references"],
-        code: `// Synthesized Frontend Layer — 60fps Display-P3 WebGL Viewport + Peer Cursors
-export function ShaderViewport({ sceneGraph, activePeers }: ViewportProps) {
+        skills: ["frontend-design", "rcs-frontend", "apple-design"],
+        code: `// Synthesized Frontend Layer — Achromatic Retina Canvas Stage
+export function ShaderViewport({ sceneGraph, peers }: ViewportProps) {
   return (
-    <div className="shader-viewport-frame" data-color-space="display-p3">
-      <WebGLNodeSurface graph={sceneGraph} targetFps={60} />
-      <CollaborativeCursorOverlay peers={activePeers} />
-    </div>
+    <section className="shader-stage" aria-label="Interactive Monochrome Viewport">
+      <canvas id="kinetix-surface" width={1280} height={720} />
+      <aside aria-label="Active Editors">{peers.length} synced</aside>
+    </section>
   );
 }`
       },
       motion: {
-        file: "motion/timelineScrubber.ts",
-        skills: ["gsap-core", "gsap-utils", "emil-design-eng"],
-        code: `// Synthesized Motion Layer — Frame-Accurate 60fps Timeline Scrubber
-import gsap from "gsap";
-
-const snapToFrame = gsap.utils.snap(1 / 60);
-
-export function scrubPlayhead(playheadEl: HTMLElement, normalizedTime: number) {
-  const snapped = snapToFrame(normalizedTime);
-  gsap.to(playheadEl, {
-    xPercent: snapped * 100,
-    duration: 0.16,
-    ease: "power3.out",
-  });
+        file: "motion/timeline.ts",
+        skills: ["apple-design", "animate-expo", "emil-design-eng"],
+        code: `// Synthesized Motion Layer — Pointer Velocity Handoff
+export function projectMomentum(velocityPxPerSec: number, decel = 0.994): number {
+  return (velocityPxPerSec / 1000) * decel / (1 - decel);
 }`
       },
       backend: {
-        file: "server/crdtSync.ts",
-        skills: ["backend-patterns", "api-connector-builder", "security-review"],
-        code: `// Synthesized Backend Layer — WebSocket CRDT State Sync + S3 Presigned Upload
-wsRouter.on("scene:keyframe:delta", async (socket, payload) => {
-  const verifiedDelta = validateCrdtEnvelope(socket.session, payload);
-  const mergedState = await sceneCrdtStore.applyDelta(verifiedDelta);
-  await redisPub.publish(\`scene:\${socket.projectId}\`, mergedState);
-});`
+        file: "api/crdt_ws.ts",
+        skills: ["backend-patterns", "security-review"],
+        code: `// Synthesized Backend Layer — WebSocket CRDT Room Sync
+export function handleCrdtUpdate(roomId: string, update: Uint8Array, actorId: string) {
+  assertTenantMember(roomId, actorId);
+  const clock = mergeStateVector(roomId, update);
+  broadcastExcept(roomId, actorId, update);
+  return { mergedClock: clock };
+}`
       },
       database: {
-        file: "migrations/002_scene_revisions.sql",
-        skills: ["postgres-patterns", "prisma-patterns"],
-        code: `-- Synthesized Database Layer — Immutable CRDT Scene Snapshots
-CREATE TABLE scene_revisions (
+        file: "migrations/002_shader_revisions.sql",
+        skills: ["postgres-patterns", "database-migrations"],
+        code: `-- Synthesized Database Layer — Immutable Shader Revision History
+CREATE TABLE shader_revisions (
   revision_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  crdt_vector BYTEA NOT NULL,
   author_id UUID NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_scene_revisions_lookup
-  ON scene_revisions (project_id, created_at DESC);`
+  crdt_snapshot BYTEA NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+);`
       },
       mcp: {
         file: "velomesh-mcp.lock.json",
-        skills: ["discover_and_install_capability", "mcp-cloudflare-r2", "mcp-redis"],
+        skills: ["find-skills", "skill-scout"],
         code: `{
   "velomesh_internet_provisioning": [
-    "[00.05s] Querying GitHub Mesh: cloudflare r2 s3 presigned mcp + yjs crdt",
-    "[00.19s] Provisioned & validated: modelcontextprotocol/server-aws-kb",
-    "[00.31s] Hot-linked 4 capability wrappers into active coding agent"
+    "[00.09s] Resolved 21st.dev Swiss Canvas & WebSockets CRDT patterns",
+    "[00.28s] Bound Context7 docs: Yjs + CloudFlare R2 presigned PUT",
+    "[00.44s] Active across Claude Code, Cursor, Codex, Copilot, Antigravity & OpenCode"
   ]
 }`
       },
       qa: {
         file: "qa/verification-receipt.txt",
-        skills: ["test-driven-development", "browser-qa", "performance-lab"],
-        code: `VELOMESH AUTONOMOUS VERIFICATION RECEIPT
-========================================
-[PASS] CRDT Concurrent Merge Fuzz Suite          -- 1,000/1,000 concurrent ops deterministic
-[PASS] Chrome DevTools Frame Budget Audit        -- 59.8 FPS sustained across 12 peer cursors
-[PASS] impeccable detect http://localhost:4173   -- 0 anti-patterns, 0 advisories`
+        skills: ["tdd", "impeccable", "web-design-guidelines"],
+        code: `VELOMESH CRDT STUDIO VERIFICATION
+=================================
+[PASS] CRDT convergence property test (500 concurrent ops)
+[PASS] Reduced-motion static fallback verified
+[PASS] Zero console errors and zero overflow at 320px/390px/1440px`
       }
     }
   },
   clinical: {
     prompt:
-      "Build AetherMD, a HIPAA-compliant ambient clinical triage & diagnostic portal for emergency physicians. Use high-contrast Swiss typography, real-time HL7/FHIR patient vitals streaming, FastAPI backend with audit-logged PostgreSQL encryption, and RBAC session controls.",
+      "Build AetherMD, a HIPAA-aligned clinical triage portal for emergency physicians with crisp monochrome Swiss typography, FastAPI FHIR integration, chained audit log DB, and WCAG AA contrast.",
     layers: {
       frontend: {
-        file: "components/TriageVitalsGrid.tsx",
-        skills: ["frontend-design", "ui-ux-pro-max", "fixing-accessibility"],
-        code: `// Synthesized Frontend Layer — High-Contrast Zero-Latency ER Triage Grid
-export function TriageVitalsGrid({ patientId, hl7Stream }: TriageProps) {
+        file: "components/TriageBoard.tsx",
+        skills: ["frontend-design", "ui-ux-pro-max", "hallmark"],
+        code: `// Synthesized Frontend Layer — High-Contrast Clinical Triage Matrix
+export function TriageBoard({ queue }: { queue: TriagePatient[] }) {
   return (
-    <article className="triage-panel" aria-live="polite">
-      <header className="triage-header">
-        <h3>Acuity Level ESI-1 — Continuous Telemetry</h3>
-      </header>
-      <WaveformCanvas stream={hl7Stream} highContrast={true} />
-    </article>
+    <table className="swiss-triage-table" aria-label="Emergency Acuity Queue">
+      <thead><tr><th>Acuity</th><th>Patient</th><th>Wait</th></tr></thead>
+      <tbody>{queue.map(renderPatientRow)}</tbody>
+    </table>
   );
 }`
       },
       motion: {
-        file: "motion/drawerTransition.ts",
-        skills: ["emil-design-eng", "gsap-core"],
-        code: `// Synthesized Motion Layer — Sub-140ms Clinical Drawer Response
-import gsap from "gsap";
-
-export function openDiagnosticDrawer(drawerEl: HTMLElement) {
-  gsap.to(drawerEl, {
-    xPercent: 0,
-    duration: 0.14,
-    ease: "power3.out",
-  });
-}`
+        file: "motion/focusPolicy.ts",
+        skills: ["apple-design", "fixing-accessibility"],
+        code: `// Clinical UI Motion Policy: zero distraction loops, instant focus feedback
+export const CLINICAL_TRANSITION_MS = 140;
+export const ALLOW_AMBIENT_LOOP = false;`
       },
       backend: {
-        file: "api/fhir_patient.py",
-        skills: ["hipaa-compliance", "backend-patterns", "security-review"],
-        code: `# Synthesized Backend Layer — HIPAA PHI Access Interceptor + Audit Envelope
-@router.get("/v1/fhir/Patient/{patient_id}")
-async def get_patient_record(
-    patient_id: UUID,
-    clinician: Clinician = Depends(require_mfa_clinician),
-):
-    await phi_audit_ledger.append_access(clinician.id, patient_id, reason="ER_TRIAGE")
-    return await fhir_repository.read_decrypted_patient(patient_id)`
+        file: "api/fhir_triage.py",
+        skills: ["backend-patterns", "hipaa-compliance", "security-review"],
+        code: `# Synthesized Backend Layer — PHI Audit-Logged FastAPI Triage Route
+@router.post("/v1/triage", status_code=201)
+async def record_triage(bundle: FhirObservationIn, clinician = Depends(require_md)):
+    entry = await write_chained_audit_event(actor=clinician.id, payload=bundle)
+    return {"observation_id": entry.id, "audit_hash": entry.sha256}`
       },
       database: {
-        file: "migrations/003_hipaa_audit.sql",
-        skills: ["postgres-patterns", "security-review"],
-        code: `-- Synthesized Database Layer — Tamper-Evident Chained HIPAA Audit Log
-CREATE TABLE phi_access_audit_log (
-  sequence_id BIGSERIAL PRIMARY KEY,
-  clinician_id UUID NOT NULL,
-  patient_id UUID NOT NULL,
-  prev_chain_hash CHAR(64) NOT NULL,
-  entry_hash CHAR(64) NOT NULL,
-  accessed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+        file: "migrations/003_audit_chain.sql",
+        skills: ["postgres-patterns", "hipaa-compliance"],
+        code: `-- Synthesized Database Layer — Append-Only Chained PHI Audit Ledger
+CREATE TABLE phi_access_ledger (
+  seq BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  actor_id UUID NOT NULL,
+  prev_hash CHAR(64) NOT NULL,
+  row_hash CHAR(64) NOT NULL,
+  recorded_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
 );`
       },
       mcp: {
         file: "velomesh-mcp.lock.json",
-        skills: ["discover_and_install_capability", "mcp-hl7-fhir-r4"],
+        skills: ["find-skills", "skill-scout"],
         code: `{
   "velomesh_internet_provisioning": [
-    "[00.08s] Querying GitHub Mesh: hl7 fhir r4 mcp server + hipaa phi audit",
-    "[00.25s] Synthesized validated wrapper: mcp-fhir-clinical-schema",
-    "[00.34s] Enforced zero-PHI-in-logs security guardrail across all harnesses"
+    "[00.06s] Activated hipaa-compliance + security-review skills",
+    "[00.25s] Attached Context7 FastAPI + Pydantic v2 schemas",
+    "[00.39s] Verified PHI redaction hook across all coding harnesses"
   ]
 }`
       },
       qa: {
         file: "qa/verification-receipt.txt",
-        skills: ["test-driven-development", "security-review", "browser-qa"],
-        code: `VELOMESH AUTONOMOUS VERIFICATION RECEIPT
-========================================
-[PASS] HIPAA PHI Redaction & Hash-Chain Suite    -- 22/22 tamper-evidence checks passed
-[PASS] axe-core WCAG 2.2 AAA High-Contrast       -- 0 contrast or keyboard-trap findings
-[PASS] impeccable detect http://localhost:4173   -- 0 anti-patterns, 0 advisories`
+        skills: ["tdd", "impeccable", "security-review"],
+        code: `AETHERMD COMPLIANCE & QA RECEIPT
+================================
+[PASS] 0 PHI secrets leaked in logs or network payloads
+[PASS] WCAG 2.2 AA contrast >= 7.2:1 on every triage state
+[PASS] Append-only audit trigger blocks UPDATE/DELETE`
       }
     }
   }
 };
+
+const FLOW_STAGES = [
+  {
+    tag: "Stage 01 / Vision Intake",
+    status: "Clarity Gate Active",
+    title: "Your product vision anchors every downstream choice.",
+    summary:
+      "VeloMesh inspects your prompt before writing code: clear domain, workflows, and aesthetic cues proceed in one shot; vague one-liners prompt focused clarification.",
+    rows: [
+      ["Target Users", "Series-A CFOs & Finance Teams"],
+      ["Core Workflows", "Stripe Webhooks · RLS Ledger · Projections"],
+      ["Design Direction", "Obsidian Monochrome Swiss Typography"]
+    ]
+  },
+  {
+    tag: "Stage 02 / Mesh Discovery",
+    status: "Live Internet Provisioning",
+    title: "Fetches exact skills, docs, and MCP servers at runtime.",
+    summary:
+      "Never name skills manually. VeloMesh scans local plugins, queries Context7 API docs, pulls verified 21st.dev UI structures, and wires missing MCPs live.",
+    rows: [
+      ["21st.dev Registry", "Navbar Dropdowns · Bento · Halftone Footer"],
+      ["Context7 Docs", "FastAPI · PostgreSQL RLS · Stripe Toolkit"],
+      ["Active Harnesses", "Claude Code · Cursor · Codex · Copilot"]
+    ]
+  },
+  {
+    tag: "Stage 03 / Coordinated Compile",
+    status: "6 Layers Unified",
+    title: "Frontend, motion physics, APIs, and schemas stay in sync.",
+    summary:
+      "Changes share one source of truth: API Pydantic models match SQL column types, UI states cover empty/loading/error paths, and motion respects reduced motion.",
+    rows: [
+      ["UI & Tokens", "Switzer Scale · Achromatic Tokens · >=12px"],
+      ["Backend Contract", "POST /v1/webhooks/stripe (HMAC Verified)"],
+      ["Database DDL", "ROW LEVEL SECURITY Policy on tenant_id"]
+    ]
+  },
+  {
+    tag: "Stage 04 / Browser & Test Proof",
+    status: "Zero-Slop Verified",
+    title: "Shipped only after real desktop, mobile, and unit checks pass.",
+    summary:
+      "Runs Python and Node tests, executes anti-slop craft audits, inspects screenshots in Chrome at 1440px, 390px, and 320px, and verifies zero console errors.",
+    rows: [
+      ["Unit & Hook Suites", "16 Python Tests + Node Regression Tests PASS"],
+      ["Craft & Slop Audit", "0 Anti-Patterns · 0 Advisories · 0 FAIL"],
+      ["Live Chrome QA", "1440x900 / 390x844 / 320x640 Overflow = 0"]
+    ]
+  }
+];
 
 function initNavbarDropdowns() {
   const nav = document.getElementById('site-navbar');
@@ -320,9 +338,7 @@ function initNavbarDropdowns() {
     if (btn && panel) {
       btn.setAttribute('aria-expanded', 'true');
       panel.hidden = false;
-      if (viaHover && wasClosed) {
-        openedByHoverAt = performance.now();
-      }
+      if (viaHover && wasClosed) openedByHoverAt = performance.now();
     }
   };
 
@@ -349,8 +365,7 @@ function initNavbarDropdowns() {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         openItem(item, false);
-        const firstLink = panel.querySelector('a, button');
-        firstLink?.focus();
+        panel.querySelector('a, button')?.focus();
       } else if (e.key === 'Escape') {
         closeAll(btn);
       }
@@ -398,7 +413,7 @@ function initNavbarDropdowns() {
   });
 }
 
-// Adapted from 21st.dev bevelui Lattice Hero [id: 26027]
+// 21st.dev Lattice Hero [id: 26027] — Pure Black & White Fibonacci Mesh
 function fibonacciSphere(count, radius) {
   const pts = new Float32Array(count * 3);
   const golden = Math.PI * (3 - Math.sqrt(5));
@@ -459,12 +474,12 @@ function initLatticeHeroMesh() {
   let w = 1;
   let h = 1;
   let dpr = 1;
-  let nodeCount = window.innerWidth < 768 ? 140 : 240;
-  let kNeighbors = window.innerWidth < 768 ? 3 : 4;
-  let radius = 1.72;
-  let pts = fibonacciSphere(nodeCount, radius);
-  let edges = nearestEdges(pts, kNeighbors);
-  let seeds = new Float32Array(nodeCount);
+  const nodeCount = window.innerWidth < 768 ? 140 : 240;
+  const kNeighbors = window.innerWidth < 768 ? 3 : 4;
+  const radius = 1.72;
+  const pts = fibonacciSphere(nodeCount, radius);
+  const edges = nearestEdges(pts, kNeighbors);
+  const seeds = new Float32Array(nodeCount);
   for (let i = 0; i < nodeCount; i++) {
     seeds[i] = (pts[i * 3 + 1] / radius) * 0.5 + 0.5;
   }
@@ -502,14 +517,14 @@ function initLatticeHeroMesh() {
     }
 
     const light = document.documentElement.dataset.theme === 'light';
-    const baseRgb = light ? [18, 18, 16] : [237, 232, 223];
-    const lineRgb = light ? [110, 110, 102] : [92, 90, 99];
-    const hotRgb = light ? [184, 24, 13] : [255, 59, 47];
+    const baseRgb = light ? [110, 110, 118] : [132, 132, 140];
+    const lineRgb = light ? [150, 150, 158] : [78, 78, 86];
+    const hotRgb = light ? [9, 9, 11] : [250, 250, 252];
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
-    const desktop = w >= 920;
+    const desktop = w >= 960;
     const cx = desktop ? w * 0.72 + pointerX * 14 : w * 0.52;
     const cy = desktop ? h * 0.5 : h * 0.28;
     const scale = Math.min(w, h) * (desktop ? 0.36 : 0.29);
@@ -581,20 +596,18 @@ function initLatticeHeroMesh() {
     pointerY = -(((e.clientY - r.top) / Math.max(1, r.height)) * 2 - 1);
   });
 
-  const ro = new ResizeObserver(() => {
+  new ResizeObserver(() => {
     resize();
     if (reduced) drawFrame(performance.now());
-  });
-  ro.observe(hero || canvas);
+  }).observe(hero || canvas);
 
-  const io = new IntersectionObserver((entries) => {
+  new IntersectionObserver((entries) => {
     visible = entries[0] ? entries[0].isIntersecting : true;
     if (visible && !reduced && !raf) {
       last = performance.now();
       raf = requestAnimationFrame(drawFrame);
     }
-  });
-  io.observe(hero || canvas);
+  }).observe(hero || canvas);
 
   new MutationObserver(() => {
     if (reduced) drawFrame(performance.now());
@@ -604,7 +617,165 @@ function initLatticeHeroMesh() {
   drawFrame(performance.now());
 }
 
-// Adapted from 21st.dev kedhareswer Halftone Wordmark Footer [id: 37628]
+// 21st.dev Bento Grid Interactive Specimens + Monochrome Spring Curve
+function initBentoModules() {
+  // 1. Typography / Token specimen switcher
+  const tokenOutput = document.getElementById('bento-token-preview');
+  const tokenModes = {
+    scale: [
+      ['Display h1', 'Switzer 700 / 76px / -0.045em'],
+      ['Body copy', 'Switzer 400 / 17px / 1.56lh'],
+      ['Code mono', 'JetBrains Mono / 13px / tabular']
+    ],
+    contrast: [
+      ['Primary ink on dark', '#F8F8FA on #070708 (19.2:1 AAA)'],
+      ['Muted ink on dark', '#9898A0 on #0F0F11 (6.3:1 AA)'],
+      ['Inverted CTA fill', '#F8F8FA / #070708 (19.2:1 AAA)']
+    ],
+    tokens: [
+      ['--bg / --ink', '#070708 / #F8F8FA'],
+      ['--rule / --rule-strong', '#222226 / #3F3F46'],
+      ['--ease-swiss', 'cubic-bezier(0.22, 1, 0.36, 1)']
+    ]
+  };
+  document.querySelectorAll('[data-token-mode]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-token-mode]').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const rows = tokenModes[btn.dataset.tokenMode] || tokenModes.scale;
+      if (tokenOutput) {
+        tokenOutput.innerHTML = rows
+          .map(([k, v]) => `<div class="specimen-row"><span>${k}</span><strong>${v}</strong></div>`)
+          .join('');
+      }
+    });
+  });
+
+  // 2. Live monochrome spring waveform canvas
+  const springCanvas = document.getElementById('bento-spring-canvas');
+  const impulseBtn = document.getElementById('bento-impulse-btn');
+  if (springCanvas) {
+    const ctx = springCanvas.getContext('2d');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let phase = 0;
+    let amp = 0.85;
+    let raf = 0;
+
+    const drawWave = () => {
+      if (!ctx) return;
+      const w = springCanvas.width;
+      const h = springCanvas.height;
+      const light = document.documentElement.dataset.theme === 'light';
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = light ? 'rgba(9,9,11,0.16)' : 'rgba(248,248,250,0.16)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h / 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = light ? '#09090b' : '#f8f8fa';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 2) {
+        const t = x / w;
+        const env = Math.exp(-t * 3.4) * amp;
+        const y = h / 2 + Math.sin(t * 24 - phase) * env * (h * 0.38);
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      if (!reduced && amp > 0.25) {
+        phase += 0.12;
+        amp = Math.max(0.24, amp * 0.992);
+        raf = requestAnimationFrame(drawWave);
+      } else {
+        raf = 0;
+      }
+    };
+
+    impulseBtn?.addEventListener('click', () => {
+      amp = 1.0;
+      phase = 0;
+      if (!reduced && !raf) raf = requestAnimationFrame(drawWave);
+      else drawWave();
+    });
+
+    new MutationObserver(drawWave).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+    drawWave();
+  }
+
+  // 3. Database RLS toggle
+  const sqlPreview = document.getElementById('bento-sql-preview');
+  const sqlSnippets = {
+    rls: "ALTER TABLE ledger ENABLE ROW LEVEL SECURITY;\nUSING (tenant_id = current_setting('app.tenant')::uuid);",
+    index: "CREATE INDEX idx_ledger_tenant_occurred\n  ON ledger (tenant_id, occurred_at DESC);"
+  };
+  document.querySelectorAll('[data-rls-mode]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-rls-mode]').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (sqlPreview) sqlPreview.textContent = sqlSnippets[btn.dataset.rlsMode] || sqlSnippets.rls;
+    });
+  });
+
+  // 4. Harness target switcher
+  const harnessPath = document.getElementById('bento-harness-path');
+  const harnessMap = {
+    claude: "Active: ~/.claude/CLAUDE.md + PreInvocation hook",
+    cursor: "Active: ~/.cursor/rules/velomesh.mdc (alwaysApply: true)",
+    codex: "Active: ~/.codex/AGENTS.md + discover_and_install_capability",
+    opencode: "Active: ~/.config/opencode/AGENTS.md + stdio MCP mesh"
+  };
+  document.querySelectorAll('[data-harness-target]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-harness-target]').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (harnessPath) harnessPath.textContent = harnessMap[btn.dataset.harnessTarget] || harnessMap.claude;
+    });
+  });
+}
+
+// 21st.dev Interactive Execution Flow Showcase [id: 1368 + 26902]
+function initExecutionFlowShowcase() {
+  const btns = Array.from(document.querySelectorAll('[data-flow-step]'));
+  const tagEl = document.getElementById('flow-stage-tag');
+  const statusEl = document.getElementById('flow-stage-status');
+  const bodyEl = document.getElementById('flow-stage-body');
+  if (!btns.length || !bodyEl) return;
+
+  const renderStage = (idx) => {
+    const stage = FLOW_STAGES[idx] || FLOW_STAGES[0];
+    btns.forEach((b, i) => {
+      const active = i === idx;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-selected', String(active));
+    });
+    if (tagEl) tagEl.textContent = stage.tag;
+    if (statusEl) statusEl.textContent = stage.status;
+    bodyEl.innerHTML = `
+      <div>
+        <h3 class="flow-artifact-title">${stage.title}</h3>
+        <p class="bento-desc">${stage.summary}</p>
+      </div>
+      <ul class="flow-artifact-list">
+        ${stage.rows.map(([k, v]) => `<li><span>${k}</span><span>${v}</span></li>`).join('')}
+      </ul>
+    `;
+  };
+
+  btns.forEach((btn, i) => {
+    btn.addEventListener('click', () => renderStage(i));
+  });
+  renderStage(0);
+}
+
+// 21st.dev Halftone Wordmark Footer [id: 37628] — Pure Black & White
 function hwfRadius(coverage, gap) {
   const c = coverage < 0 ? 0 : coverage > 1 ? 1 : coverage;
   return Math.sqrt(c) * gap * 0.56;
@@ -649,8 +820,8 @@ function initHalftoneWordmarkFooter() {
   const palette = () => {
     const light = document.documentElement.dataset.theme === 'light';
     return light
-      ? { bg: '#f5f2eb', ink: [18, 17, 16], warm: [184, 24, 13] }
-      : { bg: '#08080a', ink: [243, 239, 230], warm: [255, 59, 47] };
+      ? { bg: '#f8f8fa', ink: [42, 42, 48], warm: [9, 9, 11] }
+      : { bg: '#070708', ink: [212, 212, 218], warm: [255, 255, 255] };
   };
 
   const layout = () => {
@@ -846,12 +1017,8 @@ function initHalftoneWordmarkFooter() {
 
   new IntersectionObserver((entries) => {
     visible = entries[0] ? entries[0].isIntersecting : true;
-    const dock = document.querySelector('.bf-floating-dock');
-    if (dock) {
-      dock.classList.toggle('dock-at-footer', Boolean(entries[0]?.isIntersecting && entries[0].intersectionRatio > 0.25));
-    }
     if (visible) wake();
-  }, { threshold: [0, 0.25, 0.5] }).observe(root);
+  }).observe(root);
 
   new MutationObserver(() => {
     draw(performance.now());
@@ -889,9 +1056,9 @@ function scoreVisionClarity(promptText) {
   ].filter((w) => wordSet.has(w)).length;
 
   const aestheticHits = [
-    'linear', 'vercel', 'stripe', 'raycast', 'framer', 'apple', 'awwwards', 'dark', 'black', 'minimal',
-    'editorial', 'swiss', 'architectural', 'cinematic', 'react', 'nextjs', 'fastapi', 'postgres',
-    'postgresql', 'supabase', 'tailwind', 'gsap', 'webgl', 'three', 'typescript', 'node', 'python'
+    'linear', 'vercel', 'stripe', 'raycast', 'framer', 'apple', 'awwwards', 'dark', 'black', 'white',
+    'monochrome', 'minimal', 'editorial', 'swiss', 'architectural', 'react', 'nextjs', 'fastapi', 'postgres',
+    'postgresql', 'supabase', 'tailwind', 'gsap', 'webgl', 'typescript', 'node', 'python'
   ].filter((w) => wordSet.has(w)).length;
 
   const domainScore = Math.min(100, Math.round(domainHits * 38 + Math.min(40, words.length * 1.5)));
@@ -905,9 +1072,11 @@ function scoreVisionClarity(promptText) {
 document.addEventListener('DOMContentLoaded', () => {
   initNavbarDropdowns();
   initLatticeHeroMesh();
+  initBentoModules();
+  initExecutionFlowShowcase();
   initHalftoneWordmarkFooter();
 
-  // 1. Polarity Circle Toggle (Black <-> White) + theme-color meta sync
+  // Polarity Toggle (Obsidian Black <-> Stark White)
   const themeBtn = document.getElementById('theme-toggle-btn');
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (themeBtn) {
@@ -915,16 +1084,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
       if (next === 'light') {
         document.documentElement.dataset.theme = 'light';
-        if (metaTheme) metaTheme.setAttribute('content', '#f5f2eb');
+        if (metaTheme) metaTheme.setAttribute('content', '#f8f8fa');
       } else {
         delete document.documentElement.dataset.theme;
-        if (metaTheme) metaTheme.setAttribute('content', '#08080a');
+        if (metaTheme) metaTheme.setAttribute('content', '#070708');
       }
     });
   }
 
-  // 2. Responsive Mobile Menu Drawer
-  const drawer = document.getElementById('bf-menu-drawer');
+  // Mobile Menu Drawer
+  const drawer = document.getElementById('mobile-nav-drawer');
   const openDrawerBtn = document.getElementById('drawer-open-btn');
   const closeDrawerBtn = document.getElementById('drawer-close-btn');
 
@@ -952,65 +1121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 4. Floating Dock & Berger Fohr Works Grid Controls (Cols, Grid, Labels, Filters)
-  const worksGrid = document.getElementById('works-grid');
-  const scaleBtns = document.querySelectorAll('.scale-step-btn');
-  const filterPills = document.querySelectorAll('.filter-pill');
-  const dockGridBtn = document.getElementById('dock-grid-btn');
-  const dockLabelsBtn = document.getElementById('dock-labels-btn');
-  let activeCols = 3;
-  let activeFilter = 'all';
-
-  function refreshWorksGridLayout() {
-    if (!worksGrid) return;
-    const effectiveCols = window.innerWidth <= 720 ? 1 : window.innerWidth <= 1080 ? Math.min(2, activeCols) : activeCols;
-    document.documentElement.style.setProperty('--archive-cols', String(activeCols));
-
-    const visibleCells = [];
-    worksGrid.querySelectorAll('.work-cell').forEach((cell) => {
-      const matches = activeFilter === 'all' || cell.dataset.category === activeFilter;
-      cell.hidden = !matches;
-      cell.removeAttribute('data-last-in-row');
-      if (matches) visibleCells.push(cell);
-    });
-
-    visibleCells.forEach((cell, idx) => {
-      if ((idx + 1) % effectiveCols === 0 || idx === visibleCells.length - 1) {
-        cell.setAttribute('data-last-in-row', 'true');
-      }
-    });
-  }
-
-  scaleBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      activeCols = Number(btn.dataset.cols) || 3;
-      scaleBtns.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
-      refreshWorksGridLayout();
-    });
-  });
-
-  filterPills.forEach((pill) => {
-    pill.addEventListener('click', () => {
-      activeFilter = pill.dataset.filter || 'all';
-      filterPills.forEach((p) => p.classList.toggle('active', p === pill));
-      refreshWorksGridLayout();
-    });
-  });
-
-  window.addEventListener('resize', refreshWorksGridLayout);
-  refreshWorksGridLayout();
-
-  dockGridBtn?.addEventListener('click', () => {
-    const active = document.body.classList.toggle('show-grid');
-    dockGridBtn.setAttribute('aria-pressed', String(active));
-  });
-
-  dockLabelsBtn?.addEventListener('click', () => {
-    const hidden = document.body.classList.toggle('hide-labels');
-    dockLabelsBtn.setAttribute('aria-pressed', String(!hidden));
-  });
-
-  // 5. OS Installer Switcher
+  // OS Installer Switcher
   const osTabs = document.querySelectorAll('.os-tab-btn');
   const installCodeEl = document.getElementById('install-cmd-code');
   const copyBtn = document.getElementById('copy-install-btn');
@@ -1048,14 +1159,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 6. Interactive Multi-File Workbench
+  // Interactive Line-Numbered Multi-File Workbench
   let currentBlueprint = 'treasury';
   let currentLayer = 'frontend';
+  let currentCodeText = '';
   const promptInput = document.getElementById('synth-prompt-input');
   const skillsStrip = document.getElementById('active-skills-strip');
   const codeOutput = document.getElementById('workbench-code-output');
+  const copyFileBtn = document.getElementById('copy-file-btn');
   const blueprintBtns = document.querySelectorAll('.preset-btn');
   const fileBtns = document.querySelectorAll('.file-btn');
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
 
   function renderWorkbench(updatePrompt = true) {
     const bp = WORKBENCH_BLUEPRINTS[currentBlueprint] || WORKBENCH_BLUEPRINTS.treasury;
@@ -1069,13 +1186,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const activeData = bp.layers[currentLayer] || bp.layers.frontend;
+    currentCodeText = activeData.code;
+
     if (skillsStrip) {
       skillsStrip.innerHTML =
-        '<span>Auto-linked skills &amp; MCPs:</span>' +
+        '<span>Auto-linked skills:</span>' +
         activeData.skills.map((s) => `<span class="skill-tag">${s}</span>`).join('');
     }
-    if (codeOutput) codeOutput.textContent = activeData.code;
+
+    if (codeOutput) {
+      const lines = activeData.code.split('\n');
+      codeOutput.innerHTML = lines
+        .map((line, i) => {
+          const highlight = i >= 2 && i <= 4 ? ' code-line-highlight' : '';
+          return `<span class="code-line${highlight}">${escapeHtml(line) || ' '}</span>`;
+        })
+        .join('');
+    }
   }
+
+  copyFileBtn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(currentCodeText);
+      copyFileBtn.textContent = 'Copied';
+      setTimeout(() => { copyFileBtn.textContent = 'Copy File'; }, 1600);
+    } catch {
+      copyFileBtn.textContent = 'Ready';
+    }
+  });
 
   blueprintBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -1116,7 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderWorkbench(true);
 
-  // 7. Interactive Vision Clarity Gate
+  // Interactive Vision Clarity Gate
   const visionInput = document.getElementById('live-vision-input');
   const visionBadge = document.getElementById('live-vision-badge');
   const visionGuidance = document.getElementById('live-vision-guidance');
@@ -1142,12 +1280,12 @@ document.addEventListener('DOMContentLoaded', () => {
         visionBadge.className = 'verdict-chip chip-pass';
         visionBadge.textContent = 'Ready for full-stack execution (One-Shot Build)';
         visionGuidance.textContent =
-          'Product vision is clear. VeloMesh compiles Frontend UI, GSAP Motion, Backend API, PostgreSQL RLS Schema, Live Internet MCPs, and Browser QA in one shot.';
+          'Product vision is clear. VeloMesh compiles UI, motion physics, backend API, PostgreSQL RLS, live Internet MCPs, and browser QA in one shot.';
       } else {
         visionBadge.className = 'verdict-chip chip-fail';
         visionBadge.textContent = 'Vague prompt needs elaboration (cannot read your mind)';
         visionGuidance.textContent =
-          'VeloMesh automates 100% of skills, MCP servers, APIs, and databases, yet cannot read your mind. Elaborate target users, workflows, and aesthetic direction.';
+          'VeloMesh automates 100% of skills, MCP servers, APIs, and databases, yet cannot read your mind. Elaborate target users, workflows, and design direction.';
       }
     }
   }
