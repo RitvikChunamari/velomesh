@@ -1,13 +1,4 @@
-// VeloMesh — Berger Fohr Inspired Black Swiss Product Experience + Brushed-Gold 3D Emblem
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-
-const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
-  <path d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
-  <path d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
-</svg>`;
+// VeloMesh — Swiss Editorial Product Experience (21st.dev Navbar Dropdowns + Lattice Hero + Halftone Wordmark Footer)
 
 const WORKBENCH_BLUEPRINTS = {
   treasury: {
@@ -290,188 +281,594 @@ CREATE TABLE phi_access_audit_log (
   }
 };
 
-function initHero3DLogo() {
-  const viewport = document.getElementById('hero-logo-viewport');
-  const canvas = document.getElementById('hero-logo-canvas');
-  if (!viewport || !canvas) return;
+function initNavbarDropdowns() {
+  const nav = document.getElementById('site-navbar');
+  if (!nav) return;
 
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  try {
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.96;
-    renderer.setClearColor(0x000000, 0);
+  const items = Array.from(nav.querySelectorAll('.nav-item-dropdown'));
+  let closeTimer = null;
+  let openedByHoverAt = 0;
 
-    const scene = new THREE.Scene();
-    const room = new RoomEnvironment();
-    const addBounce = (color, intensity, pos, scale, rot) => {
-      const m = new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(intensity), side: THREE.DoubleSide });
-      const p = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), m);
-      p.position.set(...pos);
-      p.scale.set(...scale);
-      p.rotation.set(...rot);
-      room.add(p);
-    };
-    addBounce('#fff3d4', 1.65, [3.2, 2.2, 7.5], [10, 6, 1], [-0.15, -0.35, 0]);
-    addBounce('#ffe8b3', 1.45, [-5.0, 2.2, 5.5], [8, 7, 1], [0, 0.7, 0]);
-    addBounce('#ffe4aa', 2.4, [0, 7.5, -1.5], [14, 10, 1], [Math.PI / 2, 0, 0]);
-
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(room, 0.04).texture;
-    pmrem.dispose();
-
-    const key = new THREE.DirectionalLight('#fff6e5', 1.45);
-    key.position.set(2.8, 3.2, 5.8);
-    scene.add(key);
-    const rim = new THREE.DirectionalLight('#ffe4ad', 1.15);
-    rim.position.set(-4.2, 3.5, -2.5);
-    scene.add(rim);
-
-    const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
-    camera.position.set(0, 0.14, 5.2);
-
-    const svg = new SVGLoader().parse(LOGO_SVG);
-    const shapes = svg.paths.flatMap((p) => SVGLoader.createShapes(p));
-    const geometry = new THREE.ExtrudeGeometry(shapes, {
-      depth: 11,
-      bevelEnabled: true,
-      bevelThickness: 0.55,
-      bevelSize: 0.55,
-      bevelSegments: 10,
-      curveSegments: 64
+  const closeAll = (restoreTrigger = null) => {
+    items.forEach((item) => {
+      const btn = item.querySelector('.nav-trigger-btn');
+      const panel = item.querySelector('.nav-dropdown-panel');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+      if (panel) panel.hidden = true;
     });
-    geometry.center();
-    geometry.scale(1, -1, 1);
-    geometry.computeVertexNormals();
+    openedByHoverAt = 0;
+    if (restoreTrigger) restoreTrigger.focus();
+  };
 
-    // Fine brushed anisotropy map
-    const brushCanvas = document.createElement('canvas');
-    brushCanvas.width = 512;
-    brushCanvas.height = 512;
-    const bg = brushCanvas.getContext('2d');
-    bg.fillStyle = '#848484';
-    bg.fillRect(0, 0, 512, 512);
-    for (let i = 0; i < 1600; i++) {
-      const y = (i * 73) % 512;
-      const x = (i * 197) % 512;
-      const len = 80 + (i % 180);
-      const v = 118 + (i % 34);
-      bg.fillStyle = `rgba(${v},${v},${v},0.35)`;
-      bg.fillRect(x, y, len, 1);
+  const openItem = (item, viaHover = false) => {
+    if (closeTimer) {
+      clearTimeout(closeTimer);
+      closeTimer = null;
     }
-    const brushTex = new THREE.CanvasTexture(brushCanvas);
-    brushTex.wrapS = THREE.RepeatWrapping;
-    brushTex.wrapT = THREE.RepeatWrapping;
-    brushTex.repeat.set(0.02, 0.02);
-
-    const boxSize = new THREE.Box3().setFromBufferAttribute(geometry.attributes.position).getSize(new THREE.Vector3());
-    const fit = 1.9 / Math.max(boxSize.x, boxSize.y);
-    const mark = new THREE.Mesh(
-      geometry,
-      new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color('#f4d072'),
-        metalness: 0.90,
-        roughness: 0.34,
-        roughnessMap: brushTex,
-        bumpMap: brushTex,
-        bumpScale: 0.004,
-        clearcoat: 0.22,
-        clearcoatRoughness: 0.28,
-        envMapIntensity: 1.45
-      })
-    );
-    mark.scale.setScalar(fit);
-
-    const group = new THREE.Group();
-    group.add(mark);
-    group.rotation.set(-0.08, 0.34, 0);
-    scene.add(group);
-
-    const controls = new OrbitControls(camera, canvas);
-    controls.enableDamping = true;
-    controls.enablePan = false;
-    controls.enableZoom = false;
-
-    const resize = () => {
-      const w = viewport.clientWidth || 540;
-      const h = viewport.clientHeight || 360;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    };
-    window.addEventListener('resize', resize);
-    resize();
-
-    const start = performance.now();
-    window.odScene = { rotate: !prefersReduced, scene, camera, renderer, controls, focus: group };
-
-    renderer.setAnimationLoop((now) => {
-      if (viewport.dataset.mode !== 'grid') {
-        if (!prefersReduced && window.odScene.rotate) {
-          group.rotation.y = 0.34 + (((now - start) / 1000) / 14) * Math.PI * 2;
-        }
-        controls.update();
-        renderer.render(scene, camera);
+    const trigger = item.querySelector('.nav-trigger-btn');
+    const wasClosed = trigger?.getAttribute('aria-expanded') !== 'true';
+    items.forEach((other) => {
+      if (other !== item) {
+        const b = other.querySelector('.nav-trigger-btn');
+        const p = other.querySelector('.nav-dropdown-panel');
+        if (b) b.setAttribute('aria-expanded', 'false');
+        if (p) p.hidden = true;
       }
     });
-  } catch {
-    viewport.classList.add('no-webgl');
-  }
-}
-
-function initSwissStationClock() {
-  const ticksGroup = document.getElementById('clock-ticks');
-  const numeralsGroup = document.getElementById('clock-numerals');
-  const hourHand = document.getElementById('clock-hour');
-  const minuteHand = document.getElementById('clock-minute');
-  const secondHand = document.getElementById('clock-second');
-  const readout = document.getElementById('clock-readout');
-  if (!ticksGroup || !numeralsGroup) return;
-
-  const ns = 'http://www.w3.org/2000/svg';
-  for (let i = 0; i < 60; i++) {
-    const angle = (i * 6) * (Math.PI / 180);
-    const isMajor = i % 5 === 0;
-    const r1 = isMajor ? 68 : 71;
-    const r2 = 75;
-    const line = document.createElementNS(ns, 'line');
-    line.setAttribute('x1', (80 + Math.sin(angle) * r1).toFixed(2));
-    line.setAttribute('y1', (80 - Math.cos(angle) * r1).toFixed(2));
-    line.setAttribute('x2', (80 + Math.sin(angle) * r2).toFixed(2));
-    line.setAttribute('y2', (80 - Math.cos(angle) * r2).toFixed(2));
-    line.setAttribute('stroke', 'currentColor');
-    line.setAttribute('stroke-width', isMajor ? '1.8' : '0.8');
-    ticksGroup.appendChild(line);
-  }
-
-  for (let h = 1; h <= 12; h++) {
-    const angle = (h * 30) * (Math.PI / 180);
-    const r = 56;
-    const text = document.createElementNS(ns, 'text');
-    text.setAttribute('x', (80 + Math.sin(angle) * r).toFixed(2));
-    text.setAttribute('y', (80 - Math.cos(angle) * r + 3.4).toFixed(2));
-    text.textContent = String(h).padStart(2, '0');
-    numeralsGroup.appendChild(text);
-  }
-
-  const updateClock = () => {
-    const now = new Date();
-    const sec = now.getSeconds();
-    const min = now.getMinutes() + sec / 60;
-    const hr = (now.getHours() % 12) + min / 60;
-
-    if (hourHand) hourHand.setAttribute('transform', `rotate(${hr * 30} 80 80)`);
-    if (minuteHand) minuteHand.setAttribute('transform', `rotate(${min * 6} 80 80)`);
-    if (secondHand) secondHand.setAttribute('transform', `rotate(${sec * 6} 80 80)`);
-    if (readout) {
-      readout.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const btn = item.querySelector('.nav-trigger-btn');
+    const panel = item.querySelector('.nav-dropdown-panel');
+    if (btn && panel) {
+      btn.setAttribute('aria-expanded', 'true');
+      panel.hidden = false;
+      if (viaHover && wasClosed) {
+        openedByHoverAt = performance.now();
+      }
     }
   };
 
-  updateClock();
-  setInterval(updateClock, 1000);
+  items.forEach((item) => {
+    const btn = item.querySelector('.nav-trigger-btn');
+    const panel = item.querySelector('.nav-dropdown-panel');
+    if (!btn || !panel) return;
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      if (isOpen) {
+        if (performance.now() - openedByHoverAt < 650) {
+          openedByHoverAt = 0;
+          return;
+        }
+        closeAll();
+      } else {
+        openItem(item, false);
+      }
+    });
+
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        openItem(item, false);
+        const firstLink = panel.querySelector('a, button');
+        firstLink?.focus();
+      } else if (e.key === 'Escape') {
+        closeAll(btn);
+      }
+    });
+
+    panel.addEventListener('keydown', (e) => {
+      const links = Array.from(panel.querySelectorAll('a, button'));
+      const idx = links.indexOf(document.activeElement);
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeAll(btn);
+      } else if (e.key === 'ArrowDown' && links.length) {
+        e.preventDefault();
+        links[(idx + 1) % links.length].focus();
+      } else if (e.key === 'ArrowUp' && links.length) {
+        e.preventDefault();
+        links[(idx - 1 + links.length) % links.length].focus();
+      }
+    });
+
+    item.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      openItem(item, true);
+    });
+
+    item.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      closeTimer = setTimeout(() => closeAll(), 140);
+    });
+  });
+
+  nav.querySelectorAll('[data-nav-close]').forEach((el) => {
+    el.addEventListener('click', () => closeAll());
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!nav.contains(e.target)) closeAll();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const openBtn = nav.querySelector('.nav-trigger-btn[aria-expanded="true"]');
+      if (openBtn) closeAll(openBtn);
+    }
+  });
+}
+
+// Adapted from 21st.dev bevelui Lattice Hero [id: 26027]
+function fibonacciSphere(count, radius) {
+  const pts = new Float32Array(count * 3);
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < count; i++) {
+    const y = 1 - (i / (count - 1)) * 2;
+    const r = Math.sqrt(Math.max(0, 1 - y * y));
+    const theta = golden * i;
+    pts[i * 3] = Math.cos(theta) * r * radius;
+    pts[i * 3 + 1] = y * radius;
+    pts[i * 3 + 2] = Math.sin(theta) * r * radius;
+  }
+  return pts;
+}
+
+function nearestEdges(pts, k) {
+  const n = pts.length / 3;
+  const seen = new Set();
+  const edges = [];
+  const d2 = [];
+  for (let i = 0; i < n; i++) {
+    d2.length = 0;
+    const ax = pts[i * 3];
+    const ay = pts[i * 3 + 1];
+    const az = pts[i * 3 + 2];
+    for (let j = 0; j < n; j++) {
+      if (j === i) continue;
+      const dx = pts[j * 3] - ax;
+      const dy = pts[j * 3 + 1] - ay;
+      const dz = pts[j * 3 + 2] - az;
+      d2.push({ j, d: dx * dx + dy * dy + dz * dz });
+    }
+    d2.sort((p, q) => p.d - q.d);
+    for (let m = 0; m < k && m < d2.length; m++) {
+      const j = d2[m].j;
+      const key = i < j ? `${i}:${j}` : `${j}:${i}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      edges.push([i, j]);
+    }
+  }
+  return edges;
+}
+
+function pulseWeight(seed, wave) {
+  const f = (seed - wave + 0.5) - Math.floor(seed - wave + 0.5);
+  const d = Math.abs(f - 0.5) * 2.0;
+  return Math.pow(1.0 - d, 9.0);
+}
+
+function initLatticeHeroMesh() {
+  const canvas = document.getElementById('lattice-mesh-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hero = canvas.closest('.lattice-hero');
+  let w = 1;
+  let h = 1;
+  let dpr = 1;
+  let nodeCount = window.innerWidth < 768 ? 140 : 240;
+  let kNeighbors = window.innerWidth < 768 ? 3 : 4;
+  let radius = 1.72;
+  let pts = fibonacciSphere(nodeCount, radius);
+  let edges = nearestEdges(pts, kNeighbors);
+  let seeds = new Float32Array(nodeCount);
+  for (let i = 0; i < nodeCount; i++) {
+    seeds[i] = (pts[i * 3 + 1] / radius) * 0.5 + 0.5;
+  }
+
+  let rotY = 0.42;
+  let rotX = 0.22;
+  let pointerX = 0;
+  let pointerY = 0;
+  let wave = 0.28;
+  let visible = true;
+  let raf = 0;
+  let last = performance.now();
+
+  const projX = new Float32Array(nodeCount);
+  const projY = new Float32Array(nodeCount);
+  const projZ = new Float32Array(nodeCount);
+
+  const resize = () => {
+    const rect = (hero || canvas).getBoundingClientRect();
+    w = Math.max(1, Math.round(rect.width));
+    h = Math.max(1, Math.round(rect.height));
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+  };
+
+  const drawFrame = (now) => {
+    const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
+    last = now;
+
+    if (!reduced) {
+      wave = (wave + dt * 0.055) % 1;
+      rotY += dt * 0.075;
+      rotX += (pointerY * 0.16 + 0.2 - rotX) * Math.min(1, dt * 2.4);
+    }
+
+    const light = document.documentElement.dataset.theme === 'light';
+    const baseRgb = light ? [18, 18, 16] : [237, 232, 223];
+    const lineRgb = light ? [110, 110, 102] : [92, 90, 99];
+    const hotRgb = light ? [184, 24, 13] : [255, 59, 47];
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    const desktop = w >= 920;
+    const cx = desktop ? w * 0.72 + pointerX * 14 : w * 0.52;
+    const cy = desktop ? h * 0.5 : h * 0.28;
+    const scale = Math.min(w, h) * (desktop ? 0.36 : 0.29);
+    const camZ = 5.4;
+
+    const sinY = Math.sin(rotY);
+    const cosY = Math.cos(rotY);
+    const sinX = Math.sin(rotX);
+    const cosX = Math.cos(rotX);
+
+    for (let i = 0; i < nodeCount; i++) {
+      const px0 = pts[i * 3];
+      const py0 = pts[i * 3 + 1];
+      const pz0 = pts[i * 3 + 2];
+
+      const x1 = px0 * cosY - pz0 * sinY;
+      const z1 = px0 * sinY + pz0 * cosY;
+      const y2 = py0 * cosX - z1 * sinX;
+      const z2 = py0 * sinX + z1 * cosX;
+
+      const persp = camZ / (camZ - z2);
+      projX[i] = cx + x1 * scale * persp;
+      projY[i] = cy - y2 * scale * persp;
+      projZ[i] = z2;
+    }
+
+    ctx.lineWidth = 1;
+    for (let e = 0; e < edges.length; e++) {
+      const a = edges[e][0];
+      const b = edges[e][1];
+      const avgZ = (projZ[a] + projZ[b]) * 0.5;
+      const depth = Math.max(0.14, Math.min(1, (avgZ + radius) / (radius * 2)));
+      const g = Math.max(pulseWeight(seeds[a], wave), pulseWeight(seeds[b], wave));
+      const rCol = Math.round(lineRgb[0] + (hotRgb[0] - lineRgb[0]) * g);
+      const gCol = Math.round(lineRgb[1] + (hotRgb[1] - lineRgb[1]) * g);
+      const bCol = Math.round(lineRgb[2] + (hotRgb[2] - lineRgb[2]) * g);
+      const alpha = (0.14 + 0.34 * depth) * (0.45 + 1.25 * g);
+      ctx.strokeStyle = `rgba(${rCol},${gCol},${bCol},${Math.min(0.88, alpha).toFixed(3)})`;
+      ctx.beginPath();
+      ctx.moveTo(projX[a], projY[a]);
+      ctx.lineTo(projX[b], projY[b]);
+      ctx.stroke();
+    }
+
+    for (let i = 0; i < nodeCount; i++) {
+      const depth = Math.max(0.15, Math.min(1, (projZ[i] + radius) / (radius * 2)));
+      const g = pulseWeight(seeds[i], wave);
+      const rCol = Math.round(baseRgb[0] + (hotRgb[0] - baseRgb[0]) * g);
+      const gCol = Math.round(baseRgb[1] + (hotRgb[1] - baseRgb[1]) * g);
+      const bCol = Math.round(baseRgb[2] + (hotRgb[2] - baseRgb[2]) * g);
+      const nodeR = (1.35 + 1.65 * depth) * (1 + g * 1.15);
+      const alpha = (0.28 + 0.58 * depth) * (0.55 + 0.45 * g);
+      ctx.fillStyle = `rgba(${rCol},${gCol},${bCol},${Math.min(0.98, alpha).toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(projX[i], projY[i], nodeR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (!reduced && visible) {
+      raf = requestAnimationFrame(drawFrame);
+    } else {
+      raf = 0;
+    }
+  };
+
+  hero?.addEventListener('pointermove', (e) => {
+    const r = hero.getBoundingClientRect();
+    pointerX = ((e.clientX - r.left) / Math.max(1, r.width)) * 2 - 1;
+    pointerY = -(((e.clientY - r.top) / Math.max(1, r.height)) * 2 - 1);
+  });
+
+  const ro = new ResizeObserver(() => {
+    resize();
+    if (reduced) drawFrame(performance.now());
+  });
+  ro.observe(hero || canvas);
+
+  const io = new IntersectionObserver((entries) => {
+    visible = entries[0] ? entries[0].isIntersecting : true;
+    if (visible && !reduced && !raf) {
+      last = performance.now();
+      raf = requestAnimationFrame(drawFrame);
+    }
+  });
+  io.observe(hero || canvas);
+
+  new MutationObserver(() => {
+    if (reduced) drawFrame(performance.now());
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  resize();
+  drawFrame(performance.now());
+}
+
+// Adapted from 21st.dev kedhareswer Halftone Wordmark Footer [id: 37628]
+function hwfRadius(coverage, gap) {
+  const c = coverage < 0 ? 0 : coverage > 1 ? 1 : coverage;
+  return Math.sqrt(c) * gap * 0.56;
+}
+
+function hwfStep(x, y, vx, vy, hx, hy, px, py, r) {
+  const dx = x - px;
+  const dy = y - py;
+  const d2 = dx * dx + dy * dy;
+  if (r > 0 && d2 < r * r) {
+    const d = Math.sqrt(d2) + 0.001;
+    const f = (1 - d / r) * 2.6;
+    vx += (dx / d) * f;
+    vy += (dy / d) * f;
+  }
+  vx = (vx + (hx - x) * 0.05) * 0.84;
+  vy = (vy + (hy - y) * 0.05) * 0.84;
+  return [x + vx, y + vy, vx, vy];
+}
+
+function initHalftoneWordmarkFooter() {
+  const root = document.getElementById('site-footer');
+  const canvas = document.getElementById('halftone-footer-canvas');
+  if (!root || !canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let w = 1;
+  let h = 1;
+  let dpr = 1;
+  let px = -1e5;
+  let py = -1e5;
+  let raf = 0;
+  let visible = true;
+  let awake = true;
+  let ring = { x: 0, y: 0, t: -1 };
+  let dots = new Float32Array(0);
+  let count = 0;
+  let grainTile = null;
+
+  const palette = () => {
+    const light = document.documentElement.dataset.theme === 'light';
+    return light
+      ? { bg: '#f5f2eb', ink: [18, 17, 16], warm: [184, 24, 13] }
+      : { bg: '#08080a', ink: [243, 239, 230], warm: [255, 59, 47] };
+  };
+
+  const layout = () => {
+    const rect = root.getBoundingClientRect();
+    w = Math.max(1, Math.round(rect.width));
+    h = Math.max(1, Math.round(rect.height));
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+
+    const mask = document.createElement('canvas');
+    mask.width = w;
+    mask.height = h;
+    const m = mask.getContext('2d', { willReadFrequently: true });
+    if (!m) return;
+
+    const word = 'velomesh';
+    const fontStack = "'Switzer', 'Helvetica Neue', Helvetica, Arial, sans-serif";
+    m.font = `700 100px ${fontStack}`;
+    const measured = m.measureText(word).width || 400;
+    const fit = Math.min((w * 0.96 / measured) * 100, h * 0.5);
+    m.font = `700 ${fit}px ${fontStack}`;
+    const box = m.measureText(word);
+    const cap = box.actualBoundingBoxAscent || fit * 0.72;
+    m.fillStyle = '#000';
+    m.textBaseline = 'alphabetic';
+    m.fillText(word, (w - box.width) / 2, h + cap * 0.16);
+    const img = m.getImageData(0, 0, w, h).data;
+
+    const gap = w < 640 ? 5 : 6;
+    const cols = Math.ceil(w / gap);
+    const rows = Math.ceil(h / gap);
+    const tmp = [];
+    for (let gy = 0; gy < rows; gy++) {
+      for (let gx = 0; gx < cols; gx++) {
+        let sum = 0;
+        for (let sy = 0; sy < 3; sy++) {
+          for (let sx = 0; sx < 3; sx++) {
+            const x = Math.min(w - 1, Math.floor(gx * gap + ((sx + 0.5) * gap) / 3));
+            const y = Math.min(h - 1, Math.floor(gy * gap + ((sy + 0.5) * gap) / 3));
+            sum += img[(y * w + x) * 4 + 3];
+          }
+        }
+        const cov = sum / (9 * 255);
+        if (cov < 0.06) continue;
+        const hx = gx * gap + gap / 2;
+        const hy = gy * gap + gap / 2;
+        tmp.push(hx, hy, 0, 0, hx, hy, hwfRadius(cov, gap));
+      }
+    }
+    dots = new Float32Array(tmp);
+    count = tmp.length / 7;
+
+    if (!grainTile) {
+      grainTile = document.createElement('canvas');
+      grainTile.width = 256;
+      grainTile.height = 256;
+      const g = grainTile.getContext('2d');
+      if (g) {
+        const id = g.createImageData(256, 256);
+        for (let i = 0; i < id.data.length; i += 4) {
+          const v = Math.random() * 255;
+          id.data[i] = id.data[i + 1] = id.data[i + 2] = v;
+          id.data[i + 3] = Math.random() < 0.5 ? 0 : 255;
+        }
+        g.putImageData(id, 0, 0);
+      }
+    }
+    awake = true;
+  };
+
+  const draw = (now) => {
+    const pal = palette();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = pal.bg;
+    ctx.fillRect(0, 0, w, h);
+
+    const r = !reduced ? 80 : 0;
+    const ringAge = ring.t < 0 ? 1e9 : now - ring.t;
+    const ringR = ringAge * 0.9;
+    let moving = false;
+
+    for (let i = 0; i < count; i++) {
+      const j = i * 7;
+      let x = dots[j];
+      let y = dots[j + 1];
+      let vx = dots[j + 2];
+      let vy = dots[j + 3];
+      const hx = dots[j + 4];
+      const hy = dots[j + 5];
+
+      if (!reduced) {
+        if (ringAge < 900) {
+          const dx = hx - ring.x;
+          const dy = hy - ring.y;
+          const d = Math.sqrt(dx * dx + dy * dy) + 0.001;
+          const band = 1 - Math.min(1, Math.abs(d - ringR) / 26);
+          if (band > 0) {
+            const f = band * 3.2 * (1 - ringAge / 900);
+            vx += (dx / d) * f;
+            vy += (dy / d) * f;
+          }
+        }
+        const s = hwfStep(x, y, vx, vy, hx, hy, px, py, r);
+        x = s[0];
+        y = s[1];
+        vx = s[2];
+        vy = s[3];
+        if (Math.abs(vx) + Math.abs(vy) > 0.02 || Math.abs(x - hx) + Math.abs(y - hy) > 0.05) {
+          moving = true;
+        } else {
+          x = hx;
+          y = hy;
+          vx = 0;
+          vy = 0;
+        }
+        dots[j] = x;
+        dots[j + 1] = y;
+        dots[j + 2] = vx;
+        dots[j + 3] = vy;
+      }
+
+      const k = Math.min(1, Math.hypot(x - hx, y - hy) / 28);
+      if (k > 0.02) {
+        const cr = Math.round(pal.ink[0] + (pal.warm[0] - pal.ink[0]) * k);
+        const cg = Math.round(pal.ink[1] + (pal.warm[1] - pal.ink[1]) * k);
+        const cb = Math.round(pal.ink[2] + (pal.warm[2] - pal.ink[2]) * k);
+        ctx.fillStyle = `rgb(${cr},${cg},${cb})`;
+      } else {
+        ctx.fillStyle = `rgb(${pal.ink[0]},${pal.ink[1]},${pal.ink[2]})`;
+      }
+      ctx.beginPath();
+      ctx.arc(x, y, dots[j + 6], 0, 6.2832);
+      ctx.fill();
+    }
+
+    if (grainTile) {
+      ctx.globalAlpha = 0.05;
+      ctx.globalCompositeOperation = 'overlay';
+      const pat = ctx.createPattern(grainTile, 'repeat');
+      if (pat) {
+        ctx.fillStyle = pat;
+        ctx.fillRect(0, 0, w, h);
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    awake = moving || ringAge < 900 || px > -1e4;
+  };
+
+  const loop = (now) => {
+    raf = 0;
+    if (!visible) return;
+    draw(now);
+    if (awake) raf = requestAnimationFrame(loop);
+  };
+
+  const wake = () => {
+    awake = true;
+    if (!raf && visible) raf = requestAnimationFrame(loop);
+  };
+
+  const toLocal = (e) => {
+    const b = canvas.getBoundingClientRect();
+    return [e.clientX - b.left, e.clientY - b.top];
+  };
+
+  root.addEventListener('pointermove', (e) => {
+    const p = toLocal(e);
+    px = p[0];
+    py = p[1];
+    wake();
+  });
+
+  root.addEventListener('pointerleave', () => {
+    px = -1e5;
+    py = -1e5;
+    wake();
+  });
+
+  root.addEventListener('pointerdown', (e) => {
+    if (reduced || e.target.closest('a,button')) return;
+    const p = toLocal(e);
+    ring = { x: p[0], y: p[1], t: performance.now() };
+    wake();
+  });
+
+  new ResizeObserver(() => {
+    layout();
+    wake();
+  }).observe(root);
+
+  new IntersectionObserver((entries) => {
+    visible = entries[0] ? entries[0].isIntersecting : true;
+    const dock = document.querySelector('.bf-floating-dock');
+    if (dock) {
+      dock.classList.toggle('dock-at-footer', Boolean(entries[0]?.isIntersecting && entries[0].intersectionRatio > 0.25));
+    }
+    if (visible) wake();
+  }, { threshold: [0, 0.25, 0.5] }).observe(root);
+
+  new MutationObserver(() => {
+    draw(performance.now());
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  document.fonts?.ready?.then(() => {
+    layout();
+    wake();
+  });
+
+  layout();
+  draw(performance.now());
+  wake();
+
+  document.getElementById('hwf-back-to-top')?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+  });
 }
 
 function scoreVisionClarity(promptText) {
@@ -506,23 +903,27 @@ function scoreVisionClarity(promptText) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initHero3DLogo();
-  initSwissStationClock();
+  initNavbarDropdowns();
+  initLatticeHeroMesh();
+  initHalftoneWordmarkFooter();
 
-  // 1. Berger Fohr Polarity Circle Toggle (Black <-> White)
+  // 1. Polarity Circle Toggle (Black <-> White) + theme-color meta sync
   const themeBtn = document.getElementById('theme-toggle-btn');
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (themeBtn) {
     themeBtn.addEventListener('click', () => {
       const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
       if (next === 'light') {
         document.documentElement.dataset.theme = 'light';
+        if (metaTheme) metaTheme.setAttribute('content', '#f5f2eb');
       } else {
         delete document.documentElement.dataset.theme;
+        if (metaTheme) metaTheme.setAttribute('content', '#08080a');
       }
     });
   }
 
-  // 2. Berger Fohr Menu Square Drawer
+  // 2. Responsive Mobile Menu Drawer
   const drawer = document.getElementById('bf-menu-drawer');
   const openDrawerBtn = document.getElementById('drawer-open-btn');
   const closeDrawerBtn = document.getElementById('drawer-close-btn');
@@ -550,23 +951,6 @@ document.addEventListener('DOMContentLoaded', () => {
       closeDrawer();
     }
   });
-
-  // 3. Hero Logo Mode Toggle (3D Brushed Gold <-> 2D Swiss Construction Grid)
-  const logoViewport = document.getElementById('hero-logo-viewport');
-  const mode3dBtn = document.getElementById('mode-3d-btn');
-  const modeGridBtn = document.getElementById('mode-grid-btn');
-  if (logoViewport && mode3dBtn && modeGridBtn) {
-    mode3dBtn.addEventListener('click', () => {
-      logoViewport.dataset.mode = '3d';
-      mode3dBtn.classList.add('active');
-      modeGridBtn.classList.remove('active');
-    });
-    modeGridBtn.addEventListener('click', () => {
-      logoViewport.dataset.mode = 'grid';
-      modeGridBtn.classList.add('active');
-      mode3dBtn.classList.remove('active');
-    });
-  }
 
   // 4. Floating Dock & Berger Fohr Works Grid Controls (Cols, Grid, Labels, Filters)
   const worksGrid = document.getElementById('works-grid');
@@ -630,6 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const osTabs = document.querySelectorAll('.os-tab-btn');
   const installCodeEl = document.getElementById('install-cmd-code');
   const copyBtn = document.getElementById('copy-install-btn');
+  const copyStatusEl = document.getElementById('copy-status-live');
   const commands = {
     unix: 'curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash',
     windows: 'irm https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.ps1 | iex'
@@ -638,8 +1023,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   osTabs.forEach((btn) => {
     btn.addEventListener('click', () => {
-      osTabs.forEach((b) => b.classList.remove('active'));
+      osTabs.forEach((b) => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
       btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
       currentOs = btn.dataset.os || 'unix';
       if (installCodeEl) installCodeEl.textContent = commands[currentOs];
     });
@@ -649,7 +1038,11 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       await navigator.clipboard.writeText(commands[currentOs]);
       copyBtn.textContent = 'Copied';
-      setTimeout(() => { copyBtn.textContent = 'Copy Command'; }, 1800);
+      if (copyStatusEl) copyStatusEl.textContent = 'Install command copied to clipboard.';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy Command';
+        if (copyStatusEl) copyStatusEl.textContent = '';
+      }, 1800);
     } catch {
       copyBtn.textContent = 'Ready';
     }
@@ -737,9 +1130,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function refreshVisionInspector() {
     if (!visionInput) return;
     const res = scoreVisionClarity(visionInput.value);
-    if (barDomain) barDomain.style.width = `${res.domainScore}%`;
-    if (barWorkflow) barWorkflow.style.width = `${res.workflowScore}%`;
-    if (barAesthetic) barAesthetic.style.width = `${res.aestheticScore}%`;
+    if (barDomain) barDomain.style.transform = `scaleX(${res.domainScore / 100})`;
+    if (barWorkflow) barWorkflow.style.transform = `scaleX(${res.workflowScore / 100})`;
+    if (barAesthetic) barAesthetic.style.transform = `scaleX(${res.aestheticScore / 100})`;
     if (valDomain) valDomain.textContent = `${res.domainScore}%`;
     if (valWorkflow) valWorkflow.textContent = `${res.workflowScore}%`;
     if (valAesthetic) valAesthetic.textContent = `${res.aestheticScore}%`;
@@ -747,14 +1140,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (visionBadge && visionGuidance) {
       if (res.ready) {
         visionBadge.className = 'verdict-chip chip-pass';
-        visionBadge.textContent = 'READY_FOR_FULLSTACK_EXECUTION (One-Shot Build)';
+        visionBadge.textContent = 'Ready for full-stack execution (One-Shot Build)';
         visionGuidance.textContent =
           'Product vision is clear. VeloMesh compiles Frontend UI, GSAP Motion, Backend API, PostgreSQL RLS Schema, Live Internet MCPs, and Browser QA in one shot.';
       } else {
         visionBadge.className = 'verdict-chip chip-fail';
-        visionBadge.textContent = 'NEEDS_ELABORATION — VeloMesh Cannot Read Your Mind';
+        visionBadge.textContent = 'Vague prompt needs elaboration (cannot read your mind)';
         visionGuidance.textContent =
-          'VeloMesh automates 100% of skills, MCP servers, APIs, and databases—but it cannot get inside your brain. Elaborate who it serves, key workflows, and aesthetic style.';
+          'VeloMesh automates 100% of skills, MCP servers, APIs, and databases, yet cannot read your mind. Elaborate target users, workflows, and aesthetic direction.';
       }
     }
   }
