@@ -1,14 +1,14 @@
-// VeloMesh Interactive Full-Stack Workbench & Vision Clarity Engine
+// VeloMesh — Black Swiss Architectural Product Experience
 
 const WORKBENCH_BLUEPRINTS = {
   treasury: {
     prompt:
-      "Build PulseLedger, a multi-tenant AI treasury & runway platform for Series-A CFOs. Use a Linear + Stripe architectural aesthetic with interactive WebGL cashflow projection graphs and GSAP scroll reveals. Build the backend in FastAPI + PostgreSQL with row-level security, live Stripe & Plaid webhook ingestion, and full Playwright E2E verification.",
+      "Build PulseLedger, a multi-tenant AI treasury & runway platform for Series-A CFOs. Use a Black Swiss architectural UI with interactive WebGL cashflow projection graphs and GSAP scroll reveals. Build the backend in FastAPI + PostgreSQL with row-level security, live Stripe & Plaid webhook ingestion, and full Playwright E2E verification.",
     layers: {
       frontend: {
         file: "components/RunwayCanvas.tsx",
         skills: ["frontend-design", "impeccable", "design-system-references", "ui-ux-pro-max"],
-        code: `// Synthesized Frontend Layer — Linear + Stripe Design System Tokens
+        code: `// Synthesized Frontend Layer — Black Swiss Design System Tokens
 import { useEffect, useRef } from "react";
 import { mountCashflowShader } from "../shaders/cashflowRibbon";
 
@@ -19,7 +19,8 @@ export function RunwayForecastStage({ tenantId, burnSeries }: RunwayProps) {
     if (!canvasRef.current) return;
     return mountCashflowShader(canvasRef.current, {
       series: burnSeries,
-      strokeColor: "#E04006",
+      strokeColor: "#FF3B2F",
+      gridColor: "#242422",
       respectReducedMotion: true,
     });
   }, [burnSeries]);
@@ -34,33 +35,32 @@ export function RunwayForecastStage({ tenantId, burnSeries }: RunwayProps) {
       motion: {
         file: "motion/choreography.ts",
         skills: ["gsap-core", "gsap-scrolltrigger", "emil-design-eng"],
-        code: `// Synthesized Motion Layer — Emil Kowalski Custom Easing & GSAP ScrollTrigger
+        code: `// Synthesized Motion Layer — Reduced-Motion Safe GSAP MatchMedia
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function initLedgerChoreography(container: HTMLElement) {
-  const rows = container.querySelectorAll("[data-ledger-row]");
-  gsap.fromTo(
-    rows,
-    { y: 16, opacity: 0 },
-    {
-      y: 0,
-      opacity: 1,
-      duration: 0.42,
-      stagger: 0.035,
-      ease: "cubic-bezier(0.23, 1, 0.32, 1)",
-      scrollTrigger: { trigger: container, start: "top 82%" },
-    }
-  );
+  const mm = gsap.matchMedia();
+  mm.add("(prefers-reduced-motion: no-preference)", () => {
+    const rows = container.querySelectorAll("[data-ledger-row]");
+    gsap.from(rows, {
+      y: 12,
+      duration: 0.36,
+      stagger: 0.03,
+      ease: "power3.out",
+      scrollTrigger: { trigger: container, start: "top 85%" },
+    });
+  });
+  return () => mm.revert();
 }`
       },
       backend: {
         file: "api/webhooks_stripe.py",
         skills: ["backend-patterns", "api-connector-builder", "security-review"],
         code: `# Synthesized Backend Layer — FastAPI + HMAC Webhook Verification + RBAC
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends
 from app.security import verify_stripe_hmac, require_cfo_session
 from app.services.runway import recompute_tenant_runway
 
@@ -98,11 +98,11 @@ CREATE POLICY enforce_tenant_isolation ON treasury_ledger_entries
         file: "velomesh-mcp.lock.json",
         skills: ["discover_and_install_capability", "mcp-stripe-toolkit", "mcp-postgres"],
         code: `{
-  "velomesh_Internet_Provisioning_Trace": [
-    "[00.07s] Querying GitHub Mesh for missing capabilities: stripe webhook mcp + plaid api",
-    "[00.22s] Discovered & validated: stripe/agent-toolkit (MCP Server, 4.8k stars)",
+  "velomesh_internet_provisioning": [
+    "[00.07s] Querying GitHub Mesh: stripe webhook mcp + plaid api",
+    "[00.22s] Discovered & validated: stripe/agent-toolkit (MCP Server)",
     "[00.36s] Synthesized capability wrapper: mcp-plaid-treasury-sync",
-    "[00.41s] Hot-linked across Claude Code, Cursor, Codex, GitHub Copilot, Antigravity & OpenCode"
+    "[00.41s] Hot-linked across Claude Code, Cursor, Codex, Copilot, Antigravity & OpenCode"
   ]
 }`
       },
@@ -111,16 +111,16 @@ CREATE POLICY enforce_tenant_isolation ON treasury_ledger_entries
         skills: ["test-driven-development", "browser-qa", "verification-before-completion"],
         code: `VELOMESH AUTONOMOUS VERIFICATION RECEIPT
 ========================================
-[PASS] pytest tests/test_rls_isolation.py        — 18/18 cross-tenant SQL leak checks passed
-[PASS] vitest run src/components/RunwayCanvas    — 12/12 unit & shader fallback checks passed
-[PASS] playwright test --project=desktop,mobile  — Zero layout overflow at 1440px & 390px
-[PASS] impeccable detect http://localhost:4173   — 0 anti-pattern violations, 0 advisories`
+[PASS] pytest tests/test_rls_isolation.py        -- 18/18 cross-tenant checks passed
+[PASS] vitest run src/components/RunwayCanvas    -- 12/12 unit & fallback checks passed
+[PASS] playwright test --project=desktop,mobile  -- Zero layout overflow at 1440px & 390px
+[PASS] impeccable detect http://localhost:4173   -- 0 anti-patterns, 0 advisories`
       }
     }
   },
   webglStudio: {
     prompt:
-      "Create Kinetix, a real-time collaborative motion-design & shader studio in the browser inspired by Framer and Raycast. Include a 60fps node-graph timeline with GSAP scrubbers, WebSockets CRDT state sync in Node.js, PostgreSQL + Redis asset versioning, and S3 presigned uploads.",
+      "Create Kinetix, a real-time collaborative motion-design & shader studio in the browser inspired by Swiss editorial grids. Include a 60fps node-graph timeline with GSAP scrubbers, WebSockets CRDT state sync in Node.js, PostgreSQL + Redis asset versioning, and S3 presigned uploads.",
     layers: {
       frontend: {
         file: "components/ShaderViewport.tsx",
@@ -148,7 +148,7 @@ export function scrubPlayhead(playheadEl: HTMLElement, normalizedTime: number) {
   gsap.to(playheadEl, {
     xPercent: snapped * 100,
     duration: 0.16,
-    ease: "cubic-bezier(0.23, 1, 0.32, 1)",
+    ease: "power3.out",
   });
 }`
       },
@@ -181,7 +181,7 @@ CREATE INDEX idx_scene_revisions_lookup
         file: "velomesh-mcp.lock.json",
         skills: ["discover_and_install_capability", "mcp-cloudflare-r2", "mcp-redis"],
         code: `{
-  "velomesh_Internet_Provisioning_Trace": [
+  "velomesh_internet_provisioning": [
     "[00.05s] Querying GitHub Mesh: cloudflare r2 s3 presigned mcp + yjs crdt",
     "[00.19s] Provisioned & validated: modelcontextprotocol/server-aws-kb",
     "[00.31s] Hot-linked 4 capability wrappers into active coding agent"
@@ -193,15 +193,15 @@ CREATE INDEX idx_scene_revisions_lookup
         skills: ["test-driven-development", "browser-qa", "performance-lab"],
         code: `VELOMESH AUTONOMOUS VERIFICATION RECEIPT
 ========================================
-[PASS] CRDT Concurrent Merge Fuzz Suite          — 1,000/1,000 concurrent ops deterministic
-[PASS] Chrome DevTools Frame Budget Audit        — 59.8 FPS sustained across 12 peer cursors
-[PASS] impeccable detect http://localhost:4173   — 0 anti-pattern violations, 0 advisories`
+[PASS] CRDT Concurrent Merge Fuzz Suite          -- 1,000/1,000 concurrent ops deterministic
+[PASS] Chrome DevTools Frame Budget Audit        -- 59.8 FPS sustained across 12 peer cursors
+[PASS] impeccable detect http://localhost:4173   -- 0 anti-patterns, 0 advisories`
       }
     }
   },
   clinical: {
     prompt:
-      "Build AetherMD, a HIPAA-compliant ambient clinical triage & diagnostic portal for emergency physicians. Use high-contrast Swiss & Stripe typography, real-time HL7/FHIR patient vitals streaming, FastAPI backend with audit-logged PostgreSQL encryption, and RBAC session controls.",
+      "Build AetherMD, a HIPAA-compliant ambient clinical triage & diagnostic portal for emergency physicians. Use high-contrast Swiss typography, real-time HL7/FHIR patient vitals streaming, FastAPI backend with audit-logged PostgreSQL encryption, and RBAC session controls.",
     layers: {
       frontend: {
         file: "components/TriageVitalsGrid.tsx",
@@ -228,7 +228,7 @@ export function openDiagnosticDrawer(drawerEl: HTMLElement) {
   gsap.to(drawerEl, {
     xPercent: 0,
     duration: 0.14,
-    ease: "cubic-bezier(0.32, 0.72, 0, 1)",
+    ease: "power3.out",
   });
 }`
       },
@@ -261,7 +261,7 @@ CREATE TABLE phi_access_audit_log (
         file: "velomesh-mcp.lock.json",
         skills: ["discover_and_install_capability", "mcp-hl7-fhir-r4"],
         code: `{
-  "velomesh_Internet_Provisioning_Trace": [
+  "velomesh_internet_provisioning": [
     "[00.08s] Querying GitHub Mesh: hl7 fhir r4 mcp server + hipaa phi audit",
     "[00.25s] Synthesized validated wrapper: mcp-fhir-clinical-schema",
     "[00.34s] Enforced zero-PHI-in-logs security guardrail across all harnesses"
@@ -273,9 +273,9 @@ CREATE TABLE phi_access_audit_log (
         skills: ["test-driven-development", "security-review", "browser-qa"],
         code: `VELOMESH AUTONOMOUS VERIFICATION RECEIPT
 ========================================
-[PASS] HIPAA PHI Redaction & Hash-Chain Suite    — 22/22 tamper-evidence checks passed
-[PASS] axe-core WCAG 2.2 AAA High-Contrast       — 0 contrast or keyboard-trap findings
-[PASS] impeccable detect http://localhost:4173   — 0 anti-pattern violations, 0 advisories`
+[PASS] HIPAA PHI Redaction & Hash-Chain Suite    -- 22/22 tamper-evidence checks passed
+[PASS] axe-core WCAG 2.2 AAA High-Contrast       -- 0 contrast or keyboard-trap findings
+[PASS] impeccable detect http://localhost:4173   -- 0 anti-patterns, 0 advisories`
       }
     }
   }
@@ -299,7 +299,7 @@ function scoreVisionClarity(promptText) {
   ].filter((w) => wordSet.has(w)).length;
 
   const aestheticHits = [
-    "linear", "vercel", "stripe", "raycast", "framer", "apple", "awwwards", "dark", "minimal",
+    "linear", "vercel", "stripe", "raycast", "framer", "apple", "awwwards", "dark", "black", "minimal",
     "editorial", "swiss", "architectural", "cinematic", "react", "nextjs", "fastapi", "postgres",
     "postgresql", "supabase", "tailwind", "gsap", "webgl", "three", "typescript", "node", "python"
   ].filter((w) => wordSet.has(w)).length;
@@ -314,7 +314,7 @@ function scoreVisionClarity(promptText) {
 
 document.addEventListener("DOMContentLoaded", () => {
   // 1. OS 1-Command Installer Switcher
-  const osBtns = document.querySelectorAll(".os-btn");
+  const osTabs = document.querySelectorAll(".os-tab-btn");
   const installCodeEl = document.getElementById("install-cmd-code");
   const copyBtn = document.getElementById("copy-install-btn");
   const commands = {
@@ -323,9 +323,9 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   let currentOs = "unix";
 
-  osBtns.forEach((btn) => {
+  osTabs.forEach((btn) => {
     btn.addEventListener("click", () => {
-      osBtns.forEach((b) => b.classList.remove("active"));
+      osTabs.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       currentOs = btn.dataset.os || "unix";
       if (installCodeEl) installCodeEl.textContent = commands[currentOs];
@@ -346,15 +346,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 2. Interactive Multi-File Full-Stack Workbench
+  // 2. Interactive Multi-File Swiss Workbench
   let currentBlueprint = "treasury";
   let currentLayer = "frontend";
 
   const promptInput = document.getElementById("synth-prompt-input");
   const skillsStrip = document.getElementById("active-skills-strip");
   const codeOutput = document.getElementById("workbench-code-output");
-  const blueprintTabs = document.querySelectorAll(".blueprint-tab");
-  const fileTabs = document.querySelectorAll(".file-tab-btn");
+  const blueprintBtns = document.querySelectorAll(".preset-btn");
+  const fileBtns = document.querySelectorAll(".file-btn");
 
   function renderWorkbench(updatePromptText = true) {
     const bp = WORKBENCH_BLUEPRINTS[currentBlueprint] || WORKBENCH_BLUEPRINTS.treasury;
@@ -362,49 +362,62 @@ document.addEventListener("DOMContentLoaded", () => {
       promptInput.value = bp.prompt;
     }
 
-    // Update file names on sidebar tabs
-    fileTabs.forEach((tab) => {
-      const layerKey = tab.dataset.layer;
-      const nameSpan = tab.querySelector(".file-tab-name");
+    fileBtns.forEach((btn) => {
+      const layerKey = btn.dataset.layer;
+      const nameSpan = btn.querySelector(".file-name");
       if (layerKey && bp.layers[layerKey] && nameSpan) {
         nameSpan.textContent = bp.layers[layerKey].file;
       }
-      tab.classList.toggle("active", layerKey === currentLayer);
+      btn.classList.toggle("active", layerKey === currentLayer);
     });
 
     const activeData = bp.layers[currentLayer] || bp.layers.frontend;
     if (skillsStrip) {
       skillsStrip.innerHTML =
         `<span>Auto-linked skills &amp; MCPs:</span>` +
-        activeData.skills.map((s) => `<span class="skill-chip">${s}</span>`).join("");
+        activeData.skills.map((s) => `<span class="skill-token">${s}</span>`).join("");
     }
     if (codeOutput) {
       codeOutput.textContent = activeData.code;
     }
 
-    // Pulse SVG schematic path in Hero if GSAP is loaded
-    if (window.gsap) {
-      window.gsap.fromTo(
-        ".signal-node",
-        { attr: { r: 6 } },
-        { attr: { r: 4.5 }, duration: 0.35, stagger: 0.04, ease: "power2.out" }
-      );
-    }
+    pulseSchematic();
   }
 
-  blueprintTabs.forEach((btn) => {
+  function pulseSchematic() {
+    if (!window.gsap) return;
+    const mm = window.gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      window.gsap.fromTo(
+        ".bus-branch",
+        { opacity: 0.4 },
+        { opacity: 1, duration: 0.35, stagger: 0.04, ease: "power2.out" }
+      );
+    });
+  }
+
+  blueprintBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      blueprintTabs.forEach((b) => b.classList.remove("active"));
+      blueprintBtns.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       currentBlueprint = btn.dataset.blueprint || "treasury";
       renderWorkbench(true);
     });
   });
 
-  fileTabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      currentLayer = tab.dataset.layer || "frontend";
+  fileBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      currentLayer = btn.dataset.layer || "frontend";
       renderWorkbench(false);
+    });
+  });
+
+  // 6-Column Layer Index Bar -> Scroll & Activate Target File
+  document.querySelectorAll("[data-jump-layer]").forEach((cell) => {
+    cell.addEventListener("click", () => {
+      currentLayer = cell.dataset.jumpLayer || "frontend";
+      renderWorkbench(false);
+      document.getElementById("workbench")?.scrollIntoView({ behavior: "smooth" });
     });
   });
 
@@ -419,7 +432,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         currentBlueprint = "treasury";
       }
-      blueprintTabs.forEach((b) =>
+      blueprintBtns.forEach((b) =>
         b.classList.toggle("active", b.dataset.blueprint === currentBlueprint)
       );
       renderWorkbench(false);
@@ -428,7 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderWorkbench(true);
 
-  // 3. Interactive Vision Clarity Inspector ("VeloMesh Cannot Read Your Mind")
+  // 3. Live Vision Clarity Gate
   const visionInput = document.getElementById("live-vision-input");
   const visionBadge = document.getElementById("live-vision-badge");
   const visionGuidance = document.getElementById("live-vision-guidance");
@@ -451,15 +464,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (visionBadge && visionGuidance) {
       if (result.ready) {
-        visionBadge.className = "ledger-status status-verified";
-        visionBadge.textContent = "READY_FOR_FULLSTACK_EXECUTION (One-Shot Autonomous Build)";
+        visionBadge.className = "verdict-tag tag-executed";
+        visionBadge.textContent = "READY_FOR_FULLSTACK_EXECUTION (One-Shot Build)";
         visionGuidance.textContent =
-          "Product vision is clear. VeloMesh chains Frontend UI, GSAP Motion, Backend API, PostgreSQL RLS Schema, Live Internet MCPs, and Browser QA in one shot without slash commands.";
+          "Product vision is clear. VeloMesh compiles Frontend UI, GSAP Motion, Backend API, PostgreSQL RLS Schema, Live Internet MCPs, and Browser QA in a single shot.";
       } else {
-        visionBadge.className = "ledger-status status-blocked";
+        visionBadge.className = "verdict-tag tag-blocked";
         visionBadge.textContent = "NEEDS_ELABORATION — VeloMesh Cannot Read Your Mind";
         visionGuidance.textContent =
-          "VeloMesh automates 100% of skills, MCP servers, APIs, and databases—but it cannot get inside your brain. Elaborate who it is for, core workflows, and aesthetic direction so VeloMesh doesn't have to guess.";
+          "VeloMesh automates 100% of skills, MCP servers, APIs, and databases—but it cannot get inside your brain. Elaborate who it serves, key workflows, and visual style.";
       }
     }
   }
@@ -469,13 +482,25 @@ document.addEventListener("DOMContentLoaded", () => {
     refreshVisionInspector();
   }
 
-  document.querySelectorAll(".vision-sample-btn").forEach((btn) => {
+  document.querySelectorAll(".gate-sample-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       if (!visionInput) return;
-      document.querySelectorAll(".vision-sample-btn").forEach((b) => b.classList.remove("btn-signal"));
-      btn.classList.add("btn-signal");
+      document.querySelectorAll(".gate-sample-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
       visionInput.value = btn.dataset.sample || "";
       refreshVisionInspector();
     });
   });
+
+  // 4. GSAP Progressive Enhancement (Never hides content by default)
+  if (window.gsap) {
+    const mm = window.gsap.matchMedia();
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
+      window.gsap.from(".hero-title", {
+        y: 18,
+        duration: 0.55,
+        ease: "power3.out"
+      });
+    });
+  }
 });

@@ -9,9 +9,14 @@
 - **Python CLI & Provisioning Engine:** [`scripts/velomesh.py`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/velomesh.py) (zero external pip dependencies; Python 3.9+ stdlib).
 - **Node.js MCP Server & Hook Engine:** [`scripts/mcp-server.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/mcp-server.mjs), [`scripts/hooks.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/hooks.mjs), [`scripts/router.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/router.mjs), [`scripts/catalog.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/catalog.mjs) (zero external npm runtime dependencies; Node.js 18+ stdlib).
 - **1-Command Global Installers:** [`install.sh`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/install.sh) (macOS/Linux) and [`install.ps1`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/install.ps1) (Windows PowerShell).
-- **Awwwards Interactive Product Website:** [`web/index.html`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/web/index.html), [`web/styles.css`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/web/styles.css), [`web/app.js`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/web/app.js) (mirrored to `docs/` for GitHub Pages at `https://ritvikchunamari.github.io/velomesh/`).
+## Design System & Frontend Architecture (Black Swiss Edition)
+- **Visual Direction (`/rcs-frontend`):** Black Swiss / International Typographic Style (`#060606` matte black canvas, `#0d0d0d`/`#141414` elevated surfaces, `1px solid #242422`/`#464642` rectilinear structural hairlines, `#f4f4ef` chalk ink, International Swiss Red `#b8180d`/`#ff3b2f`).
+- **Typography:** Self-hosted **Switzer** Swiss Neo-Grotesque (`web/fonts/Switzer-{400,500,600,700}.woff2` and mirrored in `docs/fonts/`) paired with `JetBrains Mono`. Strict `>= 13px` functional UI text floor.
+- **UI Craft Verification (`impeccable`):** Passes `impeccable detect` and `python3 scripts/velomesh.py audit-ui web` with **0 anti-patterns and 0 advisories**.
+- **Website Entrypoints:** [`web/index.html`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/web/index.html), [`web/styles.css`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/web/styles.css), [`web/app.js`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/web/app.js) (mirrored to `docs/` for GitHub Pages at `https://ritvikchunamari.github.io/velomesh/`).
 
 ## Verification Commands
 - Python unit tests: `python3 tests/test_velomesh.py`
 - Node hook & routing tests: `node --test tests/hooks.test.mjs`
+- Anti-slop UI craft audit: `python3 scripts/velomesh.py audit-ui web`
 - Full-stack bundle synthesis preview: `python3 scripts/velomesh.py bundle "<prompt>"`
