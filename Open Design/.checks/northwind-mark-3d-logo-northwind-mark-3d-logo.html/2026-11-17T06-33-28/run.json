@@ -1,0 +1,35 @@
+{
+  "entryPath": "Open Design/northwind-mark-3d-logo/northwind-mark-3d-logo.html",
+  "id": "2026-11-17T06-33-28",
+  "createdAt": "2026-11-17T06:33:28.380Z",
+  "mode": "page",
+  "errors": 0,
+  "warnings": 0,
+  "findings": [
+    {
+      "severity": "info",
+      "check": "contrast",
+      "message": "Contrast not checked for 2 text element(s) on gradient, image or translucent backgrounds — check those by eye."
+    }
+  ],
+  "images": [
+    {
+      "label": "desktop",
+      "file": "01-desktop.jpg",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "label": "3d views: overview, closeup, low, wireframe",
+      "file": "02-3d-views-overview-closeup-low-wireframe.jpg",
+      "width": 1476,
+      "height": 936
+    },
+    {
+      "label": "mobile",
+      "file": "03-mobile.jpg",
+      "width": 390,
+      "height": 844
+    }
+  ]
+}

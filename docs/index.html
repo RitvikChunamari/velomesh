@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VeloMesh — One-Prompt Full-Stack &amp; Autonomous Internet Capability Engine</title>
-  <meta name="description" content="Build websites, full-stack products, backends, frontends, and PostgreSQL databases from one elaborated prompt. VeloMesh autonomously discovers and hot-links MCP servers, APIs, subagents, and 398+ skills across Claude Code, Cursor, Codex, Copilot, Antigravity, and OpenCode." />
+  <meta name="description" content="Build websites, full-stack products, backends, frontends, and PostgreSQL databases from one elaborated prompt. Features VeloMesh's Swiss geometric identity, brushed-gold 3D emblem, and autonomous MCP/API capability routing across Claude Code, Cursor, Codex, Copilot, Antigravity, and OpenCode." />
   <link rel="canonical" href="https://ritvikchunamari.github.io/velomesh/" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="VeloMesh — Black Swiss Architectural Edition" />
-  <meta property="og:description" content="Elaborate your product vision once. VeloMesh autonomously provisions the skills, MCP servers, APIs, database schemas, and QA agents to build it end-to-end." />
+  <meta property="og:title" content="VeloMesh — One Prompt. Full-Stack Software." />
+  <meta property="og:description" content="Elaborate your product vision once. VeloMesh autonomously discovers and wires the skills, MCP servers, APIs, database schemas, and QA agents to build it end-to-end." />
   <meta property="og:url" content="https://ritvikchunamari.github.io/velomesh/" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,449 +17,482 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
 
-  <script type="application/ld+json">
+  <script type="importmap">
   {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "VeloMesh",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "macOS, Linux, Windows",
-    "url": "https://ritvikchunamari.github.io/velomesh/",
-    "codeRepository": "https://github.com/RitvikChunamari/velomesh",
-    "description": "Autonomous Full-Stack & Internet Capability Engine that builds websites, products, backends, frontends, and databases from one elaborated prompt across Claude Code, Cursor, Codex, Copilot, Antigravity, and OpenCode."
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
   }
   </script>
 </head>
 <body>
-  <!-- Sticky Black Swiss Masthead -->
-  <header class="masthead">
-    <div class="masthead-grid">
-      <a href="#" class="brand-cell">
-        <span class="swiss-square-mark" aria-hidden="true">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 1V11M1 6H11" stroke-linecap="square" />
-          </svg>
-        </span>
-        <span>VeloMesh</span>
-        <span class="brand-meta">v4.2</span>
+  <div class="page-frame">
+    <!-- BERGER FOHR-INSPIRED HEADER: UNOBSTRUCTED MONUMENTAL LOCKUP + CIRCLE/SQUARE CONTROLS -->
+    <header class="bf-header">
+      <a href="#" class="bf-wordmark-link" aria-label="VeloMesh Home">
+        <svg class="bf-header-mark" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+          <path fill="currentColor" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
+          <path fill="currentColor" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+        </svg>
+        <span class="bf-wordmark-text">VeloMesh</span>
       </a>
 
-      <nav class="nav-rail" aria-label="Primary Navigation">
-        <ul class="nav-items">
-          <li><a href="#workbench">Workbench</a></li>
-          <li><a href="#vision-spec">Vision Gate</a></li>
-          <li><a href="#architecture">Capability Mesh</a></li>
-          <li><a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener">GitHub Repository</a></li>
-        </ul>
-      </nav>
+      <div class="bf-header-right">
+        <nav aria-label="Primary Navigation">
+          <ul class="bf-nav-links">
+            <li><a href="#works-index">Capabilities</a></li>
+            <li><a href="#workbench">Workbench</a></li>
+            <li><a href="#vision-spec">Vision Gate</a></li>
+            <li><a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener">GitHub</a></li>
+          </ul>
+        </nav>
 
-      <div class="action-rail">
-        <a href="#vision-spec" class="btn btn-dark">Test Prompt Clarity</a>
-        <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener" class="btn btn-red">GitHub Repo</a>
-      </div>
-    </div>
-  </header>
-
-  <main class="swiss-grid-shell">
-    <!-- POSTER HERO -->
-    <section class="poster-hero">
-      <!-- Band 1: Asymmetric 8 / 4 Headline & Specification Ledger -->
-      <div class="hero-headline-band">
-        <div class="hero-display-cell">
-          <h1 class="hero-title">
-            One prompt.
-            <span class="hero-title-accent">Full-stack software.</span>
-          </h1>
+        <div class="bf-primitives">
+          <button type="button" id="theme-toggle-btn" class="primitive-btn primitive-circle" aria-label="Toggle black and white contrast polarity" title="Switch Polarity (Black / White)">
+            <span class="primitive-circle-dot" aria-hidden="true"></span>
+          </button>
+          <button type="button" id="drawer-open-btn" class="primitive-btn primitive-square" aria-label="Open index navigation menu" aria-expanded="false" aria-controls="bf-menu-drawer" title="Open Index Menu">
+            <span class="primitive-square-bar" aria-hidden="true"></span>
+          </button>
         </div>
+      </div>
+    </header>
 
-        <div class="hero-spec-column">
-          <div class="spec-ledger-list">
-            <div class="spec-ledger-item">
-              <span class="spec-key">SYSTEM</span>
-              <span class="spec-val">Autonomous Capability Engine</span>
-            </div>
-            <div class="spec-ledger-item">
-              <span class="spec-key">INTERNET MESH</span>
-              <span class="spec-val">MCPs, APIs, Agents, 398 Skills</span>
-            </div>
-            <div class="spec-ledger-item">
-              <span class="spec-key">HARNESSES</span>
-              <span class="spec-val">Claude, Cursor, Codex, Copilot</span>
-            </div>
-            <div class="spec-ledger-item">
-              <span class="spec-key">COMMAND INPUT</span>
-              <span class="spec-val">Zero Slash Commands Required</span>
-            </div>
+    <main>
+      <!-- HERO: ASYMMETRIC SWISS DISPLAY + BRUSHED-GOLD 3D EMBLEM STAGE -->
+      <section class="hero-band">
+        <div class="hero-copy-col">
+          <div>
+            <h1 class="hero-headline">
+              One prompt.
+              <span class="hero-headline-red">Full-stack software.</span>
+            </h1>
+            <p class="hero-description" style="margin-top: 1.5rem;">
+              VeloMesh operates silently inside <strong>Claude Code, Cursor, OpenAI Codex, GitHub Copilot, Antigravity, and OpenCode</strong>—autonomously fetching live MCP servers, REST APIs, subagents, and 398+ skills from the internet to build websites, backends, frontends, and databases.
+            </p>
           </div>
-          <p class="hero-lead-box">
-            VeloMesh runs silently inside your coding agents to build <strong>websites, full-stack products, APIs, and PostgreSQL databases</strong> from one prompt—going to the internet on the fly to discover and wire every capability your build needs.
-          </p>
-        </div>
-      </div>
 
-      <!-- Band 2: Left Vision Principle + 1-Command Installer | Right Orthogonal Signal Schematic -->
-      <div class="hero-execution-band">
-        <div class="hero-left-rail">
-          <aside class="vision-manifesto-block" aria-label="Vision Elaboration Requirement">
-            <div class="manifesto-head">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#ff3b2f" stroke-width="1.75" aria-hidden="true">
-                <rect x="2" y="2" width="12" height="12" />
-                <path d="M8 5V8.5M8 11H8.01" stroke-linecap="square" />
-              </svg>
-              <span>We automate 100% of the stack — not your mind</span>
-            </div>
-            <p class="manifesto-copy">
-              You never type slash commands, pick skills, or edit MCP config files. <strong>However, you still must elaborate what you want to build</strong>—your audience, workflows, database rules, and visual taste—because VeloMesh cannot get inside your brain or think&nbsp;like&nbsp;you.
+          <aside class="vision-callout-rule" aria-label="Vision Elaboration Rule">
+            <div class="vision-callout-title">We automate 100% of the stack — not your mind</div>
+            <p class="vision-callout-body">
+              Never type slash commands, name skills, or edit MCP configs. <strong>Yet you still must elaborate what you want to build</strong>—your users, workflows, database rules, and aesthetic direction—because VeloMesh cannot get inside your brain or think&nbsp;like&nbsp;you.
             </p>
           </aside>
 
-          <div class="installer-panel">
-            <div class="installer-tabs-row">
-              <div class="os-btn-group" role="tablist" aria-label="Operating System Installer">
-                <button type="button" class="os-tab-btn active" data-os="unix">macOS / Linux</button>
-                <button type="button" class="os-tab-btn" data-os="windows">Windows PowerShell</button>
+          <div class="installer-wrap">
+            <div class="installer-controls">
+              <div class="pill-switch" role="tablist" aria-label="Operating System Installer">
+                <button type="button" class="pill-outline-btn os-tab-btn active" data-os="unix">macOS / Linux</button>
+                <button type="button" class="pill-outline-btn os-tab-btn" data-os="windows">Windows PowerShell</button>
               </div>
-              <button type="button" id="copy-install-btn" class="btn btn-red copy-cmd-btn">Copy Command</button>
+              <button type="button" id="copy-install-btn" class="btn-red-solid">Copy Command</button>
             </div>
-            <div class="installer-cmd-strip">
-              <code id="install-cmd-code" class="installer-code-text">curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash</code>
+            <div class="cmd-line-box">
+              <code id="install-cmd-code" class="cmd-line-code">curl -fsSL https://raw.githubusercontent.com/RitvikChunamari/velomesh/main/install.sh | bash</code>
             </div>
           </div>
         </div>
 
-        <div class="hero-diagram-rail" aria-label="Orthogonal Full-Stack Signal Routing Diagram">
-          <div class="diagram-top-meta">
-            <span>SIGNAL SCHEMATIC // PRE-INVOCATION HOOK</span>
-            <span>6 OUTPUT LAYERS</span>
+        <!-- RIGHT COLUMN: BRUSHED-GOLD 3D ROTATING VELOMESH LOGO + CONSTRUCTION GRID MODE -->
+        <div class="hero-logo-stage" aria-label="Interactive Brushed-Gold 3D VeloMesh Emblem">
+          <div class="logo-stage-bar">
+            <span class="logo-stage-title">VELOMESH EMBLEM // 0.55 SWISS TANGENT</span>
+            <div class="pill-switch" role="group" aria-label="Logo View Mode">
+              <button type="button" id="mode-3d-btn" class="pill-outline-btn active">3D Brushed Gold</button>
+              <button type="button" id="mode-grid-btn" class="pill-outline-btn">2D Construction Grid</button>
+            </div>
           </div>
 
-          <svg class="swiss-schematic-svg" viewBox="0 0 700 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Orthogonal signal diagram routing an elaborated prompt through the Vision Gate into Frontend, Motion, Backend API, PostgreSQL RLS, Internet MCP, and Browser QA">
-            <!-- Swiss Grid Registration Crosshairs -->
-            <path d="M12 12H24M18 6V18" stroke="#383834" stroke-width="1.2" />
-            <path d="M676 12H688M682 6V18" stroke="#383834" stroke-width="1.2" />
-            <path d="M12 244H24M18 238V250" stroke="#383834" stroke-width="1.2" />
-            <path d="M676 244H688M682 238V250" stroke="#383834" stroke-width="1.2" />
+          <div id="hero-logo-viewport" class="logo-viewport" data-mode="3d">
+            <canvas id="hero-logo-canvas" data-od-webgl aria-label="Three-dimensional brushed-gold VeloMesh emblem rotating smoothly"></canvas>
 
-            <!-- Orthogonal Routing Trunk & Branches -->
-            <path class="bus-line" d="M142 128H198" stroke="#464642" stroke-width="1.5" />
-            <path class="bus-line" d="M332 128H376" stroke="#ff3b2f" stroke-width="1.75" />
-            <path class="bus-line" d="M376 28V228" stroke="#383834" stroke-width="1.5" />
+            <!-- 2D Static SVG Fallback & Construction Mode -->
+            <svg class="hero-logo-fallback" viewBox="0 0 120 120" fill="none" role="img" aria-label="VeloMesh Geometric Emblem on 120x120 Grid">
+              <path fill="currentColor" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
+              <path fill="currentColor" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+            </svg>
 
-            <path class="bus-branch" d="M376 28H420" stroke="#464642" stroke-width="1.5" />
-            <path class="bus-branch" d="M376 68H420" stroke="#464642" stroke-width="1.5" />
-            <path class="bus-branch" d="M376 108H420" stroke="#ff3b2f" stroke-width="1.75" />
-            <path class="bus-branch" d="M376 148H420" stroke="#464642" stroke-width="1.5" />
-            <path class="bus-branch" d="M376 188H420" stroke="#464642" stroke-width="1.5" />
-            <path class="bus-branch" d="M376 228H420" stroke="#3dd68c" stroke-width="1.5" />
+            <!-- Precision Berger Fohr Mathematical Construction Grid Overlay -->
+            <svg class="stage-construction-grid" viewBox="0 0 120 120" preserveAspectRatio="xMidYMid meet" fill="none" aria-hidden="true">
+              <line x1="60" y1="6" x2="60" y2="114" stroke="var(--grid-overlay)" stroke-width="0.45" stroke-dasharray="1.5 1.5" />
+              <line x1="4" y1="20" x2="116" y2="20" stroke="var(--grid-overlay)" stroke-width="0.5" />
+              <line x1="4" y1="100" x2="116" y2="100" stroke="var(--grid-overlay-sub)" stroke-width="0.4" />
+              <line x1="8" y1="20" x2="56" y2="107.27" stroke="var(--grid-overlay-sub)" stroke-width="0.4" />
+              <line x1="26" y1="20" x2="60" y2="81.82" stroke="var(--grid-overlay)" stroke-width="0.45" />
+              <line x1="94" y1="20" x2="60" y2="81.82" stroke="var(--grid-overlay)" stroke-width="0.45" />
+              <line x1="36" y1="20" x2="60" y2="63.64" stroke="var(--grid-overlay-sub)" stroke-width="0.4" />
+              <line x1="84" y1="20" x2="60" y2="63.64" stroke="var(--grid-overlay-sub)" stroke-width="0.4" />
+              <circle cx="60" cy="70" r="11" stroke="var(--grid-overlay)" stroke-width="0.45" />
+              <circle cx="60" cy="48" r="12" stroke="var(--grid-overlay-sub)" stroke-width="0.4" />
+              <rect x="8" y="20" width="104" height="80" stroke="var(--grid-overlay-sub)" stroke-width="0.35" />
+            </svg>
+          </div>
 
-            <!-- Input Box -->
-            <rect x="20" y="98" width="122" height="60" fill="#141414" stroke="#464642" stroke-width="1.25" />
-            <text x="34" y="124" fill="#f4f4ef" font-family="Switzer, Helvetica Neue, sans-serif" font-size="14" font-weight="600">00 Prompt</text>
-            <text x="34" y="144" fill="#94948c" font-family="JetBrains Mono, monospace" font-size="12.5">Vision Spec</text>
-
-            <!-- Vision Clarity Gate -->
-            <rect x="198" y="92" width="134" height="72" fill="#060606" stroke="#ff3b2f" stroke-width="1.75" />
-            <text x="214" y="122" fill="#ff3b2f" font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="600">VISION GATE</text>
-            <text x="214" y="145" fill="#f4f4ef" font-family="Switzer, Helvetica Neue, sans-serif" font-size="14.5" font-weight="600">Clarity Check</text>
-
-            <!-- Six Orthogonal Output Modules (Wide 256px Clearance) -->
-            <rect x="420" y="12" width="256" height="32" fill="#141414" stroke="#383834" />
-            <rect x="420" y="12" width="4" height="32" fill="#ff3b2f" />
-            <text x="436" y="33" fill="#f4f4ef" font-family="JetBrains Mono, monospace" font-size="12.5">01 Frontend + 86 DESIGN.md</text>
-
-            <rect x="420" y="52" width="256" height="32" fill="#141414" stroke="#383834" />
-            <rect x="420" y="52" width="4" height="32" fill="#ff3b2f" />
-            <text x="436" y="73" fill="#f4f4ef" font-family="JetBrains Mono, monospace" font-size="12.5">02 GSAP + WebGL Physics</text>
-
-            <rect x="420" y="92" width="256" height="32" fill="#141414" stroke="#ff3b2f" />
-            <rect x="420" y="92" width="4" height="32" fill="#ff3b2f" />
-            <text x="436" y="113" fill="#f4f4ef" font-family="JetBrains Mono, monospace" font-size="12.5">03 Backend API + OWASP</text>
-
-            <rect x="420" y="132" width="256" height="32" fill="#141414" stroke="#383834" />
-            <rect x="420" y="132" width="4" height="32" fill="#94948c" />
-            <text x="436" y="153" fill="#f4f4ef" font-family="JetBrains Mono, monospace" font-size="12.5">04 PostgreSQL + RLS DDL</text>
-
-            <rect x="420" y="172" width="256" height="32" fill="#141414" stroke="#383834" />
-            <rect x="420" y="172" width="4" height="32" fill="#94948c" />
-            <text x="436" y="193" fill="#f4f4ef" font-family="JetBrains Mono, monospace" font-size="12.5">05 Live Internet MCPs</text>
-
-            <rect x="420" y="212" width="256" height="32" fill="#141414" stroke="#3dd68c" />
-            <rect x="420" y="212" width="4" height="32" fill="#3dd68c" />
-            <text x="436" y="233" fill="#3dd68c" font-family="JetBrains Mono, monospace" font-size="12.5">06 TDD + Browser QA Pass</text>
-          </svg>
-
-          <div class="diagram-top-meta" style="border-bottom: none; border-top: 1px solid var(--rule); padding-bottom: 0; padding-top: 0.85rem;">
-            <span>GLOBAL HARNESSES // CLAUDE · CURSOR · CODEX · COPILOT · ANTIGRAVITY</span>
-            <span>ZERO DEPS</span>
+          <div class="logo-stage-footer">
+            <span>DRAG TO ORBIT · CNC FILLET SPECIMEN</span>
+            <a href="./brand/velomesh-mark.svg" download="velomesh-mark.svg" class="artifact-open-link">Download SVG Mark</a>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 6-COLUMN INTERACTIVE LAYER INDEX STRIP -->
-    <nav class="layer-index-bar" aria-label="Jump to Synthesized Stack Layer">
-      <button type="button" class="layer-index-cell" data-jump-layer="frontend">
-        <span class="layer-index-num">01</span>
-        <span class="layer-index-name">Frontend &amp; Design</span>
-        <span class="layer-index-sub">86 DESIGN.md</span>
-      </button>
-      <button type="button" class="layer-index-cell" data-jump-layer="motion">
-        <span class="layer-index-num">02</span>
-        <span class="layer-index-name">GSAP &amp; Motion</span>
-        <span class="layer-index-sub">60fps physics</span>
-      </button>
-      <button type="button" class="layer-index-cell" data-jump-layer="backend">
-        <span class="layer-index-num">03</span>
-        <span class="layer-index-name">Backend APIs</span>
-        <span class="layer-index-sub">Auth &amp; OWASP</span>
-      </button>
-      <button type="button" class="layer-index-cell" data-jump-layer="database">
-        <span class="layer-index-num">04</span>
-        <span class="layer-index-name">PostgreSQL RLS</span>
-        <span class="layer-index-sub">Schemas &amp; DDL</span>
-      </button>
-      <button type="button" class="layer-index-cell" data-jump-layer="mcp">
-        <span class="layer-index-num">05</span>
-        <span class="layer-index-name">Internet MCPs</span>
-        <span class="layer-index-sub">Live GitHub fetch</span>
-      </button>
-      <button type="button" class="layer-index-cell" data-jump-layer="qa">
-        <span class="layer-index-num">06</span>
-        <span class="layer-index-name">TDD &amp; Browser QA</span>
-        <span class="layer-index-sub">Verified builds</span>
-      </button>
-    </nav>
-
-    <!-- SECTION 1: INTERACTIVE MULTI-FILE FULL-STACK WORKBENCH -->
-    <section id="workbench" class="swiss-section">
-      <div class="section-header-band">
-        <div class="section-title-col">
-          <h2 class="section-heading">Six layers compiled from one vision prompt.</h2>
+      <!-- BERGER FOHR OPEN HAIRLINE IDENTITY & CAPABILITY MATRIX (#works-index) -->
+      <section id="works-index" class="works-section" aria-label="Full-Stack Capability Archive">
+        <div class="works-filter-bar">
+          <div class="filter-dropdown-pills" role="group" aria-label="Filter Architecture Discipline">
+            <button type="button" class="pill-outline-btn filter-pill active" data-filter="all">All Layers</button>
+            <button type="button" class="pill-outline-btn filter-pill" data-filter="interface">Interface &amp; Motion</button>
+            <button type="button" class="pill-outline-btn filter-pill" data-filter="infrastructure">Backend, Data &amp; MCP</button>
+            <button type="button" class="pill-outline-btn filter-pill" data-filter="quality">Verification &amp; QA</button>
+          </div>
+          <span class="logo-stage-title">OPEN CONSTRUCTION GRID · LIVE FULL-STACK SPECIMENS</span>
         </div>
-        <div class="section-desc-col">
-          <p class="section-desc">
-            Select a blueprint—or edit the prompt yourself—and inspect the compiled files across UI components, GSAP motion, FastAPI/Node endpoints, PostgreSQL RLS schemas, Internet MCP wrappers, and automated&nbsp;QA.
+
+        <div id="works-grid" class="works-grid">
+          <!-- VM01: Frontend & 86 DESIGN.md -->
+          <article class="work-cell" data-category="interface" data-target-layer="frontend">
+            <span class="work-code">VM01</span>
+            <div class="work-stage">
+              <svg class="work-mark-svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <rect x="16" y="22" width="88" height="20" fill="currentColor" />
+                <rect x="16" y="50" width="54" height="20" fill="currentColor" />
+                <rect x="78" y="50" width="26" height="48" fill="currentColor" />
+                <rect x="16" y="78" width="54" height="20" fill="currentColor" />
+              </svg>
+              <svg class="cell-grid-lines" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <line x1="16" y1="12" x2="16" y2="108" stroke="var(--grid-overlay)" stroke-width="0.6" />
+                <line x1="70" y1="12" x2="70" y2="108" stroke="var(--grid-overlay-sub)" stroke-width="0.5" />
+                <line x1="78" y1="12" x2="78" y2="108" stroke="var(--grid-overlay)" stroke-width="0.6" />
+                <line x1="104" y1="12" x2="104" y2="108" stroke="var(--grid-overlay-sub)" stroke-width="0.5" />
+                <line x1="10" y1="22" x2="110" y2="22" stroke="var(--grid-overlay)" stroke-width="0.6" />
+                <line x1="10" y1="98" x2="110" y2="98" stroke="var(--grid-overlay-sub)" stroke-width="0.5" />
+              </svg>
+            </div>
+            <div class="work-meta-stack">
+              <span class="work-title">Interface &amp; Brand Systems</span>
+              <span class="work-attr">86 Reference DESIGN.md</span>
+              <span class="work-attr">Switzer · Tokens · Craft Gate</span>
+              <button type="button" class="work-action-link" data-jump-layer="frontend">View Blueprint</button>
+            </div>
+          </article>
+
+          <!-- VM02: GSAP & 60fps Motion -->
+          <article class="work-cell" data-category="interface" data-target-layer="motion">
+            <span class="work-code">VM02</span>
+            <div class="work-stage">
+              <svg class="work-mark-svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <circle cx="38" cy="60" r="24" fill="currentColor" />
+                <circle cx="66" cy="60" r="24" stroke="currentColor" stroke-width="10" />
+                <circle cx="92" cy="60" r="14" fill="currentColor" />
+              </svg>
+              <svg class="cell-grid-lines" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <line x1="10" y1="60" x2="110" y2="60" stroke="var(--grid-overlay)" stroke-width="0.6" />
+                <line x1="38" y1="20" x2="38" y2="100" stroke="var(--grid-overlay-sub)" stroke-width="0.5" />
+                <line x1="66" y1="20" x2="66" y2="100" stroke="var(--grid-overlay)" stroke-width="0.6" />
+                <circle cx="66" cy="60" r="34" stroke="var(--grid-overlay-sub)" stroke-width="0.5" stroke-dasharray="2 2" />
+              </svg>
+            </div>
+            <div class="work-meta-stack">
+              <span class="work-title">Choreography &amp; WebGL Physics</span>
+              <span class="work-attr">GSAP 3 + Three.js</span>
+              <span class="work-attr">Reduced-Motion MatchMedia</span>
+              <button type="button" class="work-action-link" data-jump-layer="motion">View Blueprint</button>
+            </div>
+          </article>
+
+          <!-- VM03: Backend API & Security -->
+          <article class="work-cell" data-category="infrastructure" data-target-layer="backend">
+            <span class="work-code">VM03</span>
+            <div class="work-stage">
+              <svg class="work-mark-svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <path fill="currentColor" d="M18 26 H102 V44 H54 V54 H102 V72 H38 V82 H102 V100 H18 V62 H66 V52 H18 Z"/>
+              </svg>
+              <svg class="cell-grid-lines" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <rect x="18" y="26" width="84" height="74" stroke="var(--grid-overlay)" stroke-width="0.6" />
+                <line x1="12" y1="54" x2="108" y2="54" stroke="var(--grid-overlay)" stroke-width="0.5" />
+                <line x1="12" y1="72" x2="108" y2="72" stroke="var(--grid-overlay-sub)" stroke-width="0.5" />
+              </svg>
+            </div>
+            <div class="work-meta-stack">
+              <span class="work-title">Backend Services &amp; Security</span>
+              <span class="work-attr">FastAPI · Node · Auth</span>
+              <span class="work-attr">HMAC Webhooks · RBAC</span>
+              <button type="button" class="work-action-link" data-jump-layer="backend">View Blueprint</button>
+            </div>
+          </article>
+
+          <!-- VM04: PostgreSQL RLS Schema -->
+          <article class="work-cell" data-category="infrastructure" data-target-layer="database">
+            <span class="work-code">VM04</span>
+            <div class="work-stage">
+              <svg class="work-mark-svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <rect x="20" y="22" width="80" height="20" rx="10" fill="currentColor" />
+                <rect x="20" y="50" width="80" height="20" rx="10" fill="currentColor" />
+                <rect x="20" y="78" width="80" height="20" rx="10" fill="currentColor" />
+              </svg>
+              <svg class="cell-grid-lines" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <line x1="60" y1="12" x2="60" y2="108" stroke="var(--grid-overlay)" stroke-width="0.6" />
+                <line x1="20" y1="16" x2="20" y2="104" stroke="var(--grid-overlay-sub)" stroke-width="0.5" />
+                <line x1="100" y1="16" x2="100" y2="104" stroke="var(--grid-overlay-sub)" stroke-width="0.5" />
+              </svg>
+            </div>
+            <div class="work-meta-stack">
+              <span class="work-title">Relational Schemas &amp; Migrations</span>
+              <span class="work-attr">PostgreSQL 16 · Prisma</span>
+              <span class="work-attr">Row-Level Tenant Isolation</span>
+              <button type="button" class="work-action-link" data-jump-layer="database">View Blueprint</button>
+            </div>
+          </article>
+
+          <!-- VM05: Live Internet MCP Discovery -->
+          <article class="work-cell" data-category="infrastructure" data-target-layer="mcp">
+            <span class="work-code">VM05</span>
+            <div class="work-stage">
+              <svg class="work-mark-svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <path fill="currentColor" d="M22 22 H52 V52 H22 Z M68 22 H98 V52 H68 Z M45 68 H75 V98 H45 Z"/>
+                <path stroke="currentColor" stroke-width="10" d="M37 46 L60 72 L83 46"/>
+              </svg>
+              <svg class="cell-grid-lines" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <line x1="37" y1="16" x2="60" y2="104" stroke="var(--grid-overlay)" stroke-width="0.6" />
+                <line x1="83" y1="16" x2="60" y2="104" stroke="var(--grid-overlay)" stroke-width="0.6" />
+                <rect x="22" y="22" width="76" height="76" stroke="var(--grid-overlay-sub)" stroke-width="0.5" />
+              </svg>
+            </div>
+            <div class="work-meta-stack">
+              <span class="work-title">Autonomous Internet Provisioning</span>
+              <span class="work-attr">GitHub MCP · API · Agent</span>
+              <span class="work-attr">On-the-Fly Wrapper Synthesis</span>
+              <button type="button" class="work-action-link" data-jump-layer="mcp">View Blueprint</button>
+            </div>
+          </article>
+
+          <!-- VM06: TDD & Multi-Viewport QA -->
+          <article class="work-cell" data-category="quality" data-target-layer="qa">
+            <span class="work-code">VM06</span>
+            <div class="work-stage">
+              <svg class="work-mark-svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <path fill="currentColor" d="M20 62 L32 50 L50 68 L88 30 L100 42 L50 92 Z"/>
+                <rect x="20" y="96" width="80" height="8" fill="currentColor" />
+              </svg>
+              <svg class="cell-grid-lines" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+                <line x1="20" y1="62" x2="100" y2="62" stroke="var(--grid-overlay-sub)" stroke-width="0.5" />
+                <line x1="50" y1="16" x2="50" y2="108" stroke="var(--grid-overlay)" stroke-width="0.6" />
+                <line x1="16" y1="100" x2="104" y2="20" stroke="var(--grid-overlay-sub)" stroke-width="0.5" />
+              </svg>
+            </div>
+            <div class="work-meta-stack">
+              <span class="work-title">TDD &amp; Anti-Slop Browser QA</span>
+              <span class="work-attr">Playwright · Pytest · Node Test</span>
+              <span class="work-attr">impeccable + WCAG 2.2 AA</span>
+              <button type="button" class="work-action-link" data-jump-layer="qa">View Blueprint</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- SECTION 2: MULTI-FILE FULL-STACK WORKBENCH (#workbench) -->
+      <section id="workbench" class="content-section">
+        <div class="section-split-head">
+          <h2 class="section-heading">Six layers compiled from one elaborated prompt.</h2>
+          <p class="section-subcopy">
+            Choose a full-stack blueprint below or edit the prompt directly, then switch through the synthesized files in the left rail to inspect how VeloMesh composes UI, motion, backend APIs, database DDL, Internet MCPs, and&nbsp;QA.
           </p>
         </div>
-      </div>
 
-      <div class="workbench-presets-strip" role="group" aria-label="Full-Stack Product Blueprints">
-        <button type="button" class="preset-btn active" data-blueprint="treasury">
-          <span>01 · PulseLedger CFO Treasury</span>
-          <span class="preset-btn-meta">FastAPI · Postgres RLS · Stripe MCP</span>
-        </button>
-        <button type="button" class="preset-btn" data-blueprint="webglStudio">
-          <span>02 · Kinetix WebGL Shader Studio</span>
-          <span class="preset-btn-meta">GSAP 60fps · WebSockets CRDT · R2/S3</span>
-        </button>
-        <button type="button" class="preset-btn" data-blueprint="clinical">
-          <span>03 · AetherMD HIPAA Triage Portal</span>
-          <span class="preset-btn-meta">HL7/FHIR API · Chained Audit DB</span>
-        </button>
-      </div>
+        <div class="workbench-frame">
+          <div class="workbench-presets" role="group" aria-label="Full-Stack Product Blueprints">
+            <button type="button" class="preset-btn active" data-blueprint="treasury">
+              <span>01 · PulseLedger CFO Treasury</span>
+              <span class="preset-meta">FastAPI · Postgres RLS · Stripe MCP</span>
+            </button>
+            <button type="button" class="preset-btn" data-blueprint="webglStudio">
+              <span>02 · Kinetix WebGL Shader Studio</span>
+              <span class="preset-meta">GSAP 60fps · WebSockets CRDT · R2</span>
+            </button>
+            <button type="button" class="preset-btn" data-blueprint="clinical">
+              <span>03 · AetherMD HIPAA Triage Portal</span>
+              <span class="preset-meta">HL7/FHIR API · Chained Audit DB</span>
+            </button>
+          </div>
 
-      <div class="workbench-prompt-bar">
-        <textarea id="synth-prompt-input" class="workbench-textarea" rows="2" aria-label="Elaborated Product Vision Prompt"></textarea>
-        <button type="button" id="run-synth-btn" class="btn btn-red workbench-run-btn">Synthesize Stack</button>
-      </div>
+          <div class="prompt-strip">
+            <textarea id="synth-prompt-input" class="prompt-textarea" rows="2" aria-label="Elaborated Product Vision Prompt"></textarea>
+            <button type="button" id="run-synth-btn" class="prompt-run-btn">Synthesize Stack</button>
+          </div>
 
-      <div class="workbench-split">
-        <div class="workbench-files" role="tablist" aria-label="Compiled Layer Files">
-          <button type="button" class="file-btn active" data-layer="frontend" role="tab">
-            <span class="file-name">components/RunwayCanvas.tsx</span>
-            <span class="file-tag">01 UI</span>
-          </button>
-          <button type="button" class="file-btn" data-layer="motion" role="tab">
-            <span class="file-name">motion/choreography.ts</span>
-            <span class="file-tag">02 GSAP</span>
-          </button>
-          <button type="button" class="file-btn" data-layer="backend" role="tab">
-            <span class="file-name">api/webhooks_stripe.py</span>
-            <span class="file-tag">03 API</span>
-          </button>
-          <button type="button" class="file-btn" data-layer="database" role="tab">
-            <span class="file-name">migrations/001_rls_ledger.sql</span>
-            <span class="file-tag">04 SQL</span>
-          </button>
-          <button type="button" class="file-btn" data-layer="mcp" role="tab">
-            <span class="file-name">velomesh-mcp.lock.json</span>
-            <span class="file-tag">05 MCP</span>
-          </button>
-          <button type="button" class="file-btn" data-layer="qa" role="tab">
-            <span class="file-name">qa/verification-receipt.txt</span>
-            <span class="file-tag">06 QA</span>
-          </button>
+          <div class="workbench-body">
+            <div class="file-rail" role="tablist" aria-label="Compiled Full-Stack Files">
+              <button type="button" class="file-btn active" data-layer="frontend" role="tab">
+                <span class="file-name">components/RunwayCanvas.tsx</span>
+                <span>01</span>
+              </button>
+              <button type="button" class="file-btn" data-layer="motion" role="tab">
+                <span class="file-name">motion/choreography.ts</span>
+                <span>02</span>
+              </button>
+              <button type="button" class="file-btn" data-layer="backend" role="tab">
+                <span class="file-name">api/webhooks_stripe.py</span>
+                <span>03</span>
+              </button>
+              <button type="button" class="file-btn" data-layer="database" role="tab">
+                <span class="file-name">migrations/001_rls_ledger.sql</span>
+                <span>04</span>
+              </button>
+              <button type="button" class="file-btn" data-layer="mcp" role="tab">
+                <span class="file-name">velomesh-mcp.lock.json</span>
+                <span>05</span>
+              </button>
+              <button type="button" class="file-btn" data-layer="qa" role="tab">
+                <span class="file-name">qa/verification-receipt.txt</span>
+                <span>06</span>
+              </button>
+            </div>
+
+            <div class="code-panel" role="tabpanel">
+              <div id="active-skills-strip" class="skills-row"></div>
+              <pre id="workbench-code-output" class="code-view"></pre>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div class="workbench-code-pane" role="tabpanel">
-          <div id="active-skills-strip" class="skills-bar"></div>
-          <pre id="workbench-code-output" class="code-pre"></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 2: VISION ELABORATION SPECIFICATION ("CANNOT READ YOUR MIND") -->
-    <section id="vision-spec" class="swiss-section">
-      <div class="section-header-band">
-        <div class="section-title-col">
+      <!-- SECTION 3: VISION ELABORATION SPEC ("CANNOT READ YOUR MIND") -->
+      <section id="vision-spec" class="content-section">
+        <div class="section-split-head">
           <h2 class="section-heading">Elaborate your vision. VeloMesh cannot read your mind.</h2>
-        </div>
-        <div class="section-desc-col">
-          <p class="section-desc">
-            You never need slash commands, skill names, or MCP configurations. <strong>Yet only you hold your product vision.</strong> Give VeloMesh clear requirements once instead of forcing an agent to guess blindly.
+          <p class="section-subcopy">
+            VeloMesh wires 100% of your engineering tools invisibly. <strong>Yet only you hold what the product should be.</strong> State your domain, user workflows, and visual expectations once instead of getting generic&nbsp;assumptions.
           </p>
         </div>
-      </div>
 
-      <div class="vision-split-grid">
-        <div class="vision-col-left">
-          <span class="verdict-tag tag-blocked">NEEDS_ELABORATION · 6-WORD VAGUE PROMPT</span>
-          <h3 class="ledger-heading">Generic guesses replace your product vision</h3>
-          <div class="prompt-specimen">"Make me a SaaS website and backend."</div>
-          <ul class="specimen-bullets">
-            <li><strong>Missing domain &amp; users:</strong> Are you serving startup CFOs, ER physicians, or design teams?</li>
-            <li><strong>Missing workflows &amp; schemas:</strong> Does the database ingest Stripe webhooks, CRDT state, or encrypted clinical charts?</li>
-            <li><strong>Missing design language:</strong> Black Swiss restraint, financial telemetry, or interactive WebGL viewport?</li>
-          </ul>
-          <pre class="trace-output">[Vision Gate: NEEDS_ELABORATION]
-Refusing to generate generic template code.
-Triggering brainstorming skill to ask 3 focused product questions first.</pre>
-        </div>
+        <div class="vision-columns">
+          <div class="vision-col">
+            <span class="verdict-chip chip-fail">NEEDS_ELABORATION · VAGUE PROMPT</span>
+            <h3 class="col-title">Six words force generic assumptions</h3>
+            <div class="quote-box">"Make me a SaaS website and backend."</div>
+            <ul class="bullet-list">
+              <li><strong>Unknown users:</strong> Startup CFOs, emergency-room clinicians, or creative studios?</li>
+              <li><strong>Unknown data flows:</strong> Stripe webhooks, WebSockets CRDT state, or HIPAA charts?</li>
+              <li><strong>Unknown craft grammar:</strong> Black Swiss austerity, financial ledger, or interactive WebGL?</li>
+            </ul>
+          </div>
 
-        <div class="vision-col-right">
-          <span class="verdict-tag tag-executed">READY_FOR_FULLSTACK_EXECUTION · 1-SHOT PROMPT</span>
-          <h3 class="ledger-heading">One detailed prompt builds all six layers</h3>
-          <div class="prompt-specimen">"Build PulseLedger, a multi-tenant AI treasury dashboard for Series-A CFOs with a Black Swiss editorial UI, interactive WebGL cashflow forecasting, FastAPI + PostgreSQL RLS, and Stripe webhook ingestion."</div>
-          <ul class="specimen-bullets">
-            <li><strong>Zero tooling flags:</strong> Written as one natural prompt without naming skills, MCPs, or commands.</li>
-            <li><strong>Unambiguous intent:</strong> Target users, security boundaries, integrations, and visual taste are crystal clear.</li>
-            <li><strong>Autonomous execution:</strong> VeloMesh provisions Stripe MCP, Postgres RLS, GSAP motion, and Playwright QA automatically.</li>
-          </ul>
-          <pre class="trace-output">[Vision Gate: READY_FOR_FULLSTACK_EXECUTION]
-Synthesizing Frontend + GSAP + FastAPI + Postgres DDL + Internet MCP + QA.</pre>
-        </div>
-      </div>
-
-      <div class="vision-gate-band">
-        <div class="gate-header">
-          <h3 class="gate-title">Live Vision Clarity Gate</h3>
-          <div class="gate-btn-row">
-            <button type="button" class="gate-sample-btn" data-sample="build a fitness app">Load Vague Prompt</button>
-            <button type="button" class="gate-sample-btn active" data-sample="Build TempoForge, a biometric recovery and training platform for endurance athletes with a Black Swiss architectural UI, interactive GSAP heart-rate variability graphs, FastAPI + PostgreSQL time-series schema, and Garmin webhook sync.">Load Vision-Rich Prompt</button>
+          <div class="vision-col">
+            <span class="verdict-chip chip-pass">READY_FOR_FULLSTACK_EXECUTION</span>
+            <h3 class="col-title">One vision-rich prompt ships all six layers</h3>
+            <div class="quote-box">"Build PulseLedger, a multi-tenant AI treasury dashboard for Series-A CFOs with Black Swiss typography, WebGL cashflow forecasting, FastAPI + PostgreSQL RLS, and Stripe webhooks."</div>
+            <ul class="bullet-list">
+              <li><strong>Zero slash commands:</strong> Never list skill names, MCP configs, or agent flags.</li>
+              <li><strong>Explicit intent:</strong> Users, tenant isolation, integrations, and visual mood are anchored.</li>
+              <li><strong>Autonomous build:</strong> VeloMesh discovers MCPs, compiles code, and runs browser QA end-to-end.</li>
+            </ul>
           </div>
         </div>
 
-        <textarea id="live-vision-input" class="gate-textarea" rows="2" aria-label="Test prompt clarity against the VeloMesh Vision Gate">Build TempoForge, a biometric recovery and training platform for endurance athletes with a Black Swiss architectural UI, interactive GSAP heart-rate variability graphs, FastAPI + PostgreSQL time-series schema, and Garmin webhook sync.</textarea>
-
-        <div class="gate-verdict-strip">
-          <span id="live-vision-badge" class="verdict-tag tag-executed">READY_FOR_FULLSTACK_EXECUTION</span>
-          <p id="live-vision-guidance" class="gate-guidance"></p>
-        </div>
-
-        <div class="gate-meters">
-          <div class="meter-cell">
-            <div class="meter-top">
-              <span>01 · Domain &amp; Audience</span>
-              <span id="val-domain">95%</span>
-            </div>
-            <div class="meter-track">
-              <div id="bar-domain" class="meter-bar" style="width: 95%;"></div>
+        <div class="vision-gate-panel">
+          <div class="gate-top">
+            <h3 class="col-title">Interactive Vision Clarity Gate</h3>
+            <div class="pill-switch">
+              <button type="button" class="pill-outline-btn gate-sample-btn" data-sample="build a fitness app">Test Vague Prompt</button>
+              <button type="button" class="pill-outline-btn gate-sample-btn active" data-sample="Build TempoForge, a biometric recovery and training platform for endurance athletes with a Black Swiss architectural UI, interactive GSAP heart-rate variability graphs, FastAPI + PostgreSQL time-series schema, and Garmin webhook sync.">Test Vision-Rich Prompt</button>
             </div>
           </div>
-          <div class="meter-cell">
-            <div class="meter-top">
-              <span>02 · Workflows &amp; Data Flow</span>
-              <span id="val-workflow">92%</span>
+
+          <textarea id="live-vision-input" class="gate-input" rows="2" aria-label="Evaluate prompt clarity against VeloMesh Vision Gate">Build TempoForge, a biometric recovery and training platform for endurance athletes with a Black Swiss architectural UI, interactive GSAP heart-rate variability graphs, FastAPI + PostgreSQL time-series schema, and Garmin webhook sync.</textarea>
+
+          <div class="gate-status-row">
+            <span id="live-vision-badge" class="verdict-chip chip-pass">READY_FOR_FULLSTACK_EXECUTION</span>
+            <p id="live-vision-guidance" class="gate-note"></p>
+          </div>
+
+          <div class="meters-grid">
+            <div>
+              <div class="meter-label">
+                <span>01 · Domain &amp; Audience</span>
+                <span id="val-domain">95%</span>
+              </div>
+              <div class="meter-track"><div id="bar-domain" class="meter-fill" style="width: 95%;"></div></div>
             </div>
-            <div class="meter-track">
-              <div id="bar-workflow" class="meter-bar" style="width: 92%;"></div>
+            <div>
+              <div class="meter-label">
+                <span>02 · Workflows &amp; Data Flow</span>
+                <span id="val-workflow">92%</span>
+              </div>
+              <div class="meter-track"><div id="bar-workflow" class="meter-fill" style="width: 92%;"></div></div>
+            </div>
+            <div>
+              <div class="meter-label">
+                <span>03 · Aesthetic &amp; Stack</span>
+                <span id="val-aesthetic">96%</span>
+              </div>
+              <div class="meter-track"><div id="bar-aesthetic" class="meter-fill" style="width: 96%;"></div></div>
             </div>
           </div>
-          <div class="meter-cell">
-            <div class="meter-top">
-              <span>03 · Aesthetic &amp; Stack</span>
-              <span id="val-aesthetic">96%</span>
-            </div>
-            <div class="meter-track">
-              <div id="bar-aesthetic" class="meter-bar" style="width: 96%;"></div>
-            </div>
-          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
 
-    <!-- SECTION 3: ARCHITECTURAL 3x2 CAPABILITY MATRIX -->
-    <section id="architecture" class="swiss-section" style="border-bottom: none;">
-      <div class="section-header-band">
-        <div class="section-title-col">
-          <h2 class="section-heading">Internet capability discovery, not static prompt bloat.</h2>
-        </div>
-        <div class="section-desc-col">
-          <p class="section-desc">
-            Dumping hundreds of markdown files degrades LLM reasoning. VeloMesh pairs a lean core with live GitHub discovery, wrapper synthesis, and deterministic&nbsp;QA.
+    <!-- BERGER FOHR 3-COLUMN FOOTER + SWISS ANALOG STATION CLOCK -->
+    <footer class="bf-footer">
+      <div class="bf-footer-grid">
+        <div class="footer-col-1">
+          <h2 class="footer-headline">One command. Always active across every agent.</h2>
+          <p class="hero-description" style="font-size: 0.9375rem;">
+            Zero runtime dependencies. Pure Python 3.9+ and Node.js 18+ stdlib.
           </p>
         </div>
-      </div>
 
-      <div class="matrix-grid">
-        <article class="matrix-cell">
-          <h3 class="matrix-title">Live MCP, API &amp; Agent Synthesis</h3>
-          <p class="matrix-copy">
-            Missing an integration? VeloMesh calls <code>discover_and_install_capability</code> to search GitHub across MCP servers, API SDKs, and subagents, validates repositories, synthesizes wrappers, and hot-links them in&nbsp;milliseconds.
-          </p>
-        </article>
-
-        <article class="matrix-cell">
-          <h3 class="matrix-title">86 Brand Systems &amp; Anti-Slop Gate</h3>
-          <p class="matrix-copy">
-            Routes real design tokens from Linear, Cursor, Stripe, Vercel, and Raycast alongside GSAP physics—audited by <code>impeccable detect</code> and <code>velomesh audit-ui</code> before&nbsp;completion.
-          </p>
-        </article>
-
-        <article class="matrix-cell">
-          <h3 class="matrix-title">Smart Dynamic Skill Hot-Linking</h3>
-          <p class="matrix-copy">
-            Keeps only 38 high-signal core workflows active at startup while dynamically linking the remaining 360+ domain specialists only when your prompt&nbsp;demands&nbsp;them.
-          </p>
-        </article>
-
-        <article class="matrix-cell">
-          <h3 class="matrix-title">PostgreSQL RLS &amp; API Security</h3>
-          <p class="matrix-copy">
-            Enforces row-level tenant isolation, zero-downtime SQL migrations, HMAC webhook validation, rate limiting, and OWASP checks across Python, TypeScript, Go, and&nbsp;Rust.
-          </p>
-        </article>
-
-        <article class="matrix-cell">
-          <h3 class="matrix-title">SHA-256 Context Passports</h3>
-          <p class="matrix-copy">
-            Architect a system in Claude Code, implement backend endpoints in Cursor or Codex, and verify in Antigravity using cryptographic Context&nbsp;Passports.
-          </p>
-        </article>
-
-        <article class="matrix-cell">
-          <h3 class="matrix-title">TDD &amp; Multi-Viewport Browser QA</h3>
-          <p class="matrix-copy">
-            Pairs test suites with Playwright desktop and mobile viewport verification, keyboard focus inspection, and WCAG 2.2 AA contrast&nbsp;audits.
-          </p>
-        </article>
-      </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="site-footer">
-      <div class="footer-band">
-        <div class="footer-left">
-          VeloMesh (Agent Fusion Universal v4) — Open-Source Autonomous Full-Stack &amp; Internet Capability Engine.
+        <div class="footer-col-2">
+          <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener">github.com/RitvikChunamari/velomesh</a>
+          <a href="./brand/velomesh-mark.svg" download="velomesh-mark.svg">Brand Geometric Mark (SVG)</a>
+          <a href="./brand/velomesh-wordmark.svg" download="velomesh-wordmark.svg">Primary Swiss Wordmark (SVG)</a>
+          <span>Harnesses: Claude Code · Cursor · Codex · Copilot · Antigravity · OpenCode</span>
         </div>
-        <div class="footer-right">
-          <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener" class="footer-link">github.com/RitvikChunamari/velomesh</a>
+
+        <div class="footer-col-3">
+          <svg id="swiss-station-clock" class="swiss-clock-svg" viewBox="0 0 160 160" role="img" aria-label="VeloMesh Live Swiss Station Analog Clock">
+            <circle cx="80" cy="80" r="76" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <g id="clock-ticks"></g>
+            <g id="clock-numerals" font-family="Switzer, Helvetica Neue, sans-serif" font-size="9.5" font-weight="600" text-anchor="middle" fill="currentColor"></g>
+            <line id="clock-hour" x1="80" y1="80" x2="80" y2="42" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+            <line id="clock-minute" x1="80" y1="80" x2="80" y2="24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+            <line id="clock-second" x1="80" y1="90" x2="80" y2="22" stroke="var(--swiss-red-ink)" stroke-width="1.5" stroke-linecap="round" />
+            <circle cx="80" cy="80" r="3.5" fill="var(--swiss-red-ink)" />
+          </svg>
+          <span id="clock-readout" class="clock-caption">SYNC TIME</span>
         </div>
       </div>
     </footer>
-  </main>
+  </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-  <script src="./app.js" defer></script>
+  <!-- BERGER FOHR MENU DRAWER OVERLAY -->
+  <div id="bf-menu-drawer" class="bf-drawer" role="dialog" aria-modal="true" aria-label="Site Index Menu" hidden>
+    <div class="bf-drawer-top">
+      <span class="bf-wordmark-text" style="font-size: 1.85rem;">VELOMESH // INDEX</span>
+      <button type="button" id="drawer-close-btn" class="bf-drawer-close">Close [Esc]</button>
+    </div>
+    <nav class="bf-drawer-pills" aria-label="Drawer Quick Jump">
+      <a href="#works-index" class="bf-drawer-pill"><span>01 · Capabilities &amp; Construction Grid</span><span>↗</span></a>
+      <a href="#workbench" class="bf-drawer-pill"><span>02 · Full-Stack Prompt Workbench</span><span>↗</span></a>
+      <a href="#vision-spec" class="bf-drawer-pill"><span>03 · Vision Clarity Gate</span><span>↗</span></a>
+      <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener" class="bf-drawer-pill"><span>04 · GitHub Repository</span><span>↗</span></a>
+    </nav>
+    <div class="logo-stage-title">OPEN DESIGN 3D BRUSHED-GOLD EMBLEM · BERGER FOHR INSPIRED SWISS ARCHITECTURE</div>
+  </div>
+
+  <!-- FLOATING INVERTED BERGER FOHR CONTROL DOCK (Scale · Grid · Labels) -->
+  <div class="bf-floating-dock" role="toolbar" aria-label="Archive View Controls">
+    <div class="dock-group">
+      <span>Cols</span>
+      <button type="button" class="dock-btn scale-step-btn" data-cols="2" aria-pressed="false">2</button>
+      <button type="button" class="dock-btn scale-step-btn" data-cols="3" aria-pressed="true">3</button>
+      <button type="button" class="dock-btn scale-step-btn" data-cols="6" aria-pressed="false">6</button>
+    </div>
+    <span class="dock-divider" aria-hidden="true"></span>
+    <button type="button" id="dock-grid-btn" class="dock-btn" aria-pressed="false">Grid</button>
+    <button type="button" id="dock-labels-btn" class="dock-btn" aria-pressed="true">Labels</button>
+  </div>
+
+  <script type="module" src="./app.js"></script>
 </body>
 </html>

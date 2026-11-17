@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VeloMesh mark — Brushed-Gold 3D Logo</title>
+<style>
+:root {
+  --bg: #070708;
+  --surface: #1b1a17;
+  --fg: #f4f4ef;
+  --muted: #a3a39b;
+  --accent: #eec768;
+  --font-display: "Switzer", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Switzer", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --text-sm: 14px;
+  --text-2xl: 26px;
+}
+html, body { margin: 0; height: 100%; background: radial-gradient(95% 80% at 50% 42%, var(--surface), var(--bg)); color: var(--fg); font-family: var(--font-body); overflow: hidden; }
+html.od-transparent, html.od-transparent body { background: transparent; }
+#stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
+.wordmark { position: fixed; left: 0; right: 0; bottom: clamp(48px, 16vh, 168px); text-align: center; pointer-events: none; }
+.wordmark h1 { margin: 0; font: 600 var(--text-2xl)/1 var(--font-display); letter-spacing: 0.28em; text-transform: uppercase; }
+.wordmark p { margin: 10px 0 0; color: var(--muted); font-size: var(--text-sm); letter-spacing: 0.02em; }
+html.od-transparent .wordmark { display: none; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="stage" data-od-webgl aria-label="The VeloMesh mark in brushed gold, turning slowly"></canvas>
+<div class="wordmark">
+  <h1>VeloMesh</h1>
+  <p>One prompt. Full-stack software.</p>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+
+const TRANSPARENT = false;
+const ROTATION_SECONDS = 12;
+const AUTHORED_ANGLE = 0.34;
+
+// VeloMesh Constructivist V+M Emblem (120x120 generous CNC fillets so bevel offsets never cross in concave valleys)
+const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <path d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
+  <path d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+</svg>`;
+const DEPTH = 11;
+const BEVEL = 0.55;
+
+function makeStudioEnvironment(renderer) {
+  const room = new RoomEnvironment();
+  const addPanel = (color, intensity, pos, scale, rot) => {
+    const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(intensity), side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+    mesh.position.set(...pos);
+    mesh.scale.set(...scale);
+    mesh.rotation.set(...rot);
+    room.add(mesh);
+  };
+  // Controlled upper-front & overhead rim strips so low-angle views stay warm gold while top extrusion caps catch a crisp champagne edge
+  addPanel('#fff3d4', 1.65, [3.2, 2.2, 7.5], [10, 6, 1], [-0.15, -0.35, 0]);
+  addPanel('#ffe8b3', 1.45, [-5.0, 2.2, 5.5], [8, 7, 1], [0, 0.7, 0]);
+  addPanel('#ffe4aa', 2.4, [0, 7.5, -1.5], [14, 10, 1], [Math.PI / 2, 0, 0]);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const envTex = pmrem.fromScene(room, 0.04).texture;
+  pmrem.dispose();
+  return envTex;
+}
+
+function makeFineBrushedTexture() {
+  const c = document.createElement('canvas');
+  c.width = 512;
+  c.height = 512;
+  const g = c.getContext('2d');
+  g.fillStyle = '#848484';
+  g.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 1800; i++) {
+    const y = (i * 73) % 512;
+    const x = (i * 197) % 512;
+    const len = 80 + (i % 180);
+    const v = 118 + (i % 34);
+    g.fillStyle = `rgba(${v},${v},${v},0.35)`;
+    g.fillRect(x, y, len, 1);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(0.02, 0.02);
+  return tex;
+}
+
+const token = (name, fallback) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+const palette = { accent: new THREE.Color(token('--accent', '#eec768')) };
+if (TRANSPARENT) document.documentElement.classList.add('od-transparent');
+
+const canvas = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+renderer.setClearColor(0x000000, 0);
+
+const scene = new THREE.Scene();
+scene.environment = makeStudioEnvironment(renderer);
+
+// Restrained sculptural accent lights (softbox PMREM carries the brushed gold luminance cleanly)
+const key = new THREE.DirectionalLight('#fff6e5', 1.45);
+key.position.set(2.8, 3.2, 5.8);
+scene.add(key);
+const rim = new THREE.DirectionalLight('#ffe4ad', 1.15);
+rim.position.set(-4.2, 3.5, -2.5);
+scene.add(rim);
+const topFill = new THREE.DirectionalLight('#fff0cf', 0.85);
+topFill.position.set(0, 6.0, 1.5);
+scene.add(topFill);
+
+const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
+camera.position.set(0, 0.18, 6.1);
+
+const svg = new SVGLoader().parse(LOGO_SVG);
+const shapes = svg.paths.flatMap((p) => SVGLoader.createShapes(p));
+const geometry = new THREE.ExtrudeGeometry(shapes, {
+  depth: DEPTH,
+  bevelEnabled: true,
+  bevelThickness: BEVEL,
+  bevelSize: BEVEL,
+  bevelSegments: 10,
+  curveSegments: 64,
+});
+geometry.center();
+geometry.scale(1, -1, 1);
+geometry.computeVertexNormals();
+
+const brushedTex = makeFineBrushedTexture();
+const size = new THREE.Box3().setFromBufferAttribute(geometry.attributes.position).getSize(new THREE.Vector3());
+const fit = 2.0 / Math.max(size.x, size.y);
+const mark = new THREE.Mesh(
+  geometry,
+  new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color('#f4d072'),
+    metalness: 0.90,
+    roughness: 0.34,
+    roughnessMap: brushedTex,
+    bumpMap: brushedTex,
+    bumpScale: 0.004,
+    clearcoat: 0.22,
+    clearcoatRoughness: 0.28,
+    envMapIntensity: 1.45,
+  }),
+);
+mark.scale.setScalar(fit);
+
+const product = new THREE.Group();
+product.name = 'product';
+product.add(mark);
+product.position.y = 0.02;
+scene.add(product);
+
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 0.02, 0);
+camera.lookAt(controls.target);
+controls.enableDamping = true;
+controls.enablePan = false;
+
+function resize() {
+  const w = canvas.clientWidth || window.innerWidth;
+  const h = canvas.clientHeight || window.innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.position.setLength(camera.aspect < 1 ? 6.1 / camera.aspect ** 0.72 : 6.1);
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+const start = performance.now();
+window.odScene = { rotate: true, rotationSeconds: ROTATION_SECONDS, duration: ROTATION_SECONDS, ready: undefined, scene, camera, renderer, controls, focus: product };
+function pose(now) {
+  const turn = window.odScene.rotate ? (((now - start) / 1000) / ROTATION_SECONDS) * Math.PI * 2 : 0;
+  product.rotation.y = AUTHORED_ANGLE + turn;
+  product.rotation.x = -0.10;
+}
+window.odScene.ready = (async () => {
+  pose(performance.now());
+  renderer.render(scene, camera);
+})();
+renderer.setAnimationLoop((now) => {
+  pose(now);
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

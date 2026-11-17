@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "entryPath": "Open Design/northwind-mark-3d-logo/northwind-mark-3d-logo.html",
+      "title": "VeloMesh mark — Brushed-Gold 3D Logo",
+      "date": "2026-11-17T06:37:41.886Z",
+      "signature": {
+        "accent": "#eec768",
+        "displayFont": "Switzer",
+        "bodyFont": "Switzer",
+        "theme": "dark",
+        "hero": "centred"
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "VeloMesh mark — Brushed-Gold 3D Logo",
+  "entry": "Open Design/northwind-mark-3d-logo/northwind-mark-3d-logo.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "standalone",
+    "site",
+    "png",
+    "jpeg",
+    "pdf"
+  ],
+  "createdAt": "2026-11-17T06:37:41.881Z",
+  "updatedAt": "2026-11-17T06:37:41.881Z",
+  "metadata": {
+    "remixedFrom": "od:prototype:3d-object-logo"
+  }
+}
