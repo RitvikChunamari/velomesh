@@ -113,7 +113,7 @@ function runCliBridge(provider, prompt, timeoutMs = 45000) {
   });
 }
 
-async function callUpstreamApi({ endpoint, model, messages, maxTokens = 4096, env = process.env }) {
+async function callUpstreamApi({ endpoint, model, messages, maxTokens = 4096, tools, toolChoice, temperature, topP, env = process.env }) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 45000);
   try {
@@ -122,6 +122,11 @@ async function callUpstreamApi({ endpoint, model, messages, maxTokens = 4096, en
       if (!apiKey) throw new Error('ANTHROPIC_API_KEY missing');
       const systemMsg = messages.find((m) => m.role === 'system')?.content;
       const chatMsgs = messages.filter((m) => m.role !== 'system');
+      const anthPayload = { model, max_tokens: maxTokens, system: systemMsg, messages: chatMsgs };
+      if (Array.isArray(tools) && tools.length) anthPayload.tools = tools;
+      if (toolChoice !== undefined) anthPayload.tool_choice = toolChoice;
+      if (typeof temperature === 'number') anthPayload.temperature = temperature;
+      if (typeof topP === 'number') anthPayload.top_p = topP;
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -129,13 +134,21 @@ async function callUpstreamApi({ endpoint, model, messages, maxTokens = 4096, en
           'x-api-key': apiKey,
           'anthropic-version': '2023-06-01'
         },
-        body: JSON.stringify({ model, max_tokens: maxTokens, system: systemMsg, messages: chatMsgs }),
+        body: JSON.stringify(anthPayload),
         signal: controller.signal
       });
       if (!res.ok) throw new Error(`Upstream HTTP ${res.status}`);
       const data = await res.json();
-      const text = (data.content || []).map((c) => c.text || '').join('');
-      return { text, usage: { inputTokens: data.usage?.input_tokens || 12, outputTokens: data.usage?.output_tokens || 32 } };
+      const blocks = Array.isArray(data.content) ? data.content : [];
+      const text = blocks.filter((c) => c.type === 'text' || c.text).map((c) => c.text || '').join('');
+      const toolCalls = blocks
+        .filter((c) => c.type === 'tool_use')
+        .map((c) => ({
+          id: c.id || `call_${crypto.randomBytes(6).toString('hex')}`,
+          type: 'function',
+          function: { name: c.name, arguments: JSON.stringify(c.input || {}) }
+        }));
+      return { text, toolCalls, usage: { inputTokens: data.usage?.input_tokens || 12, outputTokens: data.usage?.output_tokens || 32 } };
     }
 
     let apiKey = env.OPENAI_API_KEY || env.VELOMESH_API_KEY || 'velomesh-local';
@@ -147,20 +160,29 @@ async function callUpstreamApi({ endpoint, model, messages, maxTokens = 4096, en
       ? endpoint
       : `${endpoint.replace(/\/+$/, '')}/chat/completions`;
 
+    const openaiPayload = { model, messages, max_tokens: maxTokens };
+    if (Array.isArray(tools) && tools.length) openaiPayload.tools = tools;
+    if (toolChoice !== undefined) openaiPayload.tool_choice = toolChoice;
+    if (typeof temperature === 'number') openaiPayload.temperature = temperature;
+    if (typeof topP === 'number') openaiPayload.top_p = topP;
+
     const res = await fetch(normalizedUrl, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${apiKey}`
       },
-      body: JSON.stringify({ model, messages, max_tokens: maxTokens }),
+      body: JSON.stringify(openaiPayload),
       signal: controller.signal
     });
     if (!res.ok) throw new Error(`Upstream HTTP ${res.status}`);
     const data = await res.json();
-    const text = data.choices?.[0]?.message?.content || '';
+    const msg = data.choices?.[0]?.message || {};
+    const text = msg.content || '';
+    const toolCalls = Array.isArray(msg.tool_calls) ? msg.tool_calls : [];
     return {
       text,
+      toolCalls,
       usage: {
         inputTokens: data.usage?.prompt_tokens || 12,
         outputTokens: data.usage?.completion_tokens || 32
@@ -171,11 +193,12 @@ async function callUpstreamApi({ endpoint, model, messages, maxTokens = 4096, en
   }
 }
 
-async function executeTurn(decision, messages, { simulate = false, env = process.env } = {}) {
+async function executeTurn(decision, messages, { simulate = false, tools, toolChoice, temperature, topP, maxTokens, env = process.env } = {}) {
   const promptText = promptFromMessages(messages);
   const attempts = [
     {
       model: decision.selectedModel,
+      upstreamModel: decision.upstreamModel || decision.selectedModel,
       family: decision.selectedFamily,
       transport: decision.transport,
       endpoint: decision.endpoint,
@@ -190,7 +213,9 @@ async function executeTurn(decision, messages, { simulate = false, env = process
     const text = `[VeloMesh Orchestrator -> ${decision.selectedModel} (${decision.phase})] ${decision.switchReason}. Simulated execution complete (antigravityTier=${decision.antigravityTier}, switched=${decision.switched}).`;
     return {
       text,
+      toolCalls: [],
       executedModel: decision.selectedModel,
+      upstreamModel: decision.upstreamModel || decision.selectedModel,
       transport: 'simulator',
       failoverCount,
       usage: { inputTokens: Math.max(8, Math.ceil(promptText.length / 4)), outputTokens: Math.ceil(text.length / 4) }
@@ -205,13 +230,20 @@ async function executeTurn(decision, messages, { simulate = false, env = process
       if ((step.transport === 'api' || step.transport === 'local-router') && step.endpoint) {
         const result = await callUpstreamApi({
           endpoint: step.endpoint,
-          model: step.model,
+          model: step.upstreamModel || step.model,
           messages,
+          maxTokens: maxTokens || 4096,
+          tools,
+          toolChoice,
+          temperature,
+          topP,
           env
         });
         return {
           text: result.text,
+          toolCalls: result.toolCalls || [],
           executedModel: step.model,
+          upstreamModel: step.upstreamModel || step.model,
           transport: step.transport,
           failoverCount,
           usage: result.usage
@@ -221,7 +253,9 @@ async function executeTurn(decision, messages, { simulate = false, env = process
         const text = await runCliBridge(step.cliProvider, promptText);
         return {
           text,
+          toolCalls: [],
           executedModel: step.model,
+          upstreamModel: step.upstreamModel || step.model,
           transport: 'cli',
           failoverCount,
           usage: {
@@ -238,7 +272,9 @@ async function executeTurn(decision, messages, { simulate = false, env = process
   const fallbackText = `[VeloMesh Orchestrator -> ${decision.selectedModel} (${decision.phase})] Upstream endpoints unavailable or unauthenticated; returned deterministic orchestration trace (${decision.switchReason}).`;
   return {
     text: fallbackText,
+    toolCalls: [],
     executedModel: decision.selectedModel,
+    upstreamModel: decision.upstreamModel || decision.selectedModel,
     transport: 'simulator',
     failoverCount,
     usage: { inputTokens: Math.max(8, Math.ceil(promptText.length / 4)), outputTokens: Math.ceil(fallbackText.length / 4) }
@@ -248,6 +284,7 @@ async function executeTurn(decision, messages, { simulate = false, env = process
 function setVeloMeshHeaders(res, decision, execution) {
   res.setHeader('X-VeloMesh-Virtual-Model', decision.virtualModel);
   res.setHeader('X-VeloMesh-Model', execution.executedModel || decision.selectedModel);
+  res.setHeader('X-VeloMesh-Upstream-Model', execution.upstreamModel || decision.upstreamModel || decision.selectedModel);
   res.setHeader('X-VeloMesh-Phase', decision.phase);
   res.setHeader('X-VeloMesh-Transport', execution.transport || decision.transport);
   res.setHeader('X-VeloMesh-Switched', String(Boolean(decision.switched)));
@@ -322,6 +359,49 @@ function sendAnthropicSSE(res, model, text, usage) {
   res.end();
 }
 
+function sendOpenAIResponsesSSE(res, model, text, usage) {
+  const respId = `resp_${crypto.randomBytes(10).toString('hex')}`;
+  const itemId = `msg_${crypto.randomBytes(8).toString('hex')}`;
+  res.statusCode = 200;
+  res.setHeader('content-type', 'text/event-stream; charset=utf-8');
+  res.setHeader('cache-control', 'no-cache');
+  res.setHeader('connection', 'keep-alive');
+
+  const emit = (event, payload) => {
+    res.write(`event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`);
+  };
+
+  emit('response.created', {
+    type: 'response.created',
+    response: { id: respId, object: 'response', status: 'in_progress', model }
+  });
+  emit('response.output_text.delta', {
+    type: 'response.output_text.delta',
+    item_id: itemId,
+    output_index: 0,
+    content_index: 0,
+    delta: text
+  });
+  emit('response.completed', {
+    type: 'response.completed',
+    response: {
+      id: respId,
+      object: 'response',
+      status: 'completed',
+      model,
+      output_text: text,
+      output: [{ id: itemId, type: 'message', role: 'assistant', content: [{ type: 'output_text', text }] }],
+      usage: {
+        input_tokens: usage.inputTokens,
+        output_tokens: usage.outputTokens,
+        total_tokens: usage.inputTokens + usage.outputTokens
+      }
+    }
+  });
+  res.write('data: [DONE]\n\n');
+  res.end();
+}
+
 export function createGatewayServer(options = {}) {
   const server = http.createServer(async (req, res) => {
     const urlPath = (req.url || '/').split('?')[0];
@@ -331,7 +411,7 @@ export function createGatewayServer(options = {}) {
         return sendJson(res, 200, {
           ok: true,
           service: 'velomesh-gateway',
-          version: '4.1.0',
+          version: '4.2.0',
           emblem: '/brand/velomesh-mark.svg',
           models: VELOMESH_MODELS,
           upstreams: discoverUpstreams({ ...options, checkClis: options.checkClis ?? !options.simulate }),
@@ -379,11 +459,22 @@ export function createGatewayServer(options = {}) {
           checkClis: options.checkClis ?? !forceSim,
           record: options.record !== false
         });
-        const execution = await executeTurn(decision, messages, { simulate: forceSim });
+        const execution = await executeTurn(decision, messages, {
+          simulate: forceSim,
+          tools: body.tools,
+          toolChoice: body.tool_choice,
+          temperature: body.temperature,
+          topP: body.top_p,
+          maxTokens: body.max_tokens || body.max_output_tokens
+        });
         setVeloMeshHeaders(res, decision, execution);
 
         if (body.stream === true && urlPath === '/v1/chat/completions') {
           return sendOpenAISSE(res, execution.executedModel, execution.text);
+        }
+
+        if (body.stream === true && urlPath === '/v1/responses') {
+          return sendOpenAIResponsesSSE(res, execution.executedModel, execution.text, execution.usage);
         }
 
         if (urlPath === '/v1/responses') {
@@ -409,6 +500,8 @@ export function createGatewayServer(options = {}) {
           });
         }
 
+        const openaiMessage = { role: 'assistant', content: execution.text };
+        if (execution.toolCalls?.length) openaiMessage.tool_calls = execution.toolCalls;
         return sendJson(res, 200, {
           id: `chatcmpl-${crypto.randomBytes(8).toString('hex')}`,
           object: 'chat.completion',
@@ -417,8 +510,8 @@ export function createGatewayServer(options = {}) {
           choices: [
             {
               index: 0,
-              message: { role: 'assistant', content: execution.text },
-              finish_reason: 'stop'
+              message: openaiMessage,
+              finish_reason: execution.toolCalls?.length ? 'tool_calls' : 'stop'
             }
           ],
           usage: {
@@ -442,20 +535,36 @@ export function createGatewayServer(options = {}) {
           checkClis: options.checkClis ?? !forceSim,
           record: options.record !== false
         });
-        const execution = await executeTurn(decision, messages, { simulate: forceSim });
+        const execution = await executeTurn(decision, messages, {
+          simulate: forceSim,
+          tools: body.tools,
+          toolChoice: body.tool_choice,
+          temperature: body.temperature,
+          topP: body.top_p,
+          maxTokens: body.max_tokens
+        });
         setVeloMeshHeaders(res, decision, execution);
 
         if (body.stream === true) {
           return sendAnthropicSSE(res, execution.executedModel, execution.text, execution.usage);
         }
 
+        const anthContent = [];
+        if (execution.text || !execution.toolCalls?.length) {
+          anthContent.push({ type: 'text', text: execution.text });
+        }
+        for (const tc of execution.toolCalls || []) {
+          let inputObj = {};
+          try { inputObj = JSON.parse(tc.function?.arguments || '{}'); } catch {}
+          anthContent.push({ type: 'tool_use', id: tc.id, name: tc.function?.name || 'tool', input: inputObj });
+        }
         return sendJson(res, 200, {
           id: `msg_${crypto.randomBytes(10).toString('hex')}`,
           type: 'message',
           role: 'assistant',
           model: execution.executedModel,
-          content: [{ type: 'text', text: execution.text }],
-          stop_reason: 'end_turn',
+          content: anthContent,
+          stop_reason: execution.toolCalls?.length ? 'tool_use' : 'end_turn',
           stop_sequence: null,
           usage: {
             input_tokens: execution.usage.inputTokens,

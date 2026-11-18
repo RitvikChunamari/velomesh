@@ -125,8 +125,16 @@ function extractTurnText({ messages = [], prompt = '' }) {
   return extractTextFromContent(messages[messages.length - 1]?.content).trim();
 }
 
+export function normalizeVirtualModel(requestedModel) {
+  const raw = String(requestedModel || '').trim();
+  if (!raw) return 'velomesh/auto';
+  const bare = ['auto', 'architect', 'frontend', 'fast', 'review'];
+  if (bare.includes(raw)) return `velomesh/${raw}`;
+  return raw;
+}
+
 export function classifyTurnIntent({ messages = [], prompt = '', requestedModel = 'velomesh/auto', turnIndex = 0 } = {}) {
-  const req = String(requestedModel || 'velomesh/auto').trim();
+  const req = normalizeVirtualModel(requestedModel);
   const pinnedMap = {
     'velomesh/architect': 'architecture',
     'velomesh/frontend': 'frontend',
@@ -209,14 +217,101 @@ export function classifyTurnIntent({ messages = [], prompt = '', requestedModel 
   };
 }
 
-function commandExists(cmd) {
+export function buildExpandedPath(env = process.env, homeDir = os.homedir()) {
+  const extras = [
+    '/opt/homebrew/bin',
+    '/usr/local/bin',
+    path.join(homeDir, '.local', 'bin'),
+    path.join(homeDir, '.npm-global', 'bin'),
+    path.join(homeDir, '.bun', 'bin'),
+    path.join(homeDir, '.volta', 'bin')
+  ];
+  const nvmDir = path.join(homeDir, '.nvm', 'versions', 'node');
+  try {
+    if (fs.existsSync(nvmDir)) {
+      for (const entry of fs.readdirSync(nvmDir)) {
+        extras.push(path.join(nvmDir, entry, 'bin'));
+      }
+    }
+  } catch {
+    // Ignore unreadable nvm dir
+  }
+  const existing = String(env.PATH || '').split(path.delimiter).filter(Boolean);
+  return [...new Set([...extras, ...existing])].join(path.delimiter);
+}
+
+function commandExists(cmd, env = process.env, homeDir = os.homedir()) {
   try {
     const checker = process.platform === 'win32' ? 'where' : 'which';
-    execFileSync(checker, [cmd], { stdio: 'ignore', timeout: 1500 });
+    execFileSync(checker, [cmd], {
+      env: { ...env, PATH: buildExpandedPath(env, homeDir) },
+      stdio: 'ignore',
+      timeout: 1500
+    });
     return true;
   } catch {
     return false;
   }
+}
+
+export function mapModelForLocalRouter(candidateModel, router) {
+  const models = Array.isArray(router?.models) ? router.models : [];
+  if (!models.length) return candidateModel;
+  if (models.includes(candidateModel)) return candidateModel;
+
+  const lower = String(candidateModel).toLowerCase();
+  const findFirst = (preds) => {
+    for (const pred of preds) {
+      const hit = models.find((m) => pred(m.toLowerCase()));
+      if (hit) return hit;
+    }
+    return null;
+  };
+
+  let mapped = null;
+  if (lower.includes('claude-opus')) {
+    mapped = findFirst([
+      (m) => m.includes('claude-opus-4-6'),
+      (m) => m.includes('claude-opus') && m.includes('high'),
+      (m) => m.includes('claude-opus')
+    ]);
+  } else if (lower.includes('claude-sonnet')) {
+    mapped = findFirst([
+      (m) => m.includes('claude-sonnet-4-6'),
+      (m) => m.includes('claude-sonnet')
+    ]);
+  } else if (lower.includes('claude-haiku')) {
+    mapped = findFirst([
+      (m) => m.includes('claude-haiku'),
+      (m) => m.includes('flash-high'),
+      (m) => m.includes('flash')
+    ]);
+  } else if (lower.includes('gemini-3.1-pro')) {
+    mapped = findFirst([
+      (m) => m.includes('gemini-3.1-pro-high'),
+      (m) => m.includes('gemini-3.1-pro'),
+      (m) => m.includes('gemini') && m.includes('pro')
+    ]);
+  } else if (lower.includes('gemini-3-flash')) {
+    mapped = findFirst([
+      (m) => m.includes('gemini-3.7-flash-high'),
+      (m) => m.includes('gemini') && m.includes('flash')
+    ]);
+  } else if (lower.includes('codex') || lower.includes('gpt-5')) {
+    mapped = findFirst([
+      (m) => m.includes('codex'),
+      (m) => m.includes('gpt-oss-120b'),
+      (m) => m.includes('kimi-k2.7-code'),
+      (m) => m === 'auto/best-coding'
+    ]);
+  } else if (lower.includes('grok')) {
+    mapped = findFirst([
+      (m) => m.includes('grok'),
+      (m) => m === 'auto/best-coding'
+    ]);
+  }
+
+  return mapped || findFirst([(m) => m === 'auto/best-coding', (m) => m === 'auto', (m) => m === 'fusion']) || models[0];
 }
 
 function readOpenCodeRouters(homeDir) {
@@ -259,7 +354,7 @@ export function discoverUpstreams({ env = process.env, homeDir = os.homedir(), c
   const cliNames = ['claude', 'codex', 'gemini', 'opencode', 'grok'];
   const clis = {};
   for (const cli of cliNames) {
-    clis[cli] = { installed: checkClis ? commandExists(cli) : false };
+    clis[cli] = { installed: checkClis ? commandExists(cli, env, homeDir) : false };
   }
 
   return { apis, localRouters, clis };
@@ -270,12 +365,16 @@ function candidateTransport(candidateModel, upstreams, preferCli) {
   const meta = PROVIDER_META[family] || PROVIDER_META.openai;
   const apiKeyName = family === 'google' ? 'gemini' : family;
   const hasDirectApi = Boolean(upstreams.apis[apiKeyName]?.configured || upstreams.apis.openrouter?.configured);
-  const matchingRouter = upstreams.localRouters.find((r) => r.baseURL && (r.models.includes(candidateModel) || r.models.some((m) => m.includes('auto'))));
+  const matchingRouter =
+    upstreams.localRouters.find((r) => r.baseURL && r.models.includes(candidateModel)) ||
+    upstreams.localRouters.find((r) => r.baseURL && r.models.some((m) => m.includes(family === 'google' ? 'gemini' : family === 'anthropic' ? 'claude' : 'gpt'))) ||
+    upstreams.localRouters.find((r) => r.baseURL && r.models.some((m) => m.includes('auto')));
   const hasCli = Boolean(meta.cli && upstreams.clis[meta.cli]?.installed);
 
   if (preferCli && hasCli) {
     return {
       selectedModel: candidateModel,
+      upstreamModel: candidateModel,
       selectedFamily: family,
       transport: 'cli',
       endpoint: null,
@@ -285,6 +384,7 @@ function candidateTransport(candidateModel, upstreams, preferCli) {
   if (hasDirectApi && upstreams.apis[apiKeyName]?.configured) {
     return {
       selectedModel: candidateModel,
+      upstreamModel: candidateModel,
       selectedFamily: family,
       transport: 'api',
       endpoint: meta.endpoint,
@@ -294,6 +394,7 @@ function candidateTransport(candidateModel, upstreams, preferCli) {
   if (hasDirectApi && upstreams.apis.openrouter?.configured) {
     return {
       selectedModel: candidateModel,
+      upstreamModel: candidateModel,
       selectedFamily: family,
       transport: 'api',
       endpoint: PROVIDER_META.openrouter.endpoint,
@@ -303,6 +404,7 @@ function candidateTransport(candidateModel, upstreams, preferCli) {
   if (matchingRouter) {
     return {
       selectedModel: candidateModel,
+      upstreamModel: mapModelForLocalRouter(candidateModel, matchingRouter),
       selectedFamily: family,
       transport: 'local-router',
       endpoint: matchingRouter.baseURL,
@@ -312,6 +414,7 @@ function candidateTransport(candidateModel, upstreams, preferCli) {
   if (hasCli) {
     return {
       selectedModel: candidateModel,
+      upstreamModel: candidateModel,
       selectedFamily: family,
       transport: 'cli',
       endpoint: null,
@@ -320,6 +423,7 @@ function candidateTransport(candidateModel, upstreams, preferCli) {
   }
   return {
     selectedModel: candidateModel,
+    upstreamModel: candidateModel,
     selectedFamily: family,
     transport: 'simulator',
     endpoint: null,
@@ -386,7 +490,7 @@ export function selectModelForTurn({
   checkClis = true,
   record = true
 } = {}) {
-  const virtualModel = String(requestedModel || 'velomesh/auto').trim() || 'velomesh/auto';
+  const virtualModel = normalizeVirtualModel(requestedModel);
   const classification = classifyTurnIntent({ messages, prompt, requestedModel: virtualModel, turnIndex });
   const phase = classification.phase;
   const spec = PHASE_CATALOG[phase] || PHASE_CATALOG.implementation;
@@ -424,6 +528,7 @@ export function selectModelForTurn({
     .filter((item) => item.selectedModel !== primary.selectedModel)
     .map((item) => ({
       model: item.selectedModel,
+      upstreamModel: item.upstreamModel || item.selectedModel,
       family: item.selectedFamily,
       transport: item.transport,
       endpoint: item.endpoint,
@@ -443,6 +548,7 @@ export function selectModelForTurn({
     virtualModel,
     phase,
     selectedModel: primary.selectedModel,
+    upstreamModel: primary.upstreamModel || primary.selectedModel,
     selectedFamily: primary.selectedFamily,
     transport: primary.transport,
     endpoint: primary.endpoint,

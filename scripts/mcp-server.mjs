@@ -45,10 +45,22 @@ export const tools=[
 const send=(obj)=>process.stdout.write(JSON.stringify(obj)+'\n');
 const response=(id,result)=>send({jsonrpc:'2.0',id,result});
 const fail=(id,code,message)=>send({jsonrpc:'2.0',id,error:{code,message}});
+function velomeshScriptPath(){
+  const here = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'velomesh.py');
+  const home = os.homedir();
+  const candidates = [
+    here,
+    path.join(home, '.velomesh', 'scripts', 'velomesh.py'),
+    path.join(home, '.agent-fusion', 'skill-hub-v4', 'skills', 'velomesh', 'scripts', 'velomesh.py'),
+    path.join(home, '.agent-fusion', 'skill-hub-v4', 'skills', 'agent-fusion-orchestrator', 'scripts', 'agent_fusion.py')
+  ];
+  return candidates.find(p => fs.existsSync(p)) || here;
+}
+
 async function call(name,args){
   const w=args.workspacePath; const cat=()=>discover(w);
   if(name==='synthesize_fullstack_architecture'){
-    const script = path.join(os.homedir(), '.agent-fusion', 'skill-hub-v4', 'skills', 'agent-fusion-orchestrator', 'scripts', 'agent_fusion.py');
+    const script = velomeshScriptPath();
     return new Promise((resolve) => {
       execFile('python3', [script, 'bundle', String(args.prompt || '')], { timeout: 20000 }, (error, stdout, stderr) => {
         if(error) return resolve({ status: 'error', error: stderr || error.message });
@@ -57,7 +69,7 @@ async function call(name,args){
     });
   }
   if(name==='discover_and_install_capability'){
-    const script = path.join(os.homedir(), '.agent-fusion', 'skill-hub-v4', 'skills', 'agent-fusion-orchestrator', 'scripts', 'agent_fusion.py');
+    const script = velomeshScriptPath();
     return new Promise((resolve) => {
       execFile('python3', [script, 'install-skill', String(args.query || '')], { timeout: 60000 }, (error, stdout, stderr) => {
         if(error) return resolve({ status: 'error', error: stderr || error.message });
@@ -66,7 +78,7 @@ async function call(name,args){
     });
   }
   if(name==='search_online_capabilities'){
-    const script = path.join(os.homedir(), '.agent-fusion', 'skill-hub-v4', 'skills', 'agent-fusion-orchestrator', 'scripts', 'agent_fusion.py');
+    const script = velomeshScriptPath();
     const kind = args.kind || 'all';
     return new Promise((resolve) => {
       execFile('python3', [script, 'discover', String(args.query || ''), '--kind', kind], { timeout: 30000 }, (error, stdout, stderr) => {
@@ -108,7 +120,7 @@ async function handle(msg){
   if(!Object.hasOwn(msg,'id'))return;
   const id=msg.id;
   try{
-    if(msg.method==='initialize')return response(id,{protocolVersion:msg.params?.protocolVersion||'2025-06-18',capabilities:{tools:{listChanged:false}},serverInfo:{name:'agent-fusion-orchestrator',version:'3.2.0-beta.1'}});
+    if(msg.method==='initialize')return response(id,{protocolVersion:msg.params?.protocolVersion||'2025-06-18',capabilities:{tools:{listChanged:false}},serverInfo:{name:'velomesh',version:'4.2.0'}});
     if(msg.method==='ping')return response(id,{});
     if(msg.method==='tools/list')return response(id,{tools});
     if(msg.method==='tools/call'){

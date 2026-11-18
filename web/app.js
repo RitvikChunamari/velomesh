@@ -1085,24 +1085,24 @@ function initModelOrchestratorAction() {
 
   const harnesses = {
     opencode: {
-      cmd: 'Select "velomesh/auto" in OpenCode /model picker (~/.config/opencode/opencode.json)',
-      note: 'Registers side-by-side alongside existing providers without replacing native OAuth or custom routers.'
+      cmd: 'Select "velomesh/auto" in OpenCode /models picker (~/.config/opencode/opencode.json)',
+      note: 'Registers @opencode/ai/providers/openai-compatible with auto/architect/frontend/fast/review models without overwriting native logins.'
     },
     codex: {
-      cmd: 'codex -p velomesh  # Uses [profiles.velomesh] -> model = "velomesh/auto"',
-      note: 'Appends an isolated profile in ~/.codex/config.toml while leaving your default Codex model intact.'
+      cmd: 'Select "VeloMesh Auto" in Codex /model picker or run codex -p velomesh',
+      note: 'Wires top-level model_catalog_json (~/.codex/velomesh-models.json) + Responses API provider alongside built-in OpenAI models.'
     },
     claude: {
-      cmd: 'velomesh claude  # Scoped ANTHROPIC_BASE_URL=http://127.0.0.1:4190 (--model velomesh/auto)',
-      note: 'Launches Claude Code routed through the local Anthropic /v1/messages adapter while keeping default OAuth untouched.'
+      cmd: 'Select "VeloMesh Auto" in Claude /model picker or run velomesh claude',
+      note: 'Adds ANTHROPIC_CUSTOM_MODEL_OPTION + modelPicker options to ~/.claude/settings.json while keeping native Claude OAuth untouched.'
     },
     cursor: {
       cmd: 'Base URL: http://127.0.0.1:4190/v1 | Model: velomesh/auto',
       note: 'Standard OpenAI Chat Completions & Responses endpoint compatible with Cursor BYOK and Grok / OpenAI CLI tools.'
     },
     antigravity: {
-      cmd: 'MCP select_model_route + Subagent Tiers (pro / flash / flash_lite)',
-      note: 'Google Antigravity uses a closed top UI dropdown; VeloMesh orchestrates multi-model delegation via MCP and subagents.'
+      cmd: '/velomesh skill + MCP select_model_route (pro / flash / flash_lite)',
+      note: 'Antigravity top IDE dropdown is server-managed; VeloMesh orchestrates multi-model delegation natively via MCP and subagents.'
     }
   };
 

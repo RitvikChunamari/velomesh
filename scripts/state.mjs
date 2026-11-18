@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 
-export const dataDir=()=>{const shared=path.join(os.homedir(),'.agent-fusion','data');const legacy=path.join(os.homedir(),'.gemini','config','agent-fusion-data');return path.resolve(process.env.AGENT_FUSION_DATA_DIR||(fs.existsSync(shared)?shared:fs.existsSync(legacy)?legacy:shared))};
+export const dataDir=()=>{const velomeshDir=path.join(os.homedir(),'.velomesh','data');const shared=path.join(os.homedir(),'.agent-fusion','data');const legacy=path.join(os.homedir(),'.gemini','config','agent-fusion-data');return path.resolve(process.env.VELOMESH_DATA_DIR||process.env.AGENT_FUSION_DATA_DIR||(fs.existsSync(velomeshDir)?velomeshDir:fs.existsSync(shared)?shared:fs.existsSync(legacy)?legacy:velomeshDir))};
 const PRIVATE_MODE=0o700;
 const mk=(dir)=>{fs.mkdirSync(dir,{recursive:true,mode:PRIVATE_MODE});try{fs.chmodSync(dir,PRIVATE_MODE)}catch{}};
 const safe=(x)=>String(x||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,90);
@@ -89,6 +89,6 @@ export function doctor(workspacePath,catalog){
   const warnings=[];
   if(!p)warnings.push('Pass an absolute workspace path to discover project-local agents.');
   if(catalog.agents.filter(x=>x.eligible).length===0)warnings.push('No eligible custom subagents found; the main agent will work directly.');
-  if(process.env.PLUGIN_DATA&&!process.env.AGENT_FUSION_DATA_DIR)warnings.push('Ignoring host-specific PLUGIN_DATA: shared cross-host data lives under ~/.agent-fusion/data (or legacy folder).');
-  return {version:'3.2.0-beta.1',platform:process.platform,node:process.version,storage:dataDir(),agents:catalog.agents.length,eligible:catalog.agents.filter(x=>x.eligible).length,skills:catalog.skills.length,warnings,execution:'MCP can propose plans. Optional cross-host CLI workers require explicit local opt-in; native host controls its own subagents.'};
+  if(process.env.PLUGIN_DATA&&!process.env.VELOMESH_DATA_DIR&&!process.env.AGENT_FUSION_DATA_DIR)warnings.push('Ignoring host-specific PLUGIN_DATA: shared cross-host data lives under ~/.velomesh/data (or legacy folder).');
+  return {version:'4.2.0',platform:process.platform,node:process.version,storage:dataDir(),agents:catalog.agents.length,eligible:catalog.agents.filter(x=>x.eligible).length,skills:catalog.skills.length,warnings,execution:'MCP can propose plans. Optional cross-host CLI workers require explicit local opt-in; native host controls its own subagents.'};
 }

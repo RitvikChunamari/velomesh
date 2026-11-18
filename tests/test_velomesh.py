@@ -111,19 +111,20 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
         self.assertIn("install-skill", body)
         
         with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".md") as f:
-            f.write("# User Custom Instructions\n\nPreserve this note at all costs.\n")
+            f.write("# User Custom Instructions\n\nPreserve this note at all costs.\n\n<!-- AGENT-FUSION-V4:START -->\nlegacy\n<!-- AGENT-FUSION-V4:END -->\n")
             f_path = Path(f.name)
         
         try:
             write_managed_rule(f_path, "# Managed Block Content\nAuto-route skills.")
             content = f_path.read_text(encoding="utf-8")
-            self.assertIn("<!-- AGENT-FUSION-V4:START -->", content)
+            self.assertIn("<!-- VELOMESH:START -->", content)
+            self.assertNotIn("<!-- AGENT-FUSION-V4:START -->", content)
             self.assertIn("Preserve this note at all costs.", content)
             
             removed = remove_managed_rule(f_path)
             self.assertTrue(removed)
             restored = f_path.read_text(encoding="utf-8")
-            self.assertNotIn("<!-- AGENT-FUSION-V4:START -->", restored)
+            self.assertNotIn("<!-- VELOMESH:START -->", restored)
             self.assertIn("Preserve this note at all costs.", restored)
         finally:
             f_path.unlink(missing_ok=True)
@@ -195,13 +196,24 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
 
     def test_auto_configure_harnesses_zero_config(self):
         from velomesh import auto_configure_harnesses
+        repo_root = Path(__file__).resolve().parent.parent
+        skill_md = (repo_root / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("name: velomesh", skill_md)
+
         with tempfile.TemporaryDirectory() as tmp_home:
             home_dir = Path(tmp_home)
             (home_dir / ".cursor").mkdir()
             (home_dir / ".copilot").mkdir()
             (home_dir / ".claude").mkdir()
+            (home_dir / ".claude" / "settings.json").write_text(json.dumps({"enabledPlugins": {"keep-me": True}}))
             (home_dir / ".codex").mkdir()
-            (home_dir / ".codex" / "config.toml").write_text('[mcp_servers.agent-fusion]\nenabled_tools = ["catalog"]\n')
+            (home_dir / ".codex" / "config.toml").write_text(
+                'model = "gpt-5.4"\n\n'
+                '[mcp_servers."sequential-thinking"]\n'
+                'enabled_tools = ["sequentialthinking", "fusion_start", "select_model_route"]\n\n'
+                '[mcp_servers.agent-fusion]\n'
+                'enabled_tools = ["catalog"]\n'
+            )
             
             with patch("velomesh.HOME", home_dir):
                 (home_dir / ".config" / "opencode").mkdir(parents=True)
@@ -214,31 +226,56 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
                     })
                 )
                 configured = auto_configure_harnesses()
-                self.assertTrue(len(configured) >= 4)
+                self.assertTrue(len(configured) >= 5)
                 
-                # Verify Cursor MCP auto-configured
+                # Verify Cursor MCP migrated to velomesh
                 cursor_mcp = json.loads((home_dir / ".cursor" / "mcp.json").read_text())
                 self.assertIn("velomesh", cursor_mcp["mcpServers"])
+                self.assertNotIn("agent-fusion", cursor_mcp["mcpServers"])
                 
                 # Verify Copilot MCP auto-configured
                 copilot_mcp = json.loads((home_dir / ".copilot" / "mcp-config.json").read_text())
                 self.assertIn("velomesh", copilot_mcp["mcpServers"])
                 
-                # Verify Codex config.toml updated with new tools AND additive model_provider/profile
+                # Verify Codex config.toml top-level model_catalog_json, cleaned unrelated MCP servers, and migrated velomesh
                 codex_toml = (home_dir / ".codex" / "config.toml").read_text()
+                first_non_empty = next(line for line in codex_toml.splitlines() if line.strip())
+                self.assertTrue(first_non_empty.startswith("model_catalog_json = "))
+                self.assertIn('enabled_tools = ["sequentialthinking"]', codex_toml)
+                self.assertNotIn('[mcp_servers."sequential-thinking"]\nenabled_tools = ["sequentialthinking", "fusion_start"', codex_toml)
+                self.assertIn("[mcp_servers.velomesh]", codex_toml)
                 self.assertIn("discover_and_install_capability", codex_toml)
                 self.assertIn("fusion_start", codex_toml)
                 self.assertIn("select_model_route", codex_toml)
                 self.assertIn("[model_providers.velomesh]", codex_toml)
+                self.assertIn('wire_api = "responses"', codex_toml)
                 self.assertIn("[profiles.velomesh]", codex_toml)
                 self.assertIn('model = "velomesh/auto"', codex_toml)
 
-                # Verify OpenCode opencode.json updated additively while preserving existing providers & model
+                # Verify Codex model catalog JSON exposes velomesh/* AND built-ins
+                catalog_data = json.loads((home_dir / ".codex" / "velomesh-models.json").read_text())
+                catalog_ids = {m["id"] for m in catalog_data["models"]}
+                self.assertIn("velomesh/auto", catalog_ids)
+                self.assertIn("gpt-5.4", catalog_ids)
+
+                # Verify Claude settings.json adds model picker without wiping plugins or setting global ANTHROPIC_BASE_URL
+                cs_data = json.loads((home_dir / ".claude" / "settings.json").read_text())
+                self.assertEqual(cs_data["enabledPlugins"], {"keep-me": True})
+                self.assertEqual(cs_data["env"]["ANTHROPIC_CUSTOM_MODEL_OPTION"], "velomesh/auto")
+                self.assertNotIn("ANTHROPIC_BASE_URL", cs_data["env"])
+                self.assertFalse(cs_data["modelPicker"]["replaceBuiltInOptions"])
+                self.assertEqual(cs_data["modelPicker"]["options"][0]["model"], "velomesh/auto")
+
+                # Verify OpenCode opencode.json uses working v2.1.4 schema while preserving existing providers & model
                 oc_data = json.loads((home_dir / ".config" / "opencode" / "opencode.json").read_text())
                 self.assertEqual(oc_data["model"], "existing-provider/default")
                 self.assertIn("existing-provider", oc_data["providers"])
-                self.assertIn("velomesh", oc_data["providers"])
-                self.assertIn("velomesh/auto", oc_data["providers"]["velomesh"]["models"])
+                vm_oc = oc_data["providers"]["velomesh"]
+                self.assertEqual(vm_oc["package"], "@opencode/ai/providers/openai-compatible")
+                self.assertEqual(vm_oc["models"]["auto"]["modelID"], "velomesh/auto")
+
+                # Verify native /velomesh skill installed
+                self.assertTrue((home_dir / ".codex" / "skills" / "velomesh" / "SKILL.md").is_file())
 
     def test_one_command_installers_exist_and_valid(self):
         repo_root = Path(__file__).resolve().parent.parent

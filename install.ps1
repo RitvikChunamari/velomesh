@@ -21,6 +21,9 @@ if (Get-Command node -ErrorAction SilentlyContinue) {
 Write-Host "🧠 Provisioning 398+ skills & auto-configuring harnesses..."
 python (Join-Path $InstallDir "scripts\velomesh.py") setup --profile recommended --yes
 
+Write-Host "🚀 Starting VeloMesh Multi-Model Gateway (velomesh/auto on 127.0.0.1:4190)..."
+python (Join-Path $InstallDir "scripts\velomesh.py") gateway start | Out-Null
+
 Write-Host ""
 Write-Host "========================================================================" -ForegroundColor Green
 Write-Host "✅ VeloMesh is installed and active globally across all your AI agents!" -ForegroundColor Green

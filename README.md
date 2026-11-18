@@ -116,13 +116,13 @@ Select **`velomesh/auto`** as your model or launch profile once. VeloMesh runs a
 | **Fast Triage & Search** | `gemini-3-flash` → `grok-code-fast-1` → `claude-haiku-4-5` → `gpt-5-mini` | `flash_lite` | Sub-second lookups, formatting & short turns |
 | **Cross-Family Review** | Independent family (`previousFamily` excluded first) | `pro` | Prevents self-grading bias during security & QA verification |
 
-### Additive Harness Setup (Zero Native Login Disruption)
-- **OpenCode:** Select `velomesh/auto` (or `velomesh/architect`, `velomesh/frontend`, `velomesh/fast`, `velomesh/review`) right in `/model` (`~/.config/opencode/opencode.json` registers `providers.velomesh` alongside existing routers).
-- **OpenAI Codex CLI:** Run `codex -p velomesh` using `[model_providers.velomesh]` + `[profiles.velomesh]` appended to `~/.codex/config.toml` while preserving your default model.
-- **Claude Code:** Run `velomesh claude` — starts the local gateway automatically and scopes `ANTHROPIC_BASE_URL=http://127.0.0.1:4190` only to that child process, leaving your native `claude` OAuth login untouched.
+### Additive Harness Setup & Model Pickers (Zero Native Login Disruption)
+- **OpenCode:** Appears directly in `/models` as `velomesh/auto` (plus `architect`, `frontend`, `fast`, `review`) using `@opencode/ai/providers/openai-compatible` inside `~/.config/opencode/opencode.json` alongside existing providers.
+- **OpenAI Codex CLI & App:** Appears directly in the `/model` dropdown via top-level `model_catalog_json` (`~/.codex/velomesh-models.json`) and `[model_providers.velomesh]` (`wire_api = "responses"`) + `codex -p velomesh` in `~/.codex/config.toml` while preserving built-in OpenAI models.
+- **Claude Code:** Appears in `/model` via `env.ANTHROPIC_CUSTOM_MODEL_OPTION` and `modelPicker` (`replaceBuiltInOptions: false`) in `~/.claude/settings.json`, plus `velomesh claude` — starts the local gateway automatically and scopes `ANTHROPIC_BASE_URL=http://127.0.0.1:4190` only to that child process while leaving native Claude OAuth untouched.
 - **Cursor & Grok / OpenAI-Compatible CLIs:** Point custom base URL to `http://127.0.0.1:4190/v1` and model to `velomesh/auto`.
-- **Google Antigravity IDE:** Because Antigravity uses a closed server-managed top dropdown, VeloMesh orchestrates multi-model delegation under the hood via its global MCP server (`select_model_route`, `gateway_status`, `route_task`, `run_worker`) and native subagent model tiers (`pro`, `flash`, `flash_lite`).
-- **Dual-Backend Failover:** Routes through direct API keys (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`) or local routers first, and falls back transparently to authenticated local CLIs (`claude`, `codex`, `gemini`, `opencode`) when API keys are absent or rate-limited.
+- **Google Antigravity IDE:** Installed cleanly as plugin `velomesh` and skill `/velomesh` (`~/.gemini/config/plugins/velomesh`). Because Antigravity's top IDE dropdown is server-managed, VeloMesh orchestrates multi-model delegation under the hood via its MCP server (`select_model_route`, `gateway_status`, `route_task`) and subagent model tiers (`pro`, `flash`, `flash_lite`).
+- **Persistent Auto-Start Daemon:** `velomesh gateway install-service` registers a background launchd (`dev.velomesh.gateway`) or systemd user service so `http://127.0.0.1:4190/v1` stays live across reboots, routing through direct API keys, local routers (`nine-router` / `omniroute` / `freellmapi`), or installed CLIs (`claude`, `codex`, `gemini`, `opencode`) with automatic failover.
 
 ---
 

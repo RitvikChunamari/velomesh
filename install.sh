@@ -36,6 +36,9 @@ fi
 echo "🧠 Provisioning 398+ skills & auto-configuring harnesses (Smart Dynamic Linking)..."
 python3 "$INSTALL_DIR/scripts/velomesh.py" setup --profile recommended --yes
 
+echo "🚀 Activating persistent VeloMesh Multi-Model Gateway (velomesh/auto on 127.0.0.1:4190)..."
+python3 "$INSTALL_DIR/scripts/velomesh.py" gateway install-service >/dev/null 2>&1 || python3 "$INSTALL_DIR/scripts/velomesh.py" gateway start || true
+
 # Create global CLI convenience command (optional, since VeloMesh runs automatically)
 mkdir -p "$HOME/.local/bin"
 ln -sf "$INSTALL_DIR/scripts/velomesh.py" "$HOME/.local/bin/velomesh"

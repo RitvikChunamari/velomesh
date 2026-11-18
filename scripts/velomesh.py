@@ -227,16 +227,19 @@ def safe_copy(src, dst):
 
 
 def rule_body():
-    script = ROOT / "skills" / "agent-fusion-orchestrator" / "scripts" / "agent_fusion.py"
-    return ("# VeloMesh / Agent Fusion skill routing (managed block)\n"
+    script = BUNDLE / "scripts" / "velomesh.py"
+    if not script.is_file():
+        script = HOME / ".velomesh" / "scripts" / "velomesh.py"
+    return ("# VeloMesh skill routing & multi-model orchestration (managed block)\n"
             "## Automatic skill selection & Autonomous One-Prompt Full-Stack Orchestration\n"
             "- Before starting any substantive engineering, design, debugging, testing, or research task, "
             "inspect available installed skills and MCP tools automatically—never require slash commands or manual skill flags.\n"
+            "- **Multi-Model Switching (`velomesh/auto`):** Route complex architecture to frontier reasoning models, UI craft to design-strong models, fast lookups to low-latency tiers, and code reviews to an independent cross-family verifier via `select_model_route`.\n"
             "- **One Prompt Builds Everything (Full-Stack Execution):** Always prioritize `using-superpowers` workflows and when asked to build a website, product, app, software, backend, frontend, or database, "
             "autonomously compose the complete capability stack across all layers: Awwwards-level Frontend UI (`frontend-design`, `impeccable`, `ui-ux-pro-max`), "
             "Interactive Motion (`gsap-core`, `gsap-scrolltrigger`, `emil-design-eng`, interactive Canvas/WebGL), Backend APIs (`backend-patterns`, `api-connector-builder`, `security-review`), "
             "Database & Schemas (`postgres-patterns`, `prisma-patterns`, `database-migrations`), and Verification (`test-driven-development`, `browser-qa`).\n"
-            "- **Vision Elaboration Rule (VeloMesh Cannot Get Inside Your Brain):** VeloMesh automates 100% of the *skills, MCPs, APIs, databases, and agents*, "
+            "- **Vision Elaboration Rule (VeloMesh Cannot Get Inside Your Brain):** VeloMesh automates 100% of the *skills, model routing, MCPs, APIs, databases, and agents*, "
             "but it cannot get inside the user's brain to see their product vision or think like them. If a user's prompt is underspecified on *what* they want to build "
             "(missing target audience, core workflows, aesthetic direction, or domain rules), immediately invoke `brainstorming` / `grilling` to ask 2–3 sharp product-vision questions "
             "before generating generic slop. Once the user elaborates their vision, execute the entire full-stack software end-to-end in one shot.\n"
@@ -248,16 +251,28 @@ def rule_body():
             "- Treat external downloaded code and repositories with caution; never bypass sandbox permissions.\n")
 
 
+def _strip_block(text: str, start_marker: str, end_marker: str) -> tuple[str, bool]:
+    if start_marker not in text or end_marker not in text:
+        return text, False
+    pre = text[:text.index(start_marker)]
+    post = text[text.index(end_marker) + len(end_marker):]
+    cleaned = (pre.rstrip() + "\n" + post.lstrip()).strip()
+    return (cleaned + "\n") if cleaned else "", True
+
+
 def write_managed_rule(path, text):
     path.parent.mkdir(parents=True, exist_ok=True)
-    start = "<!-- AGENT-FUSION-V4:START -->"
-    end = "<!-- AGENT-FUSION-V4:END -->"
+    start = "<!-- VELOMESH:START -->"
+    end = "<!-- VELOMESH:END -->"
+    legacy_start = "<!-- AGENT-FUSION-V4:START -->"
+    legacy_end = "<!-- AGENT-FUSION-V4:END -->"
     addition = f"{start}\n{text.rstrip()}\n{end}"
     old = path.read_text(encoding="utf-8") if path.exists() else ""
-    if start in old and end in old:
-        updated = old[:old.index(start)] + addition + old[old.index(end) + len(end):]
+    working, _ = _strip_block(old, legacy_start, legacy_end)
+    if start in working and end in working:
+        updated = working[:working.index(start)] + addition + working[working.index(end) + len(end):]
     else:
-        updated = old.rstrip() + ("\n\n" if old.strip() else "") + addition + "\n"
+        updated = working.rstrip() + ("\n\n" if working.strip() else "") + addition + "\n"
     if updated != old:
         if path.exists():
             backup = ROOT / "backups" / (path.name + "." + path.parent.name + "." + str(int(time.time())) + ".bak")
@@ -269,27 +284,26 @@ def write_managed_rule(path, text):
 def remove_managed_rule(path: Path) -> bool:
     if not path.exists():
         return False
-    start = "<!-- AGENT-FUSION-V4:START -->"
-    end = "<!-- AGENT-FUSION-V4:END -->"
     text = path.read_text(encoding="utf-8")
-    if start not in text or end not in text:
+    updated, r1 = _strip_block(text, "<!-- VELOMESH:START -->", "<!-- VELOMESH:END -->")
+    updated, r2 = _strip_block(updated, "<!-- AGENT-FUSION-V4:START -->", "<!-- AGENT-FUSION-V4:END -->")
+    if not (r1 or r2):
         return False
-    pre = text[:text.index(start)]
-    post = text[text.index(end) + len(end):]
-    cleaned = (pre.rstrip() + "\n" + post.lstrip()).strip()
-    updated = (cleaned + "\n") if cleaned else ""
     path.write_text(updated, encoding="utf-8")
     return True
 
 
 def install_rules():
     body = rule_body()
+    legacy_cursor = HOME / ".cursor" / "rules" / "agent-fusion.mdc"
+    if legacy_cursor.is_file():
+        legacy_cursor.unlink(missing_ok=True)
     paths = [
         HOME / ".codex" / "AGENTS.md",
         HOME / ".claude" / "CLAUDE.md",
         HOME / ".gemini" / "config" / "AGENTS.md",
         HOME / ".cursorrules",
-        HOME / ".cursor" / "rules" / "agent-fusion.mdc",
+        HOME / ".cursor" / "rules" / "velomesh.mdc",
         HOME / ".copilot" / "copilot-instructions.md",
     ]
     for p in paths:
@@ -300,6 +314,266 @@ def install_rules():
     instructions.write_text(body, encoding="utf-8")
 
 
+VELOMESH_MCP_TOOLS = [
+    "catalog",
+    "route_task",
+    "memory_read",
+    "recent_plans",
+    "plan_status",
+    "passport_list",
+    "passport_get",
+    "doctor",
+    "create_plan",
+    "stage_update",
+    "fusion_start",
+    "synthesize_fullstack_architecture",
+    "discover_and_install_capability",
+    "search_online_capabilities",
+    "select_model_route",
+    "gateway_status",
+]
+
+VELOMESH_ONLY_TOOLS = {
+    "fusion_start",
+    "discover_and_install_capability",
+    "search_online_capabilities",
+    "select_model_route",
+    "gateway_status",
+    "synthesize_fullstack_architecture",
+}
+
+
+def sync_velomesh_core_skill(targets=None) -> int:
+    """Install the native `/velomesh` skill across harness skill directories and retire `/agent-fusion-orchestrator` links."""
+    src_skill = BUNDLE / "SKILL.md"
+    if not src_skill.is_file():
+        return 0
+    if targets is None:
+        targets = {
+            "codex": HOME / ".codex" / "skills",
+            "codex-agents": HOME / ".agents" / "skills",
+            "claude-code": HOME / ".claude" / "skills",
+            "github-copilot": HOME / ".copilot" / "skills",
+            "antigravity-app": HOME / ".gemini" / "config" / "skills",
+            "opencode": HOME / ".config" / "opencode" / "skills",
+            "cursor": HOME / ".cursor" / "skills",
+        }
+    skill_text = src_skill.read_text(encoding="utf-8")
+    count = 0
+    for dest in targets.values():
+        try:
+            dest.mkdir(parents=True, exist_ok=True)
+            vdir = dest / "velomesh"
+            vdir.mkdir(parents=True, exist_ok=True)
+            (vdir / "SKILL.md").write_text(skill_text, encoding="utf-8")
+            legacy = dest / "agent-fusion-orchestrator"
+            if legacy.is_symlink():
+                legacy.unlink(missing_ok=True)
+            count += 1
+        except OSError:
+            pass
+    return count
+
+
+def configure_codex_toml(toml_text: str, node_bin: str, mcp_script_path: str, catalog_path: str) -> tuple[str, str | None]:
+    """Safely update Codex config.toml per section: sets top-level model_catalog_json,
+    cleans polluted VeloMesh tools from unrelated MCP servers, migrates agent-fusion -> velomesh,
+    and registers [model_providers.velomesh] + [profiles.velomesh].
+    """
+    lines = toml_text.splitlines()
+    root_lines = []
+    sections: list[tuple[str, list[str]]] = []
+    current_header = None
+    current_body: list[str] = []
+
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("[") and stripped.endswith("]") and not stripped.startswith("[["):
+            if current_header is not None:
+                sections.append((current_header, current_body))
+            current_header = stripped
+            current_body = []
+        else:
+            if current_header is None:
+                root_lines.append(line)
+            else:
+                current_body.append(line)
+    if current_header is not None:
+        sections.append((current_header, current_body))
+
+    detected_top_model = None
+    cleaned_root = []
+    for line in root_lines:
+        if re.match(r"^\s*model_catalog_json\s*=", line):
+            continue
+        m_model = re.match(r'^\s*model\s*=\s*"([^"]+)"', line)
+        if m_model and m_model.group(1) != "velomesh/auto":
+            detected_top_model = m_model.group(1)
+        cleaned_root.append(line)
+
+    new_root = [f'model_catalog_json = "{catalog_path}"']
+    if any(l.strip() for l in cleaned_root):
+        new_root.extend(cleaned_root)
+
+    def _strip_velomesh_tools_from_body(body_lines: list[str]) -> list[str]:
+        joined = "\n".join(body_lines)
+        def _clean(m):
+            items = re.findall(r'"([^"]+)"', m.group(1))
+            kept = [x for x in items if x not in VELOMESH_ONLY_TOOLS]
+            return "enabled_tools = [" + ", ".join(f'"{x}"' for x in kept) + "]"
+        updated = re.sub(r"enabled_tools\s*=\s*\[(.*?)\]", _clean, joined, flags=re.DOTALL)
+        return updated.splitlines()
+
+    rewritten_sections: list[tuple[str, list[str]]] = []
+    saw_velomesh_mcp = False
+    has_direct_velomesh = any(h == "[mcp_servers.velomesh]" for h, _ in sections)
+
+    for header, body_lines in sections:
+        if header in ("[model_providers.velomesh]", "[profiles.velomesh]"):
+            continue
+        if header == "[mcp_servers.agent-fusion]" and has_direct_velomesh:
+            continue
+        if header.startswith("[mcp_servers.agent-fusion") and not header == "[mcp_servers.agent-fusion]":
+            header = header.replace("[mcp_servers.agent-fusion", "[mcp_servers.velomesh", 1)
+
+        if header in ("[mcp_servers.agent-fusion]", "[mcp_servers.velomesh]"):
+            header = "[mcp_servers.velomesh]"
+            saw_velomesh_mcp = True
+            preserved = [
+                l for l in body_lines
+                if not re.match(r"^\s*(command|args|enabled_tools)\s*=", l)
+            ]
+            tools_str = ", ".join(f'"{t}"' for t in VELOMESH_MCP_TOOLS)
+            velomesh_body = [
+                f'command = "{node_bin}"',
+                f'args = ["{mcp_script_path}"]',
+                f"enabled_tools = [{tools_str}]",
+            ] + preserved
+            rewritten_sections.append((header, velomesh_body))
+            continue
+
+        if header.startswith("[mcp_servers."):
+            body_lines = _strip_velomesh_tools_from_body(body_lines)
+
+        rewritten_sections.append((header, body_lines))
+
+    if not saw_velomesh_mcp:
+        tools_str = ", ".join(f'"{t}"' for t in VELOMESH_MCP_TOOLS)
+        rewritten_sections.append((
+            "[mcp_servers.velomesh]",
+            [
+                f'command = "{node_bin}"',
+                f'args = ["{mcp_script_path}"]',
+                f"enabled_tools = [{tools_str}]",
+            ],
+        ))
+        rewritten_sections.append((
+            "[mcp_servers.velomesh.env]",
+            [
+                'AGENT_FUSION_ENABLE_EXEC = "0"',
+                'AGENT_FUSION_ENABLE_CHECKS = "0"',
+                'AGENT_FUSION_ALLOW_WRITES = "0"',
+            ],
+        ))
+
+    rewritten_sections.append((
+        "[model_providers.velomesh]",
+        [
+            'name = "VeloMesh Multi-Model Orchestrator"',
+            'base_url = "http://127.0.0.1:4190/v1"',
+            'wire_api = "responses"',
+            'experimental_bearer_token = "velomesh-local"',
+        ],
+    ))
+    rewritten_sections.append((
+        "[profiles.velomesh]",
+        [
+            'model_provider = "velomesh"',
+            'model = "velomesh/auto"',
+        ],
+    ))
+
+    out_chunks = ["\n".join(new_root).rstrip()]
+    for header, body_lines in rewritten_sections:
+        body_text = "\n".join(body_lines).strip("\n")
+        out_chunks.append(f"{header}\n{body_text}" if body_text else header)
+
+    return "\n\n".join(c for c in out_chunks if c) + "\n", detected_top_model
+
+
+def write_codex_model_catalog(catalog_path: Path, top_model: str | None = None):
+    models = [
+        {
+            "id": "velomesh/auto",
+            "slug": "velomesh/auto",
+            "display_name": "VeloMesh Auto (Multi-Model Switcher)",
+            "name": "VeloMesh Auto (Multi-Model Switcher)",
+            "description": "Dynamically switches between Claude, Codex, Gemini & Grok per task phase mid-execution.",
+            "provider": "velomesh",
+            "context_window": 200000,
+            "visibility": "list",
+            "supported_in_api": True,
+        },
+        {
+            "id": "velomesh/architect",
+            "slug": "velomesh/architect",
+            "display_name": "VeloMesh Architect (Frontier Reasoning & RLS)",
+            "name": "VeloMesh Architect (Frontier Reasoning & RLS)",
+            "provider": "velomesh",
+            "context_window": 200000,
+            "visibility": "list",
+            "supported_in_api": True,
+        },
+        {
+            "id": "velomesh/frontend",
+            "slug": "velomesh/frontend",
+            "display_name": "VeloMesh Frontend (Swiss UI & Motion Craft)",
+            "name": "VeloMesh Frontend (Swiss UI & Motion Craft)",
+            "provider": "velomesh",
+            "context_window": 200000,
+            "visibility": "list",
+            "supported_in_api": True,
+        },
+        {
+            "id": "velomesh/fast",
+            "slug": "velomesh/fast",
+            "display_name": "VeloMesh Fast (Low-Latency Search & Tooling)",
+            "name": "VeloMesh Fast (Low-Latency Search & Tooling)",
+            "provider": "velomesh",
+            "context_window": 200000,
+            "visibility": "list",
+            "supported_in_api": True,
+        },
+        {
+            "id": "velomesh/review",
+            "slug": "velomesh/review",
+            "display_name": "VeloMesh Review (Cross-Family Verifier)",
+            "name": "VeloMesh Review (Cross-Family Verifier)",
+            "provider": "velomesh",
+            "context_window": 200000,
+            "visibility": "list",
+            "supported_in_api": True,
+        },
+    ]
+    builtin_defaults = [top_model, "gpt-5.4", "gpt-5.3-codex", "gpt-5-mini"]
+    seen = set()
+    for mid in builtin_defaults:
+        if not mid or mid in seen or mid.startswith("velomesh/"):
+            continue
+        seen.add(mid)
+        models.append({
+            "id": mid,
+            "slug": mid,
+            "display_name": mid,
+            "name": mid,
+            "provider": "openai",
+            "context_window": 200000,
+            "visibility": "list",
+            "supported_in_api": True,
+        })
+    catalog_path.write_text(json.dumps({"models": models}, indent=2) + "\n", encoding="utf-8")
+
+
 def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str | None = None) -> list[str]:
     configured = []
     if not node_bin:
@@ -307,20 +581,20 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
     if not mcp_script_path:
         candidates = [
             BUNDLE / "scripts" / "mcp-server.mjs",
-            HOME / ".gemini" / "config" / "plugins" / "agent-fusion" / "scripts" / "mcp-server.mjs",
+            HOME / ".gemini" / "config" / "plugins" / "velomesh" / "scripts" / "mcp-server.mjs",
             HOME / ".velomesh" / "scripts" / "mcp-server.mjs",
+            HOME / ".local" / "share" / "velomesh" / "scripts" / "mcp-server.mjs",
             HOME / ".local" / "share" / "agent-fusion" / "scripts" / "mcp-server.mjs",
         ]
         found = next((c for c in candidates if c.is_file()), candidates[0])
         mcp_script_path = str(found)
 
-    # Sync latest MCP & hook scripts to legacy plugin locations if present
+    # Sync latest MCP & hook scripts to active plugin locations if present
     src_scripts = BUNDLE / "scripts"
     if src_scripts.is_dir():
         for mirror in [
-            HOME / ".gemini" / "config" / "plugins" / "agent-fusion" / "scripts",
-            HOME / ".local" / "share" / "agent-fusion" / "scripts",
-            ROOT / "skills" / "agent-fusion-orchestrator" / "scripts",
+            HOME / ".gemini" / "config" / "plugins" / "velomesh" / "scripts",
+            HOME / ".local" / "share" / "velomesh" / "scripts",
         ]:
             if mirror.is_dir() and mirror.resolve() != src_scripts.resolve():
                 for sfile in src_scripts.iterdir():
@@ -329,6 +603,9 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
                             shutil.copy2(sfile, mirror / sfile.name)
                         except OSError:
                             pass
+
+    # Install native /velomesh skill across harness skill folders
+    sync_velomesh_core_skill()
 
     # 1. Cursor (~/.cursor/mcp.json)
     cursor_dir = HOME / ".cursor"
@@ -342,9 +619,8 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
         cursor_data = {}
     cursor_servers = cursor_data.setdefault("mcpServers", {})
     server_entry = {"command": node_bin, "args": [mcp_script_path], "env": {}}
+    cursor_servers.pop("agent-fusion", None)
     cursor_servers["velomesh"] = server_entry
-    if "agent-fusion" in cursor_servers:
-        cursor_servers["agent-fusion"] = server_entry
     cursor_mcp_file.write_text(json.dumps(cursor_data, indent=2) + "\n", encoding="utf-8")
     configured.append("cursor")
 
@@ -359,6 +635,7 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
     except Exception:
         copilot_data = {}
     copilot_servers = copilot_data.setdefault("mcpServers", {})
+    copilot_servers.pop("agent-fusion", None)
     copilot_servers["velomesh"] = {
         "type": "local",
         "command": node_bin,
@@ -369,49 +646,18 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
     copilot_mcp_file.write_text(json.dumps(copilot_data, indent=2) + "\n", encoding="utf-8")
     configured.append("github-copilot")
 
-    # 3. Codex (~/.codex/config.toml)
+    # 3. Codex (~/.codex/config.toml + ~/.codex/velomesh-models.json)
     codex_dir = HOME / ".codex"
     codex_dir.mkdir(parents=True, exist_ok=True)
     codex_toml_file = codex_dir / "config.toml"
+    codex_catalog_file = codex_dir / "velomesh-models.json"
     toml_text = codex_toml_file.read_text(encoding="utf-8") if codex_toml_file.is_file() else ""
-    required_tools = ["fusion_start", "discover_and_install_capability", "search_online_capabilities", "select_model_route", "gateway_status"]
-    if "[mcp_servers.agent-fusion]" in toml_text or "[mcp_servers.velomesh]" in toml_text:
-        def _inject_tools(match):
-            existing = match.group(1)
-            additions = [f'"{t}"' for t in required_tools if f'"{t}"' not in existing]
-            if not additions:
-                return match.group(0)
-            prefix = existing.rstrip()
-            sep = ", " if prefix and not prefix.endswith(",") else ""
-            return f"enabled_tools = [{prefix}{sep}{', '.join(additions)}]"
-        toml_text = re.sub(r"enabled_tools\s*=\s*\[(.*?)\]", _inject_tools, toml_text, flags=re.DOTALL)
-    else:
-        block = (
-            f'\n[mcp_servers.velomesh]\n'
-            f'command = "{node_bin}"\n'
-            f'args = ["{mcp_script_path}"]\n'
-        )
-        toml_text = toml_text.rstrip() + "\n" + block
-
-    if "[model_providers.velomesh]" not in toml_text:
-        provider_block = (
-            '\n[model_providers.velomesh]\n'
-            'name = "VeloMesh Multi-Model Orchestrator"\n'
-            'base_url = "http://127.0.0.1:4190/v1"\n'
-            'wire_api = "chat"\n'
-        )
-        toml_text = toml_text.rstrip() + "\n" + provider_block
-    if "[profiles.velomesh]" not in toml_text:
-        profile_block = (
-            '\n[profiles.velomesh]\n'
-            'model_provider = "velomesh"\n'
-            'model = "velomesh/auto"\n'
-        )
-        toml_text = toml_text.rstrip() + "\n" + profile_block
-    codex_toml_file.write_text(toml_text, encoding="utf-8")
+    updated_toml, detected_top_model = configure_codex_toml(toml_text, node_bin, mcp_script_path, str(codex_catalog_file))
+    codex_toml_file.write_text(updated_toml, encoding="utf-8")
+    write_codex_model_catalog(codex_catalog_file, top_model=detected_top_model)
     configured.append("codex")
 
-    # 4. Claude Code (~/.claude/mcp.json)
+    # 4. Claude Code (~/.claude/mcp.json + ~/.claude/settings.json model picker options)
     claude_dir = HOME / ".claude"
     claude_dir.mkdir(parents=True, exist_ok=True)
     claude_mcp_file = claude_dir / "mcp.json"
@@ -421,11 +667,37 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
             claude_data = {}
     except Exception:
         claude_data = {}
-    claude_data.setdefault("mcpServers", {})["velomesh"] = {"command": node_bin, "args": [mcp_script_path]}
+    claude_servers = claude_data.setdefault("mcpServers", {})
+    claude_servers.pop("agent-fusion", None)
+    claude_servers["velomesh"] = {"command": node_bin, "args": [mcp_script_path]}
     claude_mcp_file.write_text(json.dumps(claude_data, indent=2) + "\n", encoding="utf-8")
+
+    claude_settings_file = claude_dir / "settings.json"
+    try:
+        cs_data = json.loads(claude_settings_file.read_text(encoding="utf-8")) if claude_settings_file.is_file() else {}
+        if not isinstance(cs_data, dict):
+            cs_data = {}
+    except Exception:
+        cs_data = {}
+    cs_env = cs_data.setdefault("env", {})
+    if isinstance(cs_env, dict):
+        cs_env["ANTHROPIC_CUSTOM_MODEL_OPTION"] = "velomesh/auto"
+        cs_env["ANTHROPIC_CUSTOM_MODEL_OPTION_NAME"] = "VeloMesh Auto (Multi-Model Switcher)"
+        cs_env["ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION"] = "Routes across Claude, Codex, Gemini & Grok per task phase"
+    cs_data["modelPicker"] = {
+        "replaceBuiltInOptions": False,
+        "options": [
+            {"model": "velomesh/auto", "label": "VeloMesh Auto", "description": "Dynamic multi-model switcher across Claude, Codex, Gemini & Grok"},
+            {"model": "velomesh/architect", "label": "VeloMesh Architect", "description": "Frontier architecture, system design & PostgreSQL RLS"},
+            {"model": "velomesh/frontend", "label": "VeloMesh Frontend", "description": "Swiss UI craft, motion choreography & responsiveness"},
+            {"model": "velomesh/fast", "label": "VeloMesh Fast", "description": "Low-latency search, formatting & quick turnaround"},
+            {"model": "velomesh/review", "label": "VeloMesh Review", "description": "Cross-family independent verifier & security auditor"},
+        ],
+    }
+    claude_settings_file.write_text(json.dumps(cs_data, indent=2) + "\n", encoding="utf-8")
     configured.append("claude-code")
 
-    # 5. OpenCode (~/.config/opencode/opencode.json) — additive provider + MCP registration
+    # 5. OpenCode (~/.config/opencode/opencode.json) — additive v2.1.4 provider + MCP registration
     opencode_dir = HOME / ".config" / "opencode"
     opencode_jsonc = opencode_dir / "opencode.jsonc"
     if not opencode_jsonc.is_file():
@@ -443,23 +715,24 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
             oc_data["providers"] = oc_providers
         oc_providers["velomesh"] = {
             "name": "VeloMesh Orchestrator",
-            "package": "@ai-sdk/openai-compatible",
-            "env": ["VELOMESH_API_KEY"],
-            "settings": {"baseURL": "http://127.0.0.1:4190/v1"},
+            "package": "@opencode/ai/providers/openai-compatible",
+            "settings": {"baseURL": "http://127.0.0.1:4190/v1", "apiKey": "velomesh-local"},
             "models": {
-                "velomesh/auto": {"name": "VeloMesh Auto (Dynamic Multi-Model Switcher)"},
-                "velomesh/architect": {"name": "VeloMesh Architect (Frontier Reasoning & RLS)"},
-                "velomesh/frontend": {"name": "VeloMesh Frontend (Swiss UI & Motion Craft)"},
-                "velomesh/fast": {"name": "VeloMesh Fast (Low-Latency Search & Tooling)"},
-                "velomesh/review": {"name": "VeloMesh Review (Cross-Family Verifier)"},
+                "auto": {"modelID": "velomesh/auto", "name": "VeloMesh Auto (Dynamic Multi-Model Switcher)"},
+                "architect": {"modelID": "velomesh/architect", "name": "VeloMesh Architect (Frontier Reasoning & RLS)"},
+                "frontend": {"modelID": "velomesh/frontend", "name": "VeloMesh Frontend (Swiss UI & Motion Craft)"},
+                "fast": {"modelID": "velomesh/fast", "name": "VeloMesh Fast (Low-Latency Search & Tooling)"},
+                "review": {"modelID": "velomesh/review", "name": "VeloMesh Review (Cross-Family Verifier)"},
             },
         }
         oc_mcp = oc_data.setdefault("mcp", {})
         if isinstance(oc_mcp, dict):
             mcp_entry = {"type": "local", "command": [node_bin, mcp_script_path]}
             if isinstance(oc_mcp.get("servers"), dict):
+                oc_mcp["servers"].pop("agent-fusion", None)
                 oc_mcp["servers"]["velomesh"] = mcp_entry
             else:
+                oc_mcp.pop("agent-fusion", None)
                 oc_mcp["velomesh"] = mcp_entry
         opencode_file.write_text(json.dumps(oc_data, indent=2) + "\n", encoding="utf-8")
         configured.append("opencode")
@@ -473,6 +746,7 @@ def uninstall_rules():
         HOME / ".claude" / "CLAUDE.md",
         HOME / ".gemini" / "config" / "AGENTS.md",
         HOME / ".cursorrules",
+        HOME / ".cursor" / "rules" / "velomesh.mdc",
         HOME / ".cursor" / "rules" / "agent-fusion.mdc",
         HOME / ".copilot" / "copilot-instructions.md",
     ]
@@ -1067,17 +1341,85 @@ def cmd_gateway(args):
         say(json.dumps({"status": "started", "port": port, "endpoint": f"http://127.0.0.1:{port}/v1"}, indent=2))
         return 0
     if action == "stop":
-        pid_file = _gateway_pid_file()
-        if not pid_file.is_file():
-            say(json.dumps({"status": "not_running", "port": port}, indent=2))
+        stopped = False
+        for pf in (_gateway_pid_file(), HOME / ".agent-fusion" / "data" / "gateway.pid", HOME / ".velomesh" / "data" / "gateway.pid"):
+            if pf.is_file():
+                try:
+                    pid = int(pf.read_text(encoding="utf-8").strip())
+                    os.kill(pid, 15)
+                    stopped = True
+                except Exception:
+                    pass
+                pf.unlink(missing_ok=True)
+        say(json.dumps({"status": "stopped" if stopped else "not_running", "port": port}, indent=2))
+        return 0
+    if action == "install-service":
+        log_dir = HOME / ".velomesh" / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        node_dir = str(Path(node_bin).parent)
+        path_env = os.pathsep.join([node_dir, "/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", str(HOME / ".local" / "bin")])
+        if sys.platform == "darwin":
+            plist_path = HOME / "Library" / "LaunchAgents" / "dev.velomesh.gateway.plist"
+            plist_path.parent.mkdir(parents=True, exist_ok=True)
+            import plistlib
+            plist_obj = {
+                "Label": "dev.velomesh.gateway",
+                "ProgramArguments": [node_bin, str(gw), "--port", str(port)],
+                "RunAtLoad": True,
+                "KeepAlive": True,
+                "EnvironmentVariables": {"PATH": path_env, "VELOMESH_PORT": str(port)},
+                "StandardOutPath": str(log_dir / "gateway.out.log"),
+                "StandardErrorPath": str(log_dir / "gateway.err.log"),
+            }
+            plist_path.write_bytes(plistlib.dumps(plist_obj))
+            uid = os.getuid()
+            # Stop any manual background PID (new or legacy pid file) before launchd takes over
+            for pid_file in (_gateway_pid_file(), HOME / ".agent-fusion" / "data" / "gateway.pid", HOME / ".velomesh" / "data" / "gateway.pid"):
+                if pid_file.is_file():
+                    try:
+                        os.kill(int(pid_file.read_text(encoding="utf-8").strip()), 15)
+                        time.sleep(0.2)
+                    except Exception:
+                        pass
+                    pid_file.unlink(missing_ok=True)
+            subprocess.run(["launchctl", "bootout", f"gui/{uid}/dev.velomesh.gateway"], capture_output=True)
+            r = subprocess.run(["launchctl", "bootstrap", f"gui/{uid}", str(plist_path)], capture_output=True, text=True)
+            if r.returncode != 0:
+                subprocess.run(["launchctl", "load", "-w", str(plist_path)], capture_output=True, text=True)
+            say(json.dumps({"status": "service_installed", "platform": "darwin", "plist": str(plist_path), "endpoint": f"http://127.0.0.1:{port}/v1"}, indent=2))
             return 0
-        try:
-            pid = int(pid_file.read_text(encoding="utf-8").strip())
-            os.kill(pid, 15)
-        except Exception:
-            pass
-        pid_file.unlink(missing_ok=True)
-        say(json.dumps({"status": "stopped", "port": port}, indent=2))
+        if sys.platform.startswith("linux"):
+            unit_path = HOME / ".config" / "systemd" / "user" / "velomesh-gateway.service"
+            unit_path.parent.mkdir(parents=True, exist_ok=True)
+            unit_path.write_text(
+                "[Unit]\nDescription=VeloMesh Multi-Model Orchestrator Gateway\nAfter=network.target\n\n"
+                "[Service]\nType=simple\n"
+                f"Environment=\"PATH={path_env}\"\n"
+                f"Environment=\"VELOMESH_PORT={port}\"\n"
+                f"ExecStart={node_bin} {gw} --port {port}\n"
+                "Restart=always\nRestartSec=2\n\n"
+                "[Install]\nWantedBy=default.target\n",
+                encoding="utf-8",
+            )
+            subprocess.run(["systemctl", "--user", "daemon-reload"], capture_output=True)
+            subprocess.run(["systemctl", "--user", "enable", "--now", "velomesh-gateway.service"], capture_output=True)
+            say(json.dumps({"status": "service_installed", "platform": "linux", "unit": str(unit_path), "endpoint": f"http://127.0.0.1:{port}/v1"}, indent=2))
+            return 0
+        health = _ensure_gateway_running(port)
+        say(json.dumps({"status": "started" if health else "failed", "port": port}, indent=2))
+        return 0 if health else 1
+    if action == "uninstall-service":
+        if sys.platform == "darwin":
+            plist_path = HOME / "Library" / "LaunchAgents" / "dev.velomesh.gateway.plist"
+            uid = os.getuid()
+            subprocess.run(["launchctl", "bootout", f"gui/{uid}/dev.velomesh.gateway"], capture_output=True)
+            subprocess.run(["launchctl", "unload", "-w", str(plist_path)], capture_output=True)
+            plist_path.unlink(missing_ok=True)
+        elif sys.platform.startswith("linux"):
+            unit_path = HOME / ".config" / "systemd" / "user" / "velomesh-gateway.service"
+            subprocess.run(["systemctl", "--user", "disable", "--now", "velomesh-gateway.service"], capture_output=True)
+            unit_path.unlink(missing_ok=True)
+        say(json.dumps({"status": "service_uninstalled"}, indent=2))
         return 0
 
 
@@ -1109,8 +1451,14 @@ def cmd_route_model(args):
     sys.stdout.write(res.stdout)
 
 
+def _expanded_search_path() -> str:
+    extras = ["/opt/homebrew/bin", "/usr/local/bin", str(HOME / ".local" / "bin"), str(HOME / ".npm-global" / "bin"), str(HOME / ".bun" / "bin")]
+    existing = os.environ.get("PATH", "")
+    return os.pathsep.join(extras + ([existing] if existing else []))
+
+
 def cmd_claude(extra_args: list[str], port: int = 4190):
-    claude_bin = shutil.which("claude")
+    claude_bin = shutil.which("claude", path=_expanded_search_path())
     if not claude_bin:
         raise RuntimeError("claude CLI not found on PATH. Install Claude Code CLI first.")
     _ensure_gateway_running(port)
@@ -1126,7 +1474,7 @@ def cmd_claude(extra_args: list[str], port: int = 4190):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Agent Fusion shared skills and capability discovery")
+    parser = argparse.ArgumentParser(description="VeloMesh universal multi-model orchestrator and capability engine")
     sub = parser.add_subparsers(dest="command", required=True)
     p = sub.add_parser("setup", help="Add curated GitHub skills and sync to all supported harnesses")
     p.add_argument("--profile", choices=tuple(LEVELS), default="recommended")
@@ -1150,7 +1498,7 @@ def main():
     p.add_argument("--model", default="velomesh/auto", help="Virtual model ID (default: velomesh/auto)")
     p.add_argument("--previous-model", default=None, help="Previous turn model to evaluate mid-execution switching")
     p = sub.add_parser("gateway", help="Manage the local VeloMesh multi-model gateway daemon")
-    p.add_argument("action", choices=("start", "stop", "status", "hud"))
+    p.add_argument("action", choices=("start", "stop", "status", "hud", "install-service", "uninstall-service"))
     p.add_argument("--port", type=int, default=int(os.environ.get("VELOMESH_PORT", "4190")))
     p = sub.add_parser("claude", help="Launch Claude Code scoped cleanly to VeloMesh velomesh/auto without overwriting OAuth")
     p.add_argument("--port", type=int, default=int(os.environ.get("VELOMESH_PORT", "4190")))

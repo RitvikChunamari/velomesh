@@ -7,16 +7,18 @@ import {
   VELOMESH_MODELS,
   classifyTurnIntent,
   selectModelForTurn,
-  inferModelFamily
+  inferModelFamily,
+  mapModelForLocalRouter
 } from '../scripts/model-router.mjs';
 import { createGatewayServer } from '../scripts/gateway.mjs';
 import { routeTask } from '../scripts/router.mjs';
 import { call as mcpCall } from '../scripts/mcp-server.mjs';
+import { spawn } from 'node:child_process';
 
 test('classifyTurnIntent and selectModelForTurn dynamically route across architecture, frontend, fast, and cross-family review phases', () => {
   const tmpData = fs.mkdtempSync(path.join(os.tmpdir(), 'velomesh-gw-test-'));
-  const prevDir = process.env.AGENT_FUSION_DATA_DIR;
-  process.env.AGENT_FUSION_DATA_DIR = tmpData;
+  const prevDir = process.env.VELOMESH_DATA_DIR;
+  process.env.VELOMESH_DATA_DIR = tmpData;
 
   try {
     const cleanEnv = {};
@@ -81,17 +83,35 @@ test('classifyTurnIntent and selectModelForTurn dynamically route across archite
     });
     assert.equal(pinned.phase, 'architecture');
     assert.equal(pinned.pinned, true);
+
+    // Bare virtual model name normalization ('architect', 'auto') for OpenCode v2.1.4 keys
+    const barePinned = classifyTurnIntent({
+      prompt: 'simple list command',
+      requestedModel: 'architect'
+    });
+    assert.equal(barePinned.phase, 'architecture');
+    assert.equal(barePinned.pinned, true);
+
+    // Local router upstream model mapping
+    assert.equal(
+      mapModelForLocalRouter('claude-opus-4-6', { models: ['ag/claude-opus-4-6-thinking', 'ag/gemini-3.1-pro-high'] }),
+      'ag/claude-opus-4-6-thinking'
+    );
+    assert.equal(
+      mapModelForLocalRouter('gpt-5.4', { models: ['auto', 'fusion'] }),
+      'auto'
+    );
   } finally {
-    if (prevDir === undefined) delete process.env.AGENT_FUSION_DATA_DIR;
-    else process.env.AGENT_FUSION_DATA_DIR = prevDir;
+    if (prevDir === undefined) delete process.env.VELOMESH_DATA_DIR;
+    else process.env.VELOMESH_DATA_DIR = prevDir;
     fs.rmSync(tmpData, { recursive: true, force: true });
   }
 });
 
-test('createGatewayServer serves /v1/models, /v1/chat/completions (JSON + SSE), and /v1/messages (Anthropic) with dynamic switching headers', async () => {
+test('createGatewayServer serves /v1/models, /v1/chat/completions (JSON + SSE), /v1/responses (JSON + SSE), and /v1/messages (Anthropic) with dynamic switching headers', async () => {
   const tmpData = fs.mkdtempSync(path.join(os.tmpdir(), 'velomesh-srv-test-'));
-  const prevDir = process.env.AGENT_FUSION_DATA_DIR;
-  process.env.AGENT_FUSION_DATA_DIR = tmpData;
+  const prevDir = process.env.VELOMESH_DATA_DIR;
+  process.env.VELOMESH_DATA_DIR = tmpData;
 
   const server = createGatewayServer({ simulate: true, checkClis: false });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -180,38 +200,76 @@ test('createGatewayServer serves /v1/models, /v1/chat/completions (JSON + SSE), 
     assert.equal(anthBody.role, 'assistant');
     assert.equal(anthBody.stop_reason, 'end_turn');
     assert.equal(anthBody.content[0].type, 'text');
+
+    // 6. OpenAI Responses API (/v1/responses) streaming SSE (required by Codex wire_api = "responses")
+    const respSse = await fetch(`${baseUrl}/v1/responses`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: 'auto',
+        stream: true,
+        input: 'Design distributed Postgres ledger schema.'
+      })
+    });
+    assert.equal(respSse.status, 200);
+    assert.equal(respSse.headers.get('x-velomesh-phase'), 'architecture');
+    const respSseText = await respSse.text();
+    assert.ok(respSseText.includes('event: response.created'));
+    assert.ok(respSseText.includes('event: response.output_text.delta'));
+    assert.ok(respSseText.includes('event: response.completed'));
+    assert.ok(respSseText.includes('data: [DONE]'));
   } finally {
     await new Promise((resolve) => server.close(resolve));
-    if (prevDir === undefined) delete process.env.AGENT_FUSION_DATA_DIR;
-    else process.env.AGENT_FUSION_DATA_DIR = prevDir;
+    if (prevDir === undefined) delete process.env.VELOMESH_DATA_DIR;
+    else process.env.VELOMESH_DATA_DIR = prevDir;
     fs.rmSync(tmpData, { recursive: true, force: true });
   }
 });
 
-test('routeTask and MCP server expose modelOrchestration, per-stage modelRoute, select_model_route, and gateway_status', async () => {
-  const routed = routeTask(
-    'Build a multi-tenant treasury SaaS UI with Swiss CSS design, PostgreSQL schema migrations, and security tests.',
-    { agents: [], skills: [] }
-  );
-  assert.ok(routed.modelOrchestration);
-  assert.equal(routed.modelOrchestration.virtualModel, 'velomesh/auto');
-  assert.equal(routed.modelOrchestration.dynamicSwitching, true);
-  assert.ok(Array.isArray(routed.modelOrchestration.stageModels));
-  assert.ok(routed.modelOrchestration.stageModels.length >= 2);
-  for (const stage of routed.stages) {
-    assert.ok(stage.modelRoute?.model);
-    assert.ok(stage.modelRoute?.phase);
+test('routeTask and MCP server expose velomesh serverInfo, modelOrchestration, per-stage modelRoute, select_model_route, and gateway_status', async () => {
+  const tmpData = fs.mkdtempSync(path.join(os.tmpdir(), 'velomesh-mcp-test-'));
+  const prevDir = process.env.VELOMESH_DATA_DIR;
+  process.env.VELOMESH_DATA_DIR = tmpData;
+
+  try {
+    const routed = routeTask(
+      'Build a multi-tenant treasury SaaS UI with Swiss CSS design, PostgreSQL schema migrations, and security tests.',
+      { agents: [], skills: [] }
+    );
+    assert.ok(routed.modelOrchestration);
+    assert.equal(routed.modelOrchestration.virtualModel, 'velomesh/auto');
+    assert.equal(routed.modelOrchestration.dynamicSwitching, true);
+    assert.ok(Array.isArray(routed.modelOrchestration.stageModels));
+    assert.ok(routed.modelOrchestration.stageModels.length >= 2);
+    for (const stage of routed.stages) {
+      assert.ok(stage.modelRoute?.model);
+      assert.ok(stage.modelRoute?.phase);
+    }
+
+    const routeResult = await mcpCall('select_model_route', {
+      prompt: 'Review security vulnerabilities in webhook signature validation',
+      previousModel: 'claude-opus-4-6'
+    });
+    assert.equal(routeResult.phase, 'review');
+    assert.equal(routeResult.switched, true);
+
+    const statusResult = await mcpCall('gateway_status', {});
+    assert.ok(Array.isArray(statusResult.models));
+    assert.equal(statusResult.models.length, 5);
+    assert.equal(statusResult.defaultEndpoint, 'http://127.0.0.1:4190/v1');
+
+    // Verify stdio initialize returns rebranded serverInfo.name === 'velomesh'
+    const mcpPath = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../scripts/mcp-server.mjs');
+    const initChild = spawn('node', [mcpPath]);
+    initChild.stdin.write(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} }) + '\n');
+    initChild.stdin.end();
+    let initOut = '';
+    for await (const chunk of initChild.stdout) initOut += chunk;
+    const initJson = JSON.parse(initOut.trim().split('\n')[0]);
+    assert.equal(initJson.result.serverInfo.name, 'velomesh');
+  } finally {
+    if (prevDir === undefined) delete process.env.VELOMESH_DATA_DIR;
+    else process.env.VELOMESH_DATA_DIR = prevDir;
+    fs.rmSync(tmpData, { recursive: true, force: true });
   }
-
-  const routeResult = await mcpCall('select_model_route', {
-    prompt: 'Review security vulnerabilities in webhook signature validation',
-    previousModel: 'claude-opus-4-6'
-  });
-  assert.equal(routeResult.phase, 'review');
-  assert.equal(routeResult.switched, true);
-
-  const statusResult = await mcpCall('gateway_status', {});
-  assert.ok(Array.isArray(statusResult.models));
-  assert.equal(statusResult.models.length, 5);
-  assert.equal(statusResult.defaultEndpoint, 'http://127.0.0.1:4190/v1');
 });

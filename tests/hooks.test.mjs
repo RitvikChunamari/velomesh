@@ -27,8 +27,9 @@ test('hooks.mjs outputs active instructions on PreInvocation even without worksp
   const res = JSON.parse(out.trim());
   assert.ok(res.injectSteps && res.injectSteps.length > 0, 'Must inject steps on invocation > 0');
   const msg = res.injectSteps[0].ephemeralMessage;
-  assert.ok(msg.includes('Agent Fusion Universal v4') || msg.includes('VeloMesh'), 'Must identify as VeloMesh / Agent Fusion Universal v4');
-  assert.ok(msg.includes('fusion_start') || msg.includes('discover_and_install_capability'), 'Must contain routing guidance');
+  assert.ok(msg.includes('VeloMesh'), 'Must identify as VeloMesh');
+  assert.ok(msg.includes('VeloMesh Model Route:'), 'Must inject dynamic model route telemetry');
+  assert.ok(msg.includes('select_model_route') || msg.includes('discover_and_install_capability'), 'Must contain routing guidance');
   assert.ok(msg.toLowerCase().includes('vision') || msg.toLowerCase().includes('brain'), 'Must include vision elaboration guidance');
 });
 
