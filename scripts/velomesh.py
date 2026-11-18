@@ -502,75 +502,95 @@ def configure_codex_toml(toml_text: str, node_bin: str, mcp_script_path: str, ca
 
 
 def write_codex_model_catalog(catalog_path: Path, top_model: str | None = None):
-    models = [
-        {
-            "id": "velomesh/auto",
-            "slug": "velomesh/auto",
-            "display_name": "VeloMesh Auto (Multi-Model Switcher)",
-            "name": "VeloMesh Auto (Multi-Model Switcher)",
-            "description": "Dynamically switches between Claude, Codex, Gemini & Grok per task phase mid-execution.",
-            "provider": "velomesh",
-            "context_window": 200000,
-            "visibility": "list",
-            "supported_in_api": True,
-        },
-        {
-            "id": "velomesh/architect",
-            "slug": "velomesh/architect",
-            "display_name": "VeloMesh Architect (Frontier Reasoning & RLS)",
-            "name": "VeloMesh Architect (Frontier Reasoning & RLS)",
-            "provider": "velomesh",
-            "context_window": 200000,
-            "visibility": "list",
-            "supported_in_api": True,
-        },
-        {
-            "id": "velomesh/frontend",
-            "slug": "velomesh/frontend",
-            "display_name": "VeloMesh Frontend (Swiss UI & Motion Craft)",
-            "name": "VeloMesh Frontend (Swiss UI & Motion Craft)",
-            "provider": "velomesh",
-            "context_window": 200000,
-            "visibility": "list",
-            "supported_in_api": True,
-        },
-        {
-            "id": "velomesh/fast",
-            "slug": "velomesh/fast",
-            "display_name": "VeloMesh Fast (Low-Latency Search & Tooling)",
-            "name": "VeloMesh Fast (Low-Latency Search & Tooling)",
-            "provider": "velomesh",
-            "context_window": 200000,
-            "visibility": "list",
-            "supported_in_api": True,
-        },
-        {
-            "id": "velomesh/review",
-            "slug": "velomesh/review",
-            "display_name": "VeloMesh Review (Cross-Family Verifier)",
-            "name": "VeloMesh Review (Cross-Family Verifier)",
-            "provider": "velomesh",
-            "context_window": 200000,
-            "visibility": "list",
-            "supported_in_api": True,
-        },
+    import copy
+
+    reasoning_levels = [
+        {"effort": "low", "description": "Fast responses with lighter reasoning"},
+        {"effort": "medium", "description": "Balances speed and reasoning depth for everyday tasks"},
+        {"effort": "high", "description": "Greater reasoning depth for complex problems"},
     ]
-    builtin_defaults = [top_model, "gpt-5.4", "gpt-5.3-codex", "gpt-5-mini"]
-    seen = set()
-    for mid in builtin_defaults:
-        if not mid or mid in seen or mid.startswith("velomesh/"):
-            continue
-        seen.add(mid)
-        models.append({
-            "id": mid,
-            "slug": mid,
-            "display_name": mid,
-            "name": mid,
-            "provider": "openai",
-            "context_window": 200000,
-            "visibility": "list",
-            "supported_in_api": True,
-        })
+
+    fallback_template = {
+        "slug": "velomesh/auto",
+        "display_name": "VeloMesh Auto (Multi-Model Switcher)",
+        "description": "Dynamically switches between Claude, Codex, Gemini & Grok per task phase mid-execution.",
+        "default_reasoning_level": "medium",
+        "supported_reasoning_levels": copy.deepcopy(reasoning_levels),
+        "shell_type": "unified_exec",
+        "visibility": "list",
+        "supported_in_api": True,
+        "priority": 0,
+        "default_reasoning_summary": "none",
+        "support_verbosity": True,
+        "default_verbosity": "low",
+        "apply_patch_tool_type": "freeform",
+        "web_search_tool_type": "text_and_image",
+        "truncation_policy": {"mode": "tokens", "limit": 10000},
+        "context_window": 200000,
+        "effective_context_window_percent": 95,
+        "input_modalities": ["text", "image"],
+        "supports_search_tool": True,
+        "supports_reasoning_effort_updates": True,
+    }
+
+    native_models = []
+    cache_file = catalog_path.parent / "models_cache.json"
+    if cache_file.is_file():
+        try:
+            cache_data = json.loads(cache_file.read_text(encoding="utf-8"))
+            cached = cache_data.get("models") if isinstance(cache_data, dict) else None
+            if isinstance(cached, list):
+                native_models = [
+                    copy.deepcopy(m) for m in cached
+                    if isinstance(m, dict) and m.get("slug") and not str(m.get("slug")).startswith("velomesh/")
+                ]
+        except Exception:
+            native_models = []
+
+    base_template = copy.deepcopy(native_models[0]) if native_models else fallback_template
+
+    velomesh_specs = [
+        ("velomesh/auto", "VeloMesh Auto (Multi-Model Switcher)", "Dynamically switches between Claude, Codex, Gemini & Grok per task phase mid-execution."),
+        ("velomesh/architect", "VeloMesh Architect (Frontier Reasoning & RLS)", "Frontier architecture, system design, distributed consensus & PostgreSQL RLS tier."),
+        ("velomesh/frontend", "VeloMesh Frontend (Swiss UI & Motion Craft)", "Awwwards Swiss typography UI, responsive layout & compositor motion engineering."),
+        ("velomesh/fast", "VeloMesh Fast (Low-Latency Search & Tooling)", "High-speed repo navigation, linting, quick checks & formatting tier."),
+        ("velomesh/review", "VeloMesh Review (Cross-Family Verifier)", "Independent cross-family security auditor & diff verification tier."),
+    ]
+
+    models = []
+    for idx, (slug, display_name, description) in enumerate(velomesh_specs):
+        entry = copy.deepcopy(base_template)
+        entry["slug"] = slug
+        entry["display_name"] = display_name
+        entry["description"] = description
+        entry["visibility"] = "list"
+        entry["supported_in_api"] = True
+        entry["priority"] = idx
+        entry["default_reasoning_level"] = "medium"
+        entry["supported_reasoning_levels"] = copy.deepcopy(reasoning_levels)
+        if "availability_nux" in entry:
+            entry["availability_nux"] = None
+        if "upgrade" in entry:
+            entry["upgrade"] = None
+        models.append(entry)
+
+    if native_models:
+        models.extend(native_models)
+    else:
+        seen = set()
+        for idx, mid in enumerate([top_model, "gpt-5.4", "gpt-5.3-codex", "gpt-5-mini"]):
+            if not mid or mid in seen or mid.startswith("velomesh/"):
+                continue
+            seen.add(mid)
+            entry = copy.deepcopy(base_template)
+            entry["slug"] = mid
+            entry["display_name"] = mid
+            entry["description"] = f"OpenAI model {mid}"
+            entry["visibility"] = "list"
+            entry["supported_in_api"] = True
+            entry["priority"] = len(velomesh_specs) + idx
+            models.append(entry)
+
     catalog_path.write_text(json.dumps({"models": models}, indent=2) + "\n", encoding="utf-8")
 
 

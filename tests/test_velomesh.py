@@ -252,11 +252,21 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
                 self.assertIn("[profiles.velomesh]", codex_toml)
                 self.assertIn('model = "velomesh/auto"', codex_toml)
 
-                # Verify Codex model catalog JSON exposes velomesh/* AND built-ins
+                # Verify Codex model catalog JSON follows Codex ModelInfo schema (supported_reasoning_levels, no stray keys)
                 catalog_data = json.loads((home_dir / ".codex" / "velomesh-models.json").read_text())
-                catalog_ids = {m["id"] for m in catalog_data["models"]}
-                self.assertIn("velomesh/auto", catalog_ids)
-                self.assertIn("gpt-5.4", catalog_ids)
+                catalog_slugs = {m["slug"] for m in catalog_data["models"]}
+                self.assertIn("velomesh/auto", catalog_slugs)
+                self.assertIn("gpt-5.4", catalog_slugs)
+                for entry in catalog_data["models"]:
+                    self.assertNotIn("id", entry)
+                    self.assertNotIn("provider", entry)
+                    self.assertTrue(entry.get("supported_reasoning_levels"))
+                    self.assertIn("effort", entry["supported_reasoning_levels"][0])
+                    self.assertIn("description", entry["supported_reasoning_levels"][0])
+                    self.assertEqual(entry.get("visibility"), "list")
+                    self.assertTrue(entry.get("supported_in_api"))
+                    self.assertIn("shell_type", entry)
+                    self.assertIn("truncation_policy", entry)
 
                 # Verify Claude settings.json adds model picker without wiping plugins or setting global ANTHROPIC_BASE_URL
                 cs_data = json.loads((home_dir / ".claude" / "settings.json").read_text())
