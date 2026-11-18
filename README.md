@@ -1,9 +1,11 @@
 <div align="center">
 
+<img src="./web/brand/velomesh-action-badge.svg" alt="VELOMESH/AUTO — Dynamic Multi-Model Orchestrator" width="360" height="40" />
+
 # ⚡ VeloMesh
 
-### **Build Polished Websites, Full-Stack Products, Backends, Frontends & Databases in One Prompt.**
-**Autonomous Internet Capability Engine · Live MCPs, APIs, Agents & 398+ Skills · Zero Slash Commands · Zero Config Files**
+### **Build Polished Websites, Full-Stack Products, Backends, Frontends & Databases in One Prompt — With Dynamic Multi-Model Switching (`velomesh/auto`).**
+**Autonomous Internet Capability Engine · Multi-Model Gateway · Live MCPs, APIs, Agents & 398+ Skills**
 
 ### 🌐 **[Live Interactive Product Experience → ritvikchunamari.github.io/velomesh](https://ritvikchunamari.github.io/velomesh/)**
 
@@ -102,14 +104,50 @@ Out of the box, VeloMesh indexes and hot-links capabilities from the strongest o
 
 ---
 
+## 🧠 Multi-Model Orchestrator (`velomesh/auto`) — Dynamic Mid-Execution Model Switching
+
+Select **`velomesh/auto`** as your model or launch profile once. VeloMesh runs a lightweight local OpenAI + Anthropic gateway (`http://127.0.0.1:4190`) that inspects every turn and automatically switches upstream models mid-execution as your task moves across phases:
+
+| Task Phase | Routed Primary Ladder | Antigravity Tier | Switch Logic |
+| :--- | :--- | :--- | :--- |
+| **Architecture & RLS** | `claude-opus-4-6` → `gpt-5.4` → `grok-4` → `gemini-3.1-pro` | `pro` | System design, PostgreSQL RLS, migrations & hard tradeoffs |
+| **Frontend & Swiss UI** | `claude-sonnet-4-6` → `gemini-3.1-pro` → `gpt-5.4` → `grok-4` | `pro` | Visual hierarchy, self-hosted typography & 60fps canvas motion |
+| **Implementation** | `gpt-5.3-codex` → `claude-sonnet-4-6` → `grok-4` → `gemini-3.1-pro` | `pro` | Typed multi-file code synthesis and tool loops |
+| **Fast Triage & Search** | `gemini-3-flash` → `grok-code-fast-1` → `claude-haiku-4-5` → `gpt-5-mini` | `flash_lite` | Sub-second lookups, formatting & short turns |
+| **Cross-Family Review** | Independent family (`previousFamily` excluded first) | `pro` | Prevents self-grading bias during security & QA verification |
+
+### Additive Harness Setup (Zero Native Login Disruption)
+- **OpenCode:** Select `velomesh/auto` (or `velomesh/architect`, `velomesh/frontend`, `velomesh/fast`, `velomesh/review`) right in `/model` (`~/.config/opencode/opencode.json` registers `providers.velomesh` alongside existing routers).
+- **OpenAI Codex CLI:** Run `codex -p velomesh` using `[model_providers.velomesh]` + `[profiles.velomesh]` appended to `~/.codex/config.toml` while preserving your default model.
+- **Claude Code:** Run `velomesh claude` — starts the local gateway automatically and scopes `ANTHROPIC_BASE_URL=http://127.0.0.1:4190` only to that child process, leaving your native `claude` OAuth login untouched.
+- **Cursor & Grok / OpenAI-Compatible CLIs:** Point custom base URL to `http://127.0.0.1:4190/v1` and model to `velomesh/auto`.
+- **Google Antigravity IDE:** Because Antigravity uses a closed server-managed top dropdown, VeloMesh orchestrates multi-model delegation under the hood via its global MCP server (`select_model_route`, `gateway_status`, `route_task`, `run_worker`) and native subagent model tiers (`pro`, `flash`, `flash_lite`).
+- **Dual-Backend Failover:** Routes through direct API keys (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`) or local routers first, and falls back transparently to authenticated local CLIs (`claude`, `codex`, `gemini`, `opencode`) when API keys are absent or rate-limited.
+
+---
+
 <details>
-<summary><b>⚙️ Optional CLI Reference (For Inspection & Power Users)</b></summary>
+<summary><b>⚙️ Optional CLI Reference (Gateway, Model Routing & Inspection)</b></summary>
 
 <br>
 
-VeloMesh runs 100% autonomously on every prompt. These CLI commands are optional utilities for inspecting full-stack routing bundles or pre-fetching capabilities:
+VeloMesh runs 100% autonomously on every prompt. These CLI utilities start/inspect the multi-model gateway, preview routing decisions, or pre-fetch capabilities:
 
 ```bash
+# Inspect VeloMesh ASCII emblem HUD, virtual models, and discovered API/CLI upstreams
+velomesh gateway hud
+
+# Start / check / stop the local multi-model gateway (127.0.0.1:4190/v1)
+velomesh gateway start
+velomesh gateway status
+velomesh gateway stop
+
+# Launch Claude Code scoped cleanly to velomesh/auto without touching native OAuth
+velomesh claude
+
+# Preview turn-by-turn model selection and cross-family switching
+velomesh route-model "Review PostgreSQL RLS migration for tenant isolation leaks" --previous-model claude-opus-4-6
+
 # Preview how VeloMesh synthesizes a full-stack bundle & checks vision clarity for any prompt
 python3 ~/.velomesh/scripts/velomesh.py bundle "Build a multi-tenant AI billing dashboard with FastAPI, Postgres RLS, Stripe webhooks, and GSAP animations"
 

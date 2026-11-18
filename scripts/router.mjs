@@ -1,5 +1,6 @@
 import { DOMAINS } from './catalog.mjs';
 import { reputation } from './feedback.mjs';
+import { selectModelForTurn, VELOMESH_MODELS } from './model-router.mjs';
 
 const STOPS = new Set('the a an and or to from that with for by of on in my our your you i me we this it is are into build create make fix work use need add code project files app system improve please automatically can should them how what'.split(' '));
 const tokens = (v) => new Set(String(v).toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>2&&!STOPS.has(w)));
@@ -89,16 +90,50 @@ export function routeTask(task,catalog,options={}) {
     for(const d of ['security','testing'])if(domains.includes(d)||cross)stages.push({id:`verify-${d}`,title:stageTitle[d],domain:d,dependsOn:workIds.length?['integration']:[],mode:'read-only'});
     if(!stages.length)stages.push({id:'work',title:'Complete the requested task',domain:'architecture',dependsOn:[],mode:'implementation'});
   }
+  let prevModel=null, prevFamily=null;
   for(const stage of stages){
     const matched=picks.filter(a=>a.matchedDomains.includes(stage.domain));
     stage.suggestedAgent=matched[0]?.id||null;
     stage.acceptanceCriteria=stage.mode==='read-only'?'Return evidence-backed findings with relevant paths and verification steps':stage.mode==='integration'?'Integrate changes without conflicts, run checks, and resolve errors':'Complete the scoped deliverable without modifying unrelated files';
+    const decision=selectModelForTurn({
+      prompt:`${stage.title} (${stage.domain}): ${prompt}`,
+      requestedModel:options.model||'velomesh/auto',
+      previousModel:prevModel,
+      previousFamily:prevFamily,
+      checkClis:false,
+      record:false
+    });
+    stage.modelRoute={
+      phase:decision.phase,
+      model:decision.selectedModel,
+      family:decision.selectedFamily,
+      transport:decision.transport,
+      antigravityTier:decision.antigravityTier,
+      cliProvider:decision.cliProvider,
+      switched:decision.switched,
+      switchReason:decision.switchReason
+    };
+    prevModel=decision.selectedModel;
+    prevFamily=decision.selectedFamily;
   }
+  const initialDecision=selectModelForTurn({
+    prompt,
+    requestedModel:options.model||'velomesh/auto',
+    checkClis:false,
+    record:false
+  });
+  const modelOrchestration={
+    virtualModel:options.model||'velomesh/auto',
+    availableModels:VELOMESH_MODELS.map(m=>m.id),
+    dynamicSwitching:true,
+    initialDecision,
+    stageModels:stages.map(s=>({stageId:s.id,domain:s.domain,...s.modelRoute}))
+  };
   const parallelCandidates=stages.filter(s=>s.mode==='implementation'&&s.dependsOn.length===0);
   const parallelSafe=false; // Never assume concurrent writes are safe before file ownership is established.
   return {
     task:prompt,complexity:trivial?'trivial':domains.length>1?'multi-domain':'focused',domainSignals:domains,
-    visionCheck,fullStackLayers,
+    visionCheck,fullStackLayers,modelOrchestration,
     catalog:{agents:catalog.agents.length,eligible:catalog.agents.filter(a=>a.eligible).length,skills:catalog.skills.length},
     selectedAgents:picks,foreignCandidates:options.currentHost?ranked.filter(x=>x.host!==options.currentHost).slice(0,5):[],stages,
     routing:trivial?'main-only':picks.length?'native-delegation-if-supported':'main-with-skills',

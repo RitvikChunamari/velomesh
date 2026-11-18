@@ -374,7 +374,7 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
     codex_dir.mkdir(parents=True, exist_ok=True)
     codex_toml_file = codex_dir / "config.toml"
     toml_text = codex_toml_file.read_text(encoding="utf-8") if codex_toml_file.is_file() else ""
-    required_tools = ["fusion_start", "discover_and_install_capability", "search_online_capabilities"]
+    required_tools = ["fusion_start", "discover_and_install_capability", "search_online_capabilities", "select_model_route", "gateway_status"]
     if "[mcp_servers.agent-fusion]" in toml_text or "[mcp_servers.velomesh]" in toml_text:
         def _inject_tools(match):
             existing = match.group(1)
@@ -392,6 +392,22 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
             f'args = ["{mcp_script_path}"]\n'
         )
         toml_text = toml_text.rstrip() + "\n" + block
+
+    if "[model_providers.velomesh]" not in toml_text:
+        provider_block = (
+            '\n[model_providers.velomesh]\n'
+            'name = "VeloMesh Multi-Model Orchestrator"\n'
+            'base_url = "http://127.0.0.1:4190/v1"\n'
+            'wire_api = "chat"\n'
+        )
+        toml_text = toml_text.rstrip() + "\n" + provider_block
+    if "[profiles.velomesh]" not in toml_text:
+        profile_block = (
+            '\n[profiles.velomesh]\n'
+            'model_provider = "velomesh"\n'
+            'model = "velomesh/auto"\n'
+        )
+        toml_text = toml_text.rstrip() + "\n" + profile_block
     codex_toml_file.write_text(toml_text, encoding="utf-8")
     configured.append("codex")
 
@@ -408,6 +424,45 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
     claude_data.setdefault("mcpServers", {})["velomesh"] = {"command": node_bin, "args": [mcp_script_path]}
     claude_mcp_file.write_text(json.dumps(claude_data, indent=2) + "\n", encoding="utf-8")
     configured.append("claude-code")
+
+    # 5. OpenCode (~/.config/opencode/opencode.json) — additive provider + MCP registration
+    opencode_dir = HOME / ".config" / "opencode"
+    opencode_jsonc = opencode_dir / "opencode.jsonc"
+    if not opencode_jsonc.is_file():
+        opencode_dir.mkdir(parents=True, exist_ok=True)
+        opencode_file = opencode_dir / "opencode.json"
+        try:
+            oc_data = json.loads(opencode_file.read_text(encoding="utf-8")) if opencode_file.is_file() else {}
+            if not isinstance(oc_data, dict):
+                oc_data = {}
+        except Exception:
+            oc_data = {}
+        oc_providers = oc_data.setdefault("providers", {})
+        if not isinstance(oc_providers, dict):
+            oc_providers = {}
+            oc_data["providers"] = oc_providers
+        oc_providers["velomesh"] = {
+            "name": "VeloMesh Orchestrator",
+            "package": "@ai-sdk/openai-compatible",
+            "env": ["VELOMESH_API_KEY"],
+            "settings": {"baseURL": "http://127.0.0.1:4190/v1"},
+            "models": {
+                "velomesh/auto": {"name": "VeloMesh Auto (Dynamic Multi-Model Switcher)"},
+                "velomesh/architect": {"name": "VeloMesh Architect (Frontier Reasoning & RLS)"},
+                "velomesh/frontend": {"name": "VeloMesh Frontend (Swiss UI & Motion Craft)"},
+                "velomesh/fast": {"name": "VeloMesh Fast (Low-Latency Search & Tooling)"},
+                "velomesh/review": {"name": "VeloMesh Review (Cross-Family Verifier)"},
+            },
+        }
+        oc_mcp = oc_data.setdefault("mcp", {})
+        if isinstance(oc_mcp, dict):
+            mcp_entry = {"type": "local", "command": [node_bin, mcp_script_path]}
+            if isinstance(oc_mcp.get("servers"), dict):
+                oc_mcp["servers"]["velomesh"] = mcp_entry
+            else:
+                oc_mcp["velomesh"] = mcp_entry
+        opencode_file.write_text(json.dumps(oc_data, indent=2) + "\n", encoding="utf-8")
+        configured.append("opencode")
 
     return configured
 
@@ -935,6 +990,141 @@ def print_catalog(args):
         say(f"  {entry['name']}: {entry.get('repo', entry.get('url'))}")
 
 
+def _node_binary() -> str:
+    return shutil.which("node") or ("/opt/homebrew/bin/node" if Path("/opt/homebrew/bin/node").exists() else "node")
+
+
+def _gateway_script() -> Path:
+    candidates = [
+        BUNDLE / "scripts" / "gateway.mjs",
+        HOME / ".velomesh" / "scripts" / "gateway.mjs",
+        HOME / ".local" / "share" / "agent-fusion" / "scripts" / "gateway.mjs",
+    ]
+    return next((c for c in candidates if c.is_file()), candidates[0])
+
+
+def _gateway_pid_file() -> Path:
+    data_dir = Path(os.environ.get("AGENT_FUSION_DATA_DIR", str(HOME / ".agent-fusion" / "data"))).expanduser()
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir / "gateway.pid"
+
+
+def _gateway_health(port: int) -> dict | None:
+    try:
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=1.5) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return None
+
+
+def _ensure_gateway_running(port: int = 4190) -> dict | None:
+    health = _gateway_health(port)
+    if health:
+        return health
+    gw = _gateway_script()
+    if not gw.is_file():
+        raise RuntimeError(f"gateway script not found: {gw}")
+    node_bin = _node_binary()
+    proc = subprocess.Popen(
+        [node_bin, str(gw), "--port", str(port)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        stdin=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+    _gateway_pid_file().write_text(f"{proc.pid}\n", encoding="utf-8")
+    for _ in range(20):
+        time.sleep(0.15)
+        health = _gateway_health(port)
+        if health:
+            return health
+    return None
+
+
+def cmd_gateway(args):
+    action = args.action
+    port = args.port
+    gw = _gateway_script()
+    node_bin = _node_binary()
+    if action == "hud":
+        res = subprocess.run([node_bin, str(gw), "--hud"], check=True)
+        return res.returncode
+    if action == "status":
+        health = _gateway_health(port)
+        if not health:
+            say(json.dumps({"ok": False, "port": port, "status": "stopped"}, indent=2))
+            return 1
+        say(json.dumps(health, indent=2))
+        return 0
+    if action == "start":
+        already = _gateway_health(port)
+        if already:
+            say(json.dumps({"status": "already_running", "port": port, "endpoint": f"http://127.0.0.1:{port}/v1"}, indent=2))
+            return 0
+        health = _ensure_gateway_running(port)
+        if not health:
+            raise RuntimeError(f"Timed out waiting for VeloMesh gateway on 127.0.0.1:{port}")
+        say(json.dumps({"status": "started", "port": port, "endpoint": f"http://127.0.0.1:{port}/v1"}, indent=2))
+        return 0
+    if action == "stop":
+        pid_file = _gateway_pid_file()
+        if not pid_file.is_file():
+            say(json.dumps({"status": "not_running", "port": port}, indent=2))
+            return 0
+        try:
+            pid = int(pid_file.read_text(encoding="utf-8").strip())
+            os.kill(pid, 15)
+        except Exception:
+            pass
+        pid_file.unlink(missing_ok=True)
+        say(json.dumps({"status": "stopped", "port": port}, indent=2))
+        return 0
+
+
+def cmd_route_model(args):
+    router_path = _gateway_script().parent / "model-router.mjs"
+    if not router_path.is_file():
+        raise RuntimeError(f"model-router.mjs not found at {router_path}")
+    payload = {
+        "prompt": args.prompt,
+        "requestedModel": args.model,
+        "previousModel": args.previous_model,
+        "record": False,
+    }
+    env = os.environ.copy()
+    env["VELOMESH_ROUTER_URL"] = router_path.resolve().as_uri()
+    env["VELOMESH_ROUTE_INPUT"] = json.dumps(payload)
+    res = subprocess.run(
+        [
+            _node_binary(),
+            "--input-type=module",
+            "-e",
+            "const m=await import(process.env.VELOMESH_ROUTER_URL);const d=m.selectModelForTurn(JSON.parse(process.env.VELOMESH_ROUTE_INPUT));process.stdout.write(JSON.stringify(d,null,2)+'\\n');",
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    sys.stdout.write(res.stdout)
+
+
+def cmd_claude(extra_args: list[str], port: int = 4190):
+    claude_bin = shutil.which("claude")
+    if not claude_bin:
+        raise RuntimeError("claude CLI not found on PATH. Install Claude Code CLI first.")
+    _ensure_gateway_running(port)
+    env = os.environ.copy()
+    env["ANTHROPIC_BASE_URL"] = f"http://127.0.0.1:{port}"
+    env["ANTHROPIC_AUTH_TOKEN"] = env.get("VELOMESH_API_KEY", "velomesh-local")
+    has_model_flag = any(a == "--model" or a.startswith("--model=") for a in extra_args)
+    launch_args = [claude_bin]
+    if not has_model_flag:
+        launch_args.extend(["--model", "velomesh/auto"])
+    launch_args.extend(extra_args)
+    os.execvpe(claude_bin, launch_args, env)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Agent Fusion shared skills and capability discovery")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -955,10 +1145,21 @@ def main():
     p.add_argument("query", help="User prompt to evaluate and route across full-stack layers")
     p = sub.add_parser("audit-ui", help="Audit a UI directory, file, or URL against the anti-AI-slop craft floor")
     p.add_argument("target", help="File path, directory, or URL to audit")
+    p = sub.add_parser("route-model", help="Evaluate dynamic multi-model routing for a prompt")
+    p.add_argument("prompt", help="Prompt text to route")
+    p.add_argument("--model", default="velomesh/auto", help="Virtual model ID (default: velomesh/auto)")
+    p.add_argument("--previous-model", default=None, help="Previous turn model to evaluate mid-execution switching")
+    p = sub.add_parser("gateway", help="Manage the local VeloMesh multi-model gateway daemon")
+    p.add_argument("action", choices=("start", "stop", "status", "hud"))
+    p.add_argument("--port", type=int, default=int(os.environ.get("VELOMESH_PORT", "4190")))
+    p = sub.add_parser("claude", help="Launch Claude Code scoped cleanly to VeloMesh velomesh/auto without overwriting OAuth")
+    p.add_argument("--port", type=int, default=int(os.environ.get("VELOMESH_PORT", "4190")))
     sub.add_parser("uninstall-rules", help="Remove managed rules from all harness configurations")
     sub.add_parser("status", help="Show manifest and destination paths")
     sub.add_parser("catalog", help="Show curated upstream repositories")
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
+    if args.command != "claude" and unknown:
+        parser.error(f"unrecognized arguments: {' '.join(unknown)}")
     try:
         if args.command == "setup":
             setup(args)
@@ -976,6 +1177,14 @@ def main():
             say(json.dumps(recommend_fullstack_bundle(args.query), indent=2))
         elif args.command == "audit-ui":
             say(json.dumps(audit_ui(args.target), indent=2))
+        elif args.command == "route-model":
+            cmd_route_model(args)
+        elif args.command == "gateway":
+            code = cmd_gateway(args)
+            if code:
+                sys.exit(code)
+        elif args.command == "claude":
+            cmd_claude(unknown, port=args.port)
         elif args.command == "status":
             status(args)
         elif args.command == "catalog":

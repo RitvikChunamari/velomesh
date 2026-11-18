@@ -7,7 +7,8 @@
 
 ## Core Technologies & Entrypoints
 - **Python CLI & Provisioning Engine:** [`scripts/velomesh.py`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/velomesh.py) (zero external pip dependencies; Python 3.9+ stdlib).
-- **Node.js MCP Server & Hook Engine:** [`scripts/mcp-server.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/mcp-server.mjs), [`scripts/hooks.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/hooks.mjs), [`scripts/router.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/router.mjs), [`scripts/catalog.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/catalog.mjs) (zero external npm runtime dependencies; Node.js 18+ stdlib).
+- **Node.js MCP Server, Multi-Model Gateway & Hook Engine:** [`scripts/mcp-server.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/mcp-server.mjs), [`scripts/model-router.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/model-router.mjs), [`scripts/gateway.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/gateway.mjs), [`scripts/hooks.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/hooks.mjs), [`scripts/router.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/router.mjs), [`scripts/catalog.mjs`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/scripts/catalog.mjs) (zero external npm runtime dependencies; Node.js 18+ stdlib).
+- **Multi-Model Orchestrator (`velomesh/auto`):** Local loopback OpenAI (`/v1/models`, `/v1/chat/completions`, `/v1/responses`, `/v1/route`) + Anthropic (`/v1/messages`) gateway at `127.0.0.1:4190` switching models mid-execution across `architecture`, `frontend`, `implementation`, `fast`, and cross-family `review` phases, backed additively across OpenCode (`providers.velomesh`), Codex CLI (`[model_providers.velomesh]` + `[profiles.velomesh]`), Claude Code (`velomesh claude`), Cursor/Grok CLI, and Antigravity MCP (`select_model_route`, `gateway_status`).
 - **1-Command Global Installers:** [`install.sh`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/install.sh) (macOS/Linux) and [`install.ps1`](file:///Users/ritvik/.gemini/antigravity/scratch/velomesh/install.ps1) (Windows PowerShell).
 ## Design System & Frontend Architecture (Pure Black & White Visual Haven Swiss)
 - **Visual Direction & Sourced 21st.dev Patterns:** Strict achromatic **Black & White** monochrome Visual Haven Swiss system (`#070708` Obsidian Black ↔ `#f8f8fa` Stark White polarity toggle via `#theme-toggle-btn`, **zero** chromatic accent colors, zero Berger Föhr navbar primitives, floating dock, or geometric symbol grid).
@@ -15,6 +16,7 @@
   - **Swiss Navbar & Accessible Dropdowns** (`Navbar Section 2 [18120]`, `Rich Navigation Menu [18191]`, `Navbar with Dropdowns [606]`): typographic `VELOMESH` wordmark, centered segmented nav trigger bar (`Capabilities` 760px mega-menu, `Harnesses` 400px dropdown, `Process`, `Workbench`, `Vision Gate`), clean B&W icon polarity switch, and responsive mobile drawer `#mobile-nav-drawer`.
   - **Lattice Hero** (`Lattice Hero [26027]` + `Hero Minimalism [6999]`): pure monochrome runtime Fibonacci geodesic sphere & nearest-neighbor edge mesh pulsing white (`<canvas id="lattice-mesh-canvas">`, reduced-motion aware) paired with monumental `Switzer` typography, Vision Elaboration rule, and 1-command CLI installer.
   - **Architecture Bento Matrix (`#architecture-bento`)** (`Bento Grid [622 / 6541]`): 5 interactive tiles with flattened hairline layouts (Type/Contrast/CSS Token switcher, interactive damped spring physics waveform `#bento-spring-canvas`, API route contracts, PostgreSQL RLS SQL toggle, Live Internet Mesh harness path switcher).
+  - **Multi-Model Orchestrator in Action (`#model-orchestrator`)**: Interactive Black & White Swiss routing console embedding geometric emblem `#orch-action-logo` (`web/brand/velomesh-mark.svg`), harness selector (`OpenCode`, `Codex CLI`, `Claude Code`, `Cursor / Grok CLI`, `Antigravity MCP`), and turn-by-turn dynamic model switching timeline.
   - **Execution Flow Showcase (`#execution-flow`)** (`Feature Section [1368]` + `How It Works Timeline [26902]`): interactive 4-stage pipeline switcher (`Vision Intake`, `Mesh Discovery`, `Coordinated Compile`, `Browser & Test Proof`).
   - **Line-Numbered Multi-File Workbench (`#workbench`)** (`Code Block [36502]`): 3 blueprints, 6 layer files, focused line highlighting, and `Copy File` action.
   - **Closing CTA (`#closing-cta`) & Halftone Wordmark Footer (`#site-footer`)** (`Worth Keeping CTA [26705]` + `Halftone Wordmark Footer [37628]`): pure B&W centered monolith CTA over the 4-column Swiss footer and interactive spring-physics dotted `velomesh` canvas.
@@ -24,6 +26,7 @@
 
 ## Verification Commands
 - Python unit tests: `python3 tests/test_velomesh.py`
-- Node hook & website regression tests: `node --test tests/hooks.test.mjs tests/website.test.mjs`
+- Node hook, website & gateway regression tests: `node --test tests/hooks.test.mjs tests/website.test.mjs tests/gateway.test.mjs`
+- Gateway CLI HUD check: `node scripts/gateway.mjs --hud`
 - Anti-slop UI craft audit: `python3 scripts/velomesh.py audit-ui web`
 - Full-stack bundle synthesis preview: `python3 scripts/velomesh.py bundle "<prompt>"`

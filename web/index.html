@@ -25,6 +25,10 @@
     <!-- 21ST.DEV SWISS NAVBAR & DROPDOWN MENUS -->
     <header class="swiss-navbar" id="site-navbar">
       <a href="#top" class="nav-wordmark-link" aria-label="VeloMesh Home" translate="no">
+        <svg class="nav-emblem-svg" width="22" height="22" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+          <path fill="currentColor" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
+          <path fill="currentColor" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+        </svg>
         <span class="nav-wordmark-text">VELOMESH</span>
       </a>
 
@@ -177,6 +181,7 @@
             </div>
           </li>
 
+          <li><a href="#model-orchestrator" class="nav-direct-link">Orchestrator</a></li>
           <li><a href="#execution-flow" class="nav-direct-link">Process</a></li>
           <li><a href="#workbench" class="nav-direct-link">Workbench</a></li>
           <li><a href="#vision-spec" class="nav-direct-link">Vision Gate</a></li>
@@ -355,6 +360,108 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
             </div>
             <p id="bento-harness-path" class="mini-code-snippet">Active: ~/.claude/CLAUDE.md + PreInvocation hook</p>
           </article>
+        </div>
+      </section>
+
+      <!-- MULTI-MODEL ORCHESTRATOR IN ACTION (velomesh/auto) -->
+      <section id="model-orchestrator" class="content-section" aria-label="Multi-Model Orchestrator in Action">
+        <div class="section-split-head">
+          <h2 class="section-heading">Select velomesh/auto once. Switch models mid-execution.</h2>
+          <p class="section-subcopy">
+            Choose VeloMesh in your harness model picker or invoke via MCP. The local gateway classifies every turn and switches across Claude, Codex, Grok, and Gemini mid-task with automatic API and CLI subscription failover.
+          </p>
+        </div>
+
+        <div class="orchestrator-action-console">
+          <div class="orch-left-panel">
+            <div class="orch-block-head">
+              <span class="bento-index">Harness Model Picker Integration</span>
+              <span class="orch-status-label">Non-Destructive Additive Profiles</span>
+            </div>
+
+            <div class="orch-harness-tabs" role="tablist" aria-label="Select Coding Harness">
+              <button type="button" class="mini-tab-btn orch-harness-btn active" role="tab" aria-selected="true" data-orch-harness="opencode">OpenCode (velomesh/auto)</button>
+              <button type="button" class="mini-tab-btn orch-harness-btn" role="tab" aria-selected="false" data-orch-harness="codex">Codex CLI (-p velomesh)</button>
+              <button type="button" class="mini-tab-btn orch-harness-btn" role="tab" aria-selected="false" data-orch-harness="claude">Claude Code (velomesh claude)</button>
+              <button type="button" class="mini-tab-btn orch-harness-btn" role="tab" aria-selected="false" data-orch-harness="cursor">Cursor / Grok CLI (/v1)</button>
+              <button type="button" class="mini-tab-btn orch-harness-btn" role="tab" aria-selected="false" data-orch-harness="antigravity">Antigravity (MCP Subagent Tiers)</button>
+            </div>
+
+            <div class="orch-cmd-surface">
+              <code id="orch-harness-cmd" class="cmd-line-code">Select "velomesh/auto" in OpenCode /model picker (~/.config/opencode/opencode.json)</code>
+              <p id="orch-harness-note" class="orch-harness-note">Registers side-by-side alongside existing providers without replacing native OAuth or custom routers.</p>
+            </div>
+
+            <div class="orch-emblem-junction" aria-live="polite">
+              <div class="orch-emblem-frame" id="orch-action-frame">
+                <svg id="orch-action-logo" class="orch-action-svg" width="52" height="52" viewBox="0 0 120 120" fill="none" role="img" aria-label="VeloMesh Emblem Routing Junction">
+                  <path fill="currentColor" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
+                  <path fill="currentColor" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+                </svg>
+                <span class="orch-virtual-id">velomesh/auto</span>
+              </div>
+
+              <dl class="orch-telemetry-grid">
+                <div>
+                  <dt>Active Phase</dt>
+                  <dd id="orch-active-phase">architecture</dd>
+                </div>
+                <div>
+                  <dt>Routed Upstream Model</dt>
+                  <dd id="orch-active-model">claude-opus-4-6</dd>
+                </div>
+                <div>
+                  <dt>Transport &amp; Failover</dt>
+                  <dd id="orch-active-transport">Direct API -&gt; CLI Subscription Bridge Ready</dd>
+                </div>
+                <div>
+                  <dt>Response Headers</dt>
+                  <dd id="orch-active-headers">X-VeloMesh-Model: claude-opus-4-6 | X-VeloMesh-Switched: false</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+
+          <div class="orch-right-panel">
+            <div class="orch-block-head">
+              <span class="bento-index">Mid-Execution Switch Trace</span>
+              <button type="button" id="orch-cycle-btn" class="mini-tab-btn">Next Turn / Switch Model</button>
+            </div>
+
+            <div class="orch-turn-list" role="tablist" aria-label="Execution Turn Trace">
+              <button type="button" class="orch-turn-btn active" role="tab" aria-selected="true" data-orch-turn="0">
+                <span class="orch-turn-num">01</span>
+                <span class="orch-turn-copy">
+                  <strong>Architecture &amp; PostgreSQL RLS Plan</strong>
+                  <span class="orch-turn-meta">claude-opus-4-6 · Phase: architecture · Deep system &amp; tenant isolation planning</span>
+                </span>
+              </button>
+
+              <button type="button" class="orch-turn-btn" role="tab" aria-selected="false" data-orch-turn="1">
+                <span class="orch-turn-num">02</span>
+                <span class="orch-turn-copy">
+                  <strong>Black &amp; White Swiss UI &amp; Spring Motion</strong>
+                  <span class="orch-turn-meta">gemini-3.1-pro · Phase: frontend · Switched: true · Visual hierarchy &amp; 60fps canvas craft</span>
+                </span>
+              </button>
+
+              <button type="button" class="orch-turn-btn" role="tab" aria-selected="false" data-orch-turn="2">
+                <span class="orch-turn-num">03</span>
+                <span class="orch-turn-copy">
+                  <strong>Fast Migration &amp; Webhook Boilerplate</strong>
+                  <span class="orch-turn-meta">grok-code-fast-1 · Phase: fast · Switched: true · Sub-second tool loop &amp; CLI scaffolding</span>
+                </span>
+              </button>
+
+              <button type="button" class="orch-turn-btn" role="tab" aria-selected="false" data-orch-turn="3">
+                <span class="orch-turn-num">04</span>
+                <span class="orch-turn-copy">
+                  <strong>Cross-Family Security &amp; Slop Verification</strong>
+                  <span class="orch-turn-meta">gpt-5.3-codex · Phase: review · Switched: true · Independent family verifier prevents self-grading</span>
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -655,10 +762,11 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
 
       <nav class="drawer-links" aria-label="Mobile Quick Navigation">
         <a href="#architecture-bento" class="drawer-link-row"><span>01 Architecture Matrix</span><span>↗</span></a>
-        <a href="#execution-flow" class="drawer-link-row"><span>02 Execution Pipeline</span><span>↗</span></a>
-        <a href="#workbench" class="drawer-link-row"><span>03 Full-Stack Workbench</span><span>↗</span></a>
-        <a href="#vision-spec" class="drawer-link-row"><span>04 Vision Clarity Gate</span><span>↗</span></a>
-        <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener" class="drawer-link-row"><span>05 GitHub Repository</span><span>↗</span></a>
+        <a href="#model-orchestrator" class="drawer-link-row"><span>02 Multi-Model Orchestrator</span><span>↗</span></a>
+        <a href="#execution-flow" class="drawer-link-row"><span>03 Execution Pipeline</span><span>↗</span></a>
+        <a href="#workbench" class="drawer-link-row"><span>04 Full-Stack Workbench</span><span>↗</span></a>
+        <a href="#vision-spec" class="drawer-link-row"><span>05 Vision Clarity Gate</span><span>↗</span></a>
+        <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener" class="drawer-link-row"><span>06 GitHub Repository</span><span>↗</span></a>
       </nav>
     </div>
 

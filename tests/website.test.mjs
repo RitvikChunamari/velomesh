@@ -64,6 +64,8 @@ test('website renders full 21st.dev Swiss visual sections and preserves workbenc
     'nav-panel-harnesses',
     'lattice-mesh-canvas',
     'architecture-bento',
+    'model-orchestrator',
+    'orch-action-logo',
     'execution-flow',
     'workbench',
     'vision-spec',
@@ -72,4 +74,7 @@ test('website renders full 21st.dev Swiss visual sections and preserves workbenc
   ]) {
     assert.ok(html.includes(`id="${sectionId}"`), `index.html must include section #${sectionId}`);
   }
+
+  assert.ok(html.includes('velomesh/auto'), 'index.html must showcase velomesh/auto virtual model selector');
+  assert.ok(fs.existsSync(path.join(WEB_DIR, 'brand', 'velomesh-action-badge.svg')), 'monochrome action badge SVG must exist');
 });

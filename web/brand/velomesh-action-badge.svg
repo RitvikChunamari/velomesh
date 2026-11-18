@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="40" viewBox="0 0 360 40" fill="none" role="img" aria-label="VELOMESH/AUTO Dynamic Model Orchestrator">
+  <rect x="0.5" y="0.5" width="359" height="39" rx="6" fill="#070708" stroke="#3f3f46" />
+  <g transform="translate(12, 8) scale(0.2)">
+    <path fill="#f8f8fa" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
+    <path fill="#f8f8fa" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+  </g>
+  <line x1="46" y1="9" x2="46" y2="31" stroke="#222226" stroke-width="1" />
+  <text x="58" y="24" fill="#f8f8fa" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="12" font-weight="600" letter-spacing="0.04em">VELOMESH/AUTO · DYNAMIC MODEL ROUTER</text>
+</svg>

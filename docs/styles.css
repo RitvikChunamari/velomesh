@@ -196,10 +196,17 @@ h1, h2, h3 {
 .nav-wordmark-link {
   display: inline-flex;
   align-items: center;
+  gap: 0.55rem;
   padding: 0.5rem 0.25rem 0.5rem 0;
   color: var(--ink);
   text-decoration: none;
   flex-shrink: 0;
+}
+
+.nav-emblem-svg {
+  display: block;
+  flex-shrink: 0;
+  color: var(--ink);
 }
 
 .nav-wordmark-text {
@@ -1755,11 +1762,201 @@ h1, h2, h3 {
 }
 
 /* =========================================================
+   MULTI-MODEL ORCHESTRATOR IN ACTION (#model-orchestrator)
+   ========================================================= */
+.orchestrator-action-console {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.orch-left-panel,
+.orch-right-panel {
+  border: 1px solid var(--rule-strong);
+  border-radius: 12px;
+  background-color: var(--bg-elevated);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.orch-block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.orch-status-label {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.orch-harness-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.orch-cmd-surface {
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.orch-harness-note {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+
+.orch-emblem-junction {
+  padding-top: 0.25rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: center;
+  margin-top: auto;
+}
+
+.orch-emblem-frame {
+  width: 112px;
+  padding: 0.5rem 1.25rem 0.5rem 0;
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 220ms var(--ease-swiss);
+}
+
+.orch-emblem-frame.is-switching {
+  transform: scale(1.06);
+}
+
+.orch-action-svg {
+  display: block;
+  color: var(--ink);
+}
+
+.orch-virtual-id {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.orch-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.orch-telemetry-grid dt {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  margin-bottom: 0.2rem;
+}
+
+.orch-telemetry-grid dd {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--ink);
+  word-break: break-word;
+}
+
+.orch-turn-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-top: 1px solid var(--rule);
+}
+
+.orch-turn-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 0.25rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  border-left: 2px solid transparent;
+  text-align: left;
+  cursor: pointer;
+  color: var(--ink-secondary);
+  transition: border-color 180ms var(--ease-swiss), padding-left 180ms var(--ease-swiss), color 180ms var(--ease-swiss);
+}
+
+.orch-turn-btn:hover {
+  border-left-color: var(--rule-strong);
+  padding-left: 0.65rem;
+  color: var(--ink);
+}
+
+.orch-turn-btn.active {
+  border-left-color: var(--ink);
+  padding-left: 0.75rem;
+  color: var(--ink);
+}
+
+.orch-turn-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--rule-strong);
+  display: inline-grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.orch-turn-btn.active .orch-turn-num {
+  background-color: var(--invert-bg);
+  color: var(--invert-ink);
+  border-color: var(--invert-bg);
+}
+
+.orch-turn-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.orch-turn-copy strong {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.orch-turn-meta {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--ink-secondary);
+}
+
+/* =========================================================
    RESPONSIVE BREAKPOINTS (1080px, 960px, 720px, 390px, 320px)
    ========================================================= */
 @media (max-width: 1080px) {
   .section-split-head,
-  .flow-split {
+  .flow-split,
+  .orchestrator-action-console {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -1880,6 +2077,20 @@ h1, h2, h3 {
 
   .prompt-run-btn {
     padding: 0.85rem 1.25rem;
+  }
+
+  .orch-emblem-junction,
+  .orch-telemetry-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .orch-emblem-frame {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 0 0 0.85rem;
   }
 }
 

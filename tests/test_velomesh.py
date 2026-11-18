@@ -204,8 +204,17 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
             (home_dir / ".codex" / "config.toml").write_text('[mcp_servers.agent-fusion]\nenabled_tools = ["catalog"]\n')
             
             with patch("velomesh.HOME", home_dir):
+                (home_dir / ".config" / "opencode").mkdir(parents=True)
+                (home_dir / ".config" / "opencode" / "opencode.json").write_text(
+                    json.dumps({
+                        "model": "existing-provider/default",
+                        "providers": {
+                            "existing-provider": {"name": "Existing", "models": {"default": {"name": "Default"}}}
+                        }
+                    })
+                )
                 configured = auto_configure_harnesses()
-                self.assertTrue(len(configured) >= 3)
+                self.assertTrue(len(configured) >= 4)
                 
                 # Verify Cursor MCP auto-configured
                 cursor_mcp = json.loads((home_dir / ".cursor" / "mcp.json").read_text())
@@ -215,10 +224,21 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
                 copilot_mcp = json.loads((home_dir / ".copilot" / "mcp-config.json").read_text())
                 self.assertIn("velomesh", copilot_mcp["mcpServers"])
                 
-                # Verify Codex config.toml updated with new tools
+                # Verify Codex config.toml updated with new tools AND additive model_provider/profile
                 codex_toml = (home_dir / ".codex" / "config.toml").read_text()
                 self.assertIn("discover_and_install_capability", codex_toml)
                 self.assertIn("fusion_start", codex_toml)
+                self.assertIn("select_model_route", codex_toml)
+                self.assertIn("[model_providers.velomesh]", codex_toml)
+                self.assertIn("[profiles.velomesh]", codex_toml)
+                self.assertIn('model = "velomesh/auto"', codex_toml)
+
+                # Verify OpenCode opencode.json updated additively while preserving existing providers & model
+                oc_data = json.loads((home_dir / ".config" / "opencode" / "opencode.json").read_text())
+                self.assertEqual(oc_data["model"], "existing-provider/default")
+                self.assertIn("existing-provider", oc_data["providers"])
+                self.assertIn("velomesh", oc_data["providers"])
+                self.assertIn("velomesh/auto", oc_data["providers"]["velomesh"]["models"])
 
     def test_one_command_installers_exist_and_valid(self):
         repo_root = Path(__file__).resolve().parent.parent

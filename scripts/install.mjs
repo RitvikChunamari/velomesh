@@ -18,10 +18,16 @@ function appPlugin(){const dest=path.join(home,'.gemini','config','plugins','age
   if(uninstall){if(fs.existsSync(path.join(dest,'plugin.json'))){const old=JSON.parse(fs.readFileSync(path.join(dest,'plugin.json')));if(old.name!=='agent-fusion')throw new Error('Refusing to delete another plugin');fs.rmSync(dest,{recursive:true,force:true})}return}
   const pluginSrc=fs.existsSync(path.join(base,'plugin'))?path.join(base,'plugin'):base;
   fs.mkdirSync(path.dirname(dest),{recursive:true});fs.rmSync(dest,{recursive:true,force:true});fs.cpSync(pluginSrc,dest,{recursive:true});if(pluginSrc!==base)fs.cpSync(path.join(base,'scripts'),path.join(dest,'scripts'),{recursive:true});
-  const mcp=JSON.parse(fs.readFileSync(path.join(dest,'mcp_config.json')));mcp.mcpServers.orchestrator=configEntry();mcp.mcpServers.orchestrator.args=[path.join(dest,'scripts','mcp-server.mjs')];fs.writeFileSync(path.join(dest,'mcp_config.json'),JSON.stringify(mcp,null,2)+'\n');
-  const hooks=JSON.parse(fs.readFileSync(path.join(dest,'hooks.json')));const quote=s=>"'"+s.replaceAll("'","'\\''")+"'";
-  for(const [v,mode] of [['agent-fusion-session-discovery','session'],['agent-fusion-preinvoke','invocation']]){const h=hooks[v],kind=mode==='session'?'SessionStart':'PreInvocation';h[kind][0].command=`${quote(node)} ${quote(path.join(dest,'scripts','hooks.mjs'))} ${mode}`;}
-  fs.writeFileSync(path.join(dest,'hooks.json'),JSON.stringify(hooks,null,2)+'\n');}
+  const mcpFile=path.join(dest,'mcp_config.json');
+  const mcp=fs.existsSync(mcpFile)?JSON.parse(fs.readFileSync(mcpFile,'utf8')):{mcpServers:{}};
+  mcp.mcpServers??={};mcp.mcpServers.orchestrator=configEntry();mcp.mcpServers.orchestrator.args=[path.join(dest,'scripts','mcp-server.mjs')];
+  fs.writeFileSync(mcpFile,JSON.stringify(mcp,null,2)+'\n');
+  const hooksFile=path.join(dest,'hooks.json');
+  if(fs.existsSync(hooksFile)){
+    const hooks=JSON.parse(fs.readFileSync(hooksFile,'utf8'));const quote=s=>"'"+s.replaceAll("'","'\\''")+"'";
+    for(const [v,mode] of [['agent-fusion-session-discovery','session'],['agent-fusion-preinvoke','invocation']]){const h=hooks[v],kind=mode==='session'?'SessionStart':'PreInvocation';if(h?.[kind]?.[0])h[kind][0].command=`${quote(node)} ${quote(path.join(dest,'scripts','hooks.mjs'))} ${mode}`;}
+    fs.writeFileSync(hooksFile,JSON.stringify(hooks,null,2)+'\n');
+  }}
 function commandClient(client){const executable=client==='claude'?'claude':'codex';const cargs=client==='claude'?['mcp',uninstall?'remove':'add',...(uninstall?[]:['--scope','user']),'agent-fusion',...(uninstall?['--scope','user']:['--',node,path.join(base,'scripts','mcp-server.mjs')])]:['mcp',uninstall?'remove':'add','agent-fusion',...(uninstall?[]:['--',node,path.join(base,'scripts','mcp-server.mjs')])];log(`Run ${executable} ${cargs.map(x=>x.includes(' ')?JSON.stringify(x):x).join(' ')}`);if(dry)return;const r=spawnSync(executable,cargs,{encoding:'utf8',timeout:20000});if(r.error){warnings.push(`${client} CLI unavailable: ${r.error.message}. Configure its MCP client manually.`);return}if(r.status!==0)warnings.push(`${client} CLI setup failed: ${(r.stderr||r.stdout||'unknown error').slice(0,300)}`)}
 try{
  copySource();
@@ -34,7 +40,27 @@ try{
   if(c==='opencode'){
    const config=path.join(home,'.config','opencode','opencode.json');const jsonc=path.join(home,'.config','opencode','opencode.jsonc');
    if(fs.existsSync(jsonc)){warnings.push(`Skipped OpenCode automatic config: ${jsonc} exists. See docs/INSTALL.md for V1/V2 example to avoid conflicting configs.`);continue}
-   writeJson(config,obj=>{obj.mcp??={};const v2=!!obj.mcp.servers||Object.keys(obj.mcp).length===0;const entry={type:'local',command:[node,path.join(base,'scripts','mcp-server.mjs')]};if(v2){obj.mcp.servers??={};if(uninstall)delete obj.mcp.servers['agent-fusion'];else obj.mcp.servers['agent-fusion']=entry}else{if(uninstall)delete obj.mcp['agent-fusion'];else obj.mcp['agent-fusion']=entry}return obj});
+   writeJson(config,obj=>{
+    obj.mcp??={};const v2=!!obj.mcp.servers||Object.keys(obj.mcp).length===0;const entry={type:'local',command:[node,path.join(base,'scripts','mcp-server.mjs')]};
+    if(v2){obj.mcp.servers??={};if(uninstall)delete obj.mcp.servers['agent-fusion'];else obj.mcp.servers['agent-fusion']=entry}else{if(uninstall)delete obj.mcp['agent-fusion'];else obj.mcp['agent-fusion']=entry}
+    obj.providers??={};
+    if(uninstall){delete obj.providers.velomesh}else{
+     obj.providers.velomesh={
+      name:'VeloMesh Orchestrator',
+      package:'@ai-sdk/openai-compatible',
+      env:['VELOMESH_API_KEY'],
+      settings:{baseURL:'http://127.0.0.1:4190/v1'},
+      models:{
+       'velomesh/auto':{name:'VeloMesh Auto (Dynamic Multi-Model Switcher)'},
+       'velomesh/architect':{name:'VeloMesh Architect (Frontier Reasoning & RLS)'},
+       'velomesh/frontend':{name:'VeloMesh Frontend (Swiss UI & Motion Craft)'},
+       'velomesh/fast':{name:'VeloMesh Fast (Low-Latency Search & Tooling)'},
+       'velomesh/review':{name:'VeloMesh Review (Cross-Family Verifier)'}
+      }
+     };
+    }
+    return obj;
+   });
   }
  }
  if(uninstall)warnings.push(`Core retained at ${base}; remove manually after verifying no other host uses it.`);

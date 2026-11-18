@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 import { execFile } from 'node:child_process';
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { discover } from './catalog.mjs';
 import { routeTask } from './router.mjs';
+import { selectModelForTurn, discoverUpstreams, getRoutingTelemetry, VELOMESH_MODELS } from './model-router.mjs';
 import { runWorker,workerAdapters } from './workers.mjs';
 import {createPassport,importPassport,getPassport,listPassports,validatePassport,exportPassportFile} from './passport.mjs';
 import {verify,checkNames} from './verification.mjs';
@@ -35,6 +38,8 @@ export const tools=[
   tool('verify_project','Run a fixed, verifiable local check. Git diff checks are safe by default; project test code requires AGENT_FUSION_ENABLE_CHECKS=1.',{workspacePath:str('Absolute project directory'),check:{type:'string',enum:checkNames},agentId:str('Agent ID attributed to this work'),domain:str('Task domain'),timeoutMs:{type:'integer',minimum:1000,maximum:120000}},['workspacePath']),
   tool('feedback_record','Use a real local test receipt to update cautious per-project agent reputation. Rejects duplicate receipts and cosmetic-only checks.',{workspacePath:str('Absolute project directory'),receiptId:str('Receipt from verify_project')},['workspacePath','receiptId']),
   tool('feedback_stats','Show evidence counts and shrunk performance estimates for agent/domain combinations.',{workspacePath:str('Absolute project directory')},['workspacePath']),
+  tool('select_model_route','Dynamically select the optimal upstream model (and mid-execution switch decision) for the current prompt or task phase across API keys, local routers, CLI subscriptions, and Antigravity subagent tiers.',{prompt:str('Task or turn prompt to route'),requestedModel:str('Virtual model ID, e.g. velomesh/auto, velomesh/architect, velomesh/frontend, velomesh/fast, velomesh/review'),previousModel:str('Optional model used on previous turn to evaluate mid-task switching'),previousFamily:str('Optional model family used on previous turn')},['prompt']),
+  tool('gateway_status','Inspect VeloMesh multi-model gateway status, registered virtual models (velomesh/auto), discovered API/CLI upstreams, and recent model-switch telemetry.',{workspacePath:str('Optional absolute project directory')}),
   tool('doctor','Inspect plugin integration assumptions and supported capabilities.',{workspacePath:str('Optional absolute project directory')})
 ];
 const send=(obj)=>process.stdout.write(JSON.stringify(obj)+'\n');
@@ -93,6 +98,8 @@ async function call(name,args){
   if(name==='verify_project')return await verify(args);
   if(name==='feedback_record')return recordVerifiedOutcome(args);
   if(name==='feedback_stats')return leaderboard(w);
+  if(name==='select_model_route')return selectModelForTurn({prompt:args.prompt,requestedModel:args.requestedModel||'velomesh/auto',previousModel:args.previousModel||null,previousFamily:args.previousFamily||null});
+  if(name==='gateway_status')return {models:VELOMESH_MODELS,upstreams:discoverUpstreams({checkClis:true}),telemetry:getRoutingTelemetry().slice(-15),defaultEndpoint:'http://127.0.0.1:4190/v1'};
   if(name==='doctor')return doctor(w,cat());
   throw new Error(`Unknown tool: ${name}`);
 }
@@ -114,10 +121,12 @@ async function handle(msg){
   }catch(err){response(id,{isError:true,content:[{type:'text',text:String(err.message||err)}]})}
 }
 export { call };
-let buffer='';process.stdin.setEncoding('utf8');
-process.stdin.on('data',chunk=>{
-  buffer+=chunk;if(buffer.length>1048576){buffer='';return}
-  let at;while((at=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,at).trim();buffer=buffer.slice(at+1);if(!line)continue;
-    try{void handle(JSON.parse(line))}catch{fail(null,-32700,'Malformed JSON')}
-  }
-});
+if (process.argv[1] && fs.realpathSync(path.resolve(process.argv[1])) === fs.realpathSync(fileURLToPath(import.meta.url))) {
+  let buffer='';process.stdin.setEncoding('utf8');
+  process.stdin.on('data',chunk=>{
+    buffer+=chunk;if(buffer.length>1048576){buffer='';return}
+    let at;while((at=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,at).trim();buffer=buffer.slice(at+1);if(!line)continue;
+      try{void handle(JSON.parse(line))}catch{fail(null,-32700,'Malformed JSON')}
+    }
+  });
+}

@@ -1069,10 +1069,124 @@ function scoreVisionClarity(promptText) {
   return { domainScore, workflowScore, aestheticScore, ready };
 }
 
+function initModelOrchestratorAction() {
+  const harnessCmdEl = document.getElementById('orch-harness-cmd');
+  const harnessNoteEl = document.getElementById('orch-harness-note');
+  const phaseEl = document.getElementById('orch-active-phase');
+  const modelEl = document.getElementById('orch-active-model');
+  const transportEl = document.getElementById('orch-active-transport');
+  const headersEl = document.getElementById('orch-active-headers');
+  const frameEl = document.getElementById('orch-action-frame');
+  const harnessBtns = document.querySelectorAll('.orch-harness-btn');
+  const turnBtns = document.querySelectorAll('.orch-turn-btn');
+  const cycleBtn = document.getElementById('orch-cycle-btn');
+
+  if (!harnessBtns.length && !turnBtns.length) return;
+
+  const harnesses = {
+    opencode: {
+      cmd: 'Select "velomesh/auto" in OpenCode /model picker (~/.config/opencode/opencode.json)',
+      note: 'Registers side-by-side alongside existing providers without replacing native OAuth or custom routers.'
+    },
+    codex: {
+      cmd: 'codex -p velomesh  # Uses [profiles.velomesh] -> model = "velomesh/auto"',
+      note: 'Appends an isolated profile in ~/.codex/config.toml while leaving your default Codex model intact.'
+    },
+    claude: {
+      cmd: 'velomesh claude  # Scoped ANTHROPIC_BASE_URL=http://127.0.0.1:4190 (--model velomesh/auto)',
+      note: 'Launches Claude Code routed through the local Anthropic /v1/messages adapter while keeping default OAuth untouched.'
+    },
+    cursor: {
+      cmd: 'Base URL: http://127.0.0.1:4190/v1 | Model: velomesh/auto',
+      note: 'Standard OpenAI Chat Completions & Responses endpoint compatible with Cursor BYOK and Grok / OpenAI CLI tools.'
+    },
+    antigravity: {
+      cmd: 'MCP select_model_route + Subagent Tiers (pro / flash / flash_lite)',
+      note: 'Google Antigravity uses a closed top UI dropdown; VeloMesh orchestrates multi-model delegation via MCP and subagents.'
+    }
+  };
+
+  const turns = [
+    {
+      phase: 'architecture',
+      model: 'claude-opus-4-6',
+      transport: 'Direct API -> CLI Subscription Bridge Ready',
+      headers: 'X-VeloMesh-Model: claude-opus-4-6 | X-VeloMesh-Switched: false'
+    },
+    {
+      phase: 'frontend',
+      model: 'gemini-3.1-pro',
+      transport: 'Direct API -> CLI Subscription Bridge Ready',
+      headers: 'X-VeloMesh-Model: gemini-3.1-pro | X-VeloMesh-Switched: true'
+    },
+    {
+      phase: 'fast',
+      model: 'grok-code-fast-1',
+      transport: 'OpenRouter / xAI API -> Local CLI Bridge Ready',
+      headers: 'X-VeloMesh-Model: grok-code-fast-1 | X-VeloMesh-Switched: true'
+    },
+    {
+      phase: 'review',
+      model: 'gpt-5.3-codex',
+      transport: 'Cross-Family Verifier (API -> codex exec Bridge)',
+      headers: 'X-VeloMesh-Model: gpt-5.3-codex | X-VeloMesh-Switched: true'
+    }
+  ];
+
+  let activeTurn = 0;
+
+  function renderTurn(idx, pulse = false) {
+    activeTurn = ((idx % turns.length) + turns.length) % turns.length;
+    const t = turns[activeTurn];
+    turnBtns.forEach((b, i) => {
+      const active = i === activeTurn;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-selected', String(active));
+    });
+    if (phaseEl) phaseEl.textContent = t.phase;
+    if (modelEl) modelEl.textContent = t.model;
+    if (transportEl) transportEl.textContent = t.transport;
+    if (headersEl) headersEl.textContent = t.headers;
+    if (pulse && frameEl) {
+      frameEl.classList.remove('is-switching');
+      void frameEl.offsetWidth;
+      frameEl.classList.add('is-switching');
+      setTimeout(() => frameEl.classList.remove('is-switching'), 260);
+    }
+  }
+
+  harnessBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.orchHarness || 'opencode';
+      const data = harnesses[key] || harnesses.opencode;
+      harnessBtns.forEach((b) => {
+        const active = b === btn;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-selected', String(active));
+      });
+      if (harnessCmdEl) harnessCmdEl.textContent = data.cmd;
+      if (harnessNoteEl) harnessNoteEl.textContent = data.note;
+    });
+  });
+
+  turnBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      renderTurn(Number(btn.dataset.orchTurn || 0), true);
+    });
+  });
+
+  cycleBtn?.addEventListener('click', () => {
+    renderTurn(activeTurn + 1, true);
+  });
+
+  renderTurn(0, false);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initNavbarDropdowns();
   initLatticeHeroMesh();
   initBentoModules();
+  initModelOrchestratorAction();
   initExecutionFlowShowcase();
   initHalftoneWordmarkFooter();
 
