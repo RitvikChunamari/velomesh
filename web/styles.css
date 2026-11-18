@@ -663,33 +663,25 @@ h1, h2, h3 {
   font-size: 1.0625rem;
   line-height: 1.56;
   color: var(--ink-secondary);
-  max-width: 52ch;
-}
-
-.vision-callout-rule {
-  border-top: 1px solid var(--rule-strong);
-  border-bottom: 1px solid var(--rule-strong);
-  border-left: 2px solid var(--ink);
-  padding: 0.95rem 1rem 0.95rem 1.15rem;
-  background-color: var(--bg-elevated);
   max-width: 58ch;
 }
 
-.vision-callout-title {
-  font-size: 0.9375rem;
-  font-weight: 600;
+.hero-description code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
   color: var(--ink);
-  margin-bottom: 0.25rem;
 }
 
-.vision-callout-body {
-  font-size: 0.875rem;
-  line-height: 1.52;
-  color: var(--ink-secondary);
+.hero-inline-link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--rule-strong);
+  transition: text-decoration-color 150ms var(--ease-swiss);
 }
 
-.vision-callout-body strong {
-  color: var(--ink);
+.hero-inline-link:hover {
+  text-decoration-color: var(--ink);
 }
 
 .installer-wrap {
