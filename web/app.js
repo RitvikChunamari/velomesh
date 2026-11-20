@@ -6,28 +6,15 @@ const WORKBENCH_BLUEPRINTS = {
       "Build PulseLedger, a multi-tenant AI treasury platform for Series-A CFOs with Black and White Swiss typography, interactive spring cashflow graphs, FastAPI + PostgreSQL RLS, and Stripe webhooks.",
     layers: {
       frontend: {
-        file: "components/RunwayCanvas.tsx",
+        file: "demos/pulseledger/index.html",
         skills: ["frontend-design", "impeccable", "design-system", "apple-design"],
-        code: `// Synthesized Frontend Layer — Achromatic Swiss Tokens
-import { useEffect, useRef } from "react";
-import { mountCashflowMesh } from "../shaders/cashflowRibbon";
-
-export function RunwayForecastStage({ tenantId, burnSeries }: RunwayProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    return mountCashflowMesh(canvasRef.current, {
-      series: burnSeries,
-      strokeColor: "#F8F8FA",
-      gridColor: "#222226",
-      respectReducedMotion: true,
-    });
-  }, [burnSeries]);
-
+        code: `// Compiled Demo Live at ./demos/pulseledger/index.html & Backend ./demos/pulseledger/app.py
+// Pure Black & White Swiss Multi-Tenant Treasury OS with Damped-Spring Forecasting
+export function RunwayForecastStage({ tenantId, scenario, burnSeries }: RunwayProps) {
   return (
-    <section className="runway-stage" aria-label="36-Month Cashflow Projection">
-      <canvas ref={canvasRef} width={960} height={360} />
+    <section className="pl-stage" aria-label="36-Month Damped Spring Cashflow Projection">
+      <canvas id="pl-runway-canvas" width={1120} height={320} />
+      <footer className="pl-sql-banner">SET LOCAL app.current_tenant_id = '{tenantId}';</footer>
     </section>
   );
 }`
@@ -100,12 +87,12 @@ CREATE POLICY enforce_tenant_isolation ON treasury_ledger_entries
       qa: {
         file: "qa/verification-receipt.txt",
         skills: ["tdd", "browser-qa", "impeccable"],
-        code: `VELOMESH AUTONOMOUS VERIFICATION RECEIPT
-========================================
-[PASS] pytest tests/test_rls_isolation.py        -- 18/18 cross-tenant checks passed
-[PASS] node --test tests/website.test.mjs        -- 3/3 monochrome & contract checks passed
-[PASS] playwright --viewport=1440,390,320        -- Zero layout overflow across viewports
-[PASS] impeccable detect http://localhost:4173   -- 0 anti-patterns, 0 advisories`
+        code: `PULSELEDGER FULL-STACK VERIFICATION RECEIPT
+===========================================
+[PASS] python3 demos/pulseledger/tests/test_pulseledger.py  -- RLS isolation & Stripe HMAC 202
+[PASS] node --test tests/website.test.mjs                   -- Monochrome & live demo checks pass
+[PASS] playwright --viewport=1440,390                       -- Zero console errors, zero overflow
+[PASS] impeccable detect web/demos/pulseledger              -- 0 anti-patterns, 0 advisories`
       }
     }
   },
@@ -1193,6 +1180,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Polarity Toggle (Obsidian Black <-> Stark White)
   const themeBtn = document.getElementById('theme-toggle-btn');
   const metaTheme = document.querySelector('meta[name="theme-color"]');
+  const demoFrame = document.getElementById('workbench-demo-frame');
+
+  function syncDemoTheme() {
+    const mode = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+    try {
+      demoFrame?.contentWindow?.postMessage({ type: 'velomesh-theme', theme: mode }, window.location.origin);
+    } catch {}
+  }
+
+  demoFrame?.addEventListener('load', syncDemoTheme);
+
   if (themeBtn) {
     themeBtn.addEventListener('click', () => {
       const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
@@ -1203,6 +1201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         delete document.documentElement.dataset.theme;
         if (metaTheme) metaTheme.setAttribute('content', '#070708');
       }
+      syncDemoTheme();
     });
   }
 
@@ -1364,6 +1363,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     blueprintBtns.forEach((b) => b.classList.toggle('active', b.dataset.blueprint === currentBlueprint));
     renderWorkbench(false);
+  });
+
+  // Embedded Workbench Live Demo Controls (PulseLedger Viewport + Reload)
+  const viewportBtns = document.querySelectorAll('.wb-viewport-btn');
+  const reloadDemoBtn = document.getElementById('wb-reload-demo-btn');
+
+  viewportBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const width = btn.dataset.demoViewport || '100%';
+      viewportBtns.forEach((b) => b.classList.toggle('active', b === btn));
+      if (demoFrame) demoFrame.style.maxWidth = width;
+    });
+  });
+
+  reloadDemoBtn?.addEventListener('click', () => {
+    if (!demoFrame) return;
+    const baseSrc = './demos/pulseledger/index.html';
+    demoFrame.src = `${baseSrc}?t=${Date.now()}`;
   });
 
   renderWorkbench(true);

@@ -1365,9 +1365,83 @@ h1, h2, h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
   padding-bottom: 0.85rem;
   border-bottom: 1px solid var(--rule);
+}
+
+.code-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.code-panel-actions a.mini-tab-btn,
+.wb-demo-controls a.mini-tab-btn {
+  text-decoration: none;
+}
+
+.wb-live-demo {
+  margin-top: 1rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--rule-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.wb-demo-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.wb-demo-title-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.wb-demo-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.wb-demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.wb-viewport-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.wb-demo-stage {
+  width: 100%;
+  border-top: 1px solid var(--rule);
+  background-color: var(--bg);
+}
+
+.wb-demo-iframe {
+  width: 100%;
+  max-width: 100%;
+  height: 680px;
+  border: none;
+  display: block;
+  margin: 0 auto;
+  background-color: var(--bg);
+  transition: max-width 220ms var(--ease-swiss);
 }
 
 .skills-row {

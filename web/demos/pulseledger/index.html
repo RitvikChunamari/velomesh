@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PulseLedger — Multi-Tenant AI Treasury OS</title>
+  <meta name="description" content="Series-A CFO multi-tenant AI treasury platform with damped-spring cashflow forecasting, FastAPI + PostgreSQL RLS, and Stripe HMAC webhook ingestion." />
+  <meta name="theme-color" content="#070708" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="pl-shell">
+    <header id="pl-navbar" class="pl-navbar">
+      <div class="pl-brand-group">
+        <a href="#top" class="pl-brand-link" aria-label="PulseLedger Home">
+          <svg width="20" height="20" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <path fill="currentColor" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
+            <path fill="currentColor" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+          </svg>
+          <span class="pl-wordmark" translate="no">PULSELEDGER</span>
+        </a>
+        <span class="pl-edition-tag">SERIES-A AI TREASURY &amp; RLS ENGINE</span>
+      </div>
+
+      <div class="pl-tenant-switcher" role="tablist" aria-label="Tenant RLS Context">
+        <button type="button" class="pl-tab-btn active" role="tab" aria-selected="true" data-tenant="kinetix">01 Kinetix Labs (Series A)</button>
+        <button type="button" class="pl-tab-btn" role="tab" aria-selected="false" data-tenant="aether">02 Aether Compute (Series A)</button>
+        <button type="button" class="pl-tab-btn" role="tab" aria-selected="false" data-tenant="veridian">03 Veridian Bio (Seed+)</button>
+      </div>
+
+      <div class="pl-nav-actions">
+        <button type="button" id="pl-theme-toggle" class="pl-outline-btn" aria-label="Switch Black and White polarity">Polarity</button>
+        <a href="../../index.html#workbench" class="pl-outline-btn pl-back-link" target="_top">← VeloMesh Workbench</a>
+      </div>
+    </header>
+
+    <main id="top" class="pl-main">
+      <!-- 4-COLUMN SWISS METRIC HAIRLINE STRIP -->
+      <section id="pl-kpi-strip" class="pl-kpi-strip" aria-label="Tenant Treasury Key Metrics">
+        <div class="pl-kpi-cell">
+          <span class="pl-kpi-label">01 Liquid Treasury</span>
+          <strong id="pl-kpi-cash" class="pl-kpi-value">$14,200,000</strong>
+          <span id="pl-kpi-cash-sub" class="pl-kpi-sub">Mercury Ops $4.2M · T-Bills $10.0M</span>
+        </div>
+
+        <div class="pl-kpi-cell">
+          <span class="pl-kpi-label">02 Net Monthly Burn</span>
+          <strong id="pl-kpi-burn" class="pl-kpi-value">-$385,000/mo</strong>
+          <span id="pl-kpi-burn-sub" class="pl-kpi-sub">Gross $510K · Stripe MRR +$125K</span>
+        </div>
+
+        <div class="pl-kpi-cell">
+          <span class="pl-kpi-label">03 Runway Projection</span>
+          <strong id="pl-kpi-runway" class="pl-kpi-value">36.9 Months</strong>
+          <span id="pl-kpi-runway-sub" class="pl-kpi-sub">Zero-Cash Horizon: Dec 2029</span>
+        </div>
+
+        <div class="pl-kpi-cell">
+          <span class="pl-kpi-label">04 RLS &amp; Webhook Status</span>
+          <strong id="pl-kpi-rls" class="pl-kpi-value">RLS ENFORCED · HMAC 202</strong>
+          <span id="pl-kpi-tenant-uuid" class="pl-kpi-sub">tenant_id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d</span>
+        </div>
+      </section>
+
+      <!-- INTERACTIVE DAMPED-SPRING 36-MONTH CASHFLOW STAGE -->
+      <section id="pl-stage" class="pl-stage" aria-label="Interactive Spring Cashflow Projection">
+        <div class="pl-stage-bar">
+          <div class="pl-scenario-group" role="tablist" aria-label="Treasury Scenario">
+            <button type="button" class="pl-tab-btn active" role="tab" aria-selected="true" data-scenario="base">Base Forecast</button>
+            <button type="button" class="pl-tab-btn" role="tab" aria-selected="false" data-scenario="hiring">Scale Engineering (+22% Burn)</button>
+            <button type="button" class="pl-tab-btn" role="tab" aria-selected="false" data-scenario="bridge">Series-B Bridge (+$8M)</button>
+            <button type="button" class="pl-tab-btn" role="tab" aria-selected="false" data-scenario="contraction">Preserve Capital (-18% Spend)</button>
+          </div>
+
+          <div class="pl-stage-actions">
+            <span id="pl-scrub-readout" class="pl-scrub-readout">Scrub chart: M12 · $9.84M projected</span>
+            <button type="button" id="pl-fire-webhook-btn" class="pl-solid-btn">+ Simulate Stripe Webhook (invoice.paid +$48K)</button>
+          </div>
+        </div>
+
+        <div class="pl-canvas-frame">
+          <canvas id="pl-runway-canvas" width="1120" height="320" aria-label="36-Month Damped Spring Cashflow Projection"></canvas>
+        </div>
+      </section>
+
+      <!-- 2-COLUMN ARCHITECTURE & LEDGER VERIFICATION CONSOLE -->
+      <section id="pl-console" class="pl-console" aria-label="Stripe HMAC Webhook & PostgreSQL RLS Console">
+        <div class="pl-console-col">
+          <div class="pl-col-head">
+            <div>
+              <span class="pl-kpi-label">POST /v1/webhooks/stripe</span>
+              <h2 class="pl-col-title">Stripe HMAC Ingest &amp; RLS Isolation Tester</h2>
+            </div>
+          </div>
+
+          <div class="pl-action-row">
+            <button type="button" id="pl-btn-invoice" class="pl-outline-btn">+ Ingest invoice.paid (+$48,000)</button>
+            <button type="button" id="pl-btn-debit" class="pl-outline-btn">+ Ingest infra.settlement (-$32,500)</button>
+            <button type="button" id="pl-btn-rls-attack" class="pl-outline-btn">Test Cross-Tenant RLS Block</button>
+          </div>
+
+          <ul id="pl-webhook-feed" class="pl-webhook-feed" aria-live="polite" aria-label="Verified Webhook Event Stream"></ul>
+        </div>
+
+        <div class="pl-console-col pl-console-col-right">
+          <div class="pl-col-head">
+            <div>
+              <span class="pl-kpi-label">PostgreSQL 16 Force Row-Level Security</span>
+              <h2 class="pl-col-title">Tenant Scoped Treasury Ledger</h2>
+            </div>
+          </div>
+
+          <div id="pl-sql-banner" class="pl-sql-banner">
+            SET LOCAL app.current_tenant_id = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+          </div>
+
+          <div class="pl-table-scroll">
+            <table id="pl-ledger-table" class="pl-ledger-table" aria-label="Tenant Scoped Treasury Entries">
+              <thead>
+                <tr>
+                  <th>Entry ID</th>
+                  <th>Account</th>
+                  <th>Event / Memo</th>
+                  <th>Time</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody id="pl-ledger-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>

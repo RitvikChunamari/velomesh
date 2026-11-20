@@ -68,6 +68,8 @@ test('website renders full 21st.dev Swiss visual sections and preserves workbenc
     'orch-action-logo',
     'execution-flow',
     'workbench',
+    'workbench-live-demo',
+    'workbench-demo-frame',
     'vision-spec',
     'closing-cta',
     'site-footer'
@@ -77,4 +79,14 @@ test('website renders full 21st.dev Swiss visual sections and preserves workbenc
 
   assert.ok(html.includes('velomesh/auto'), 'index.html must showcase velomesh/auto virtual model selector');
   assert.ok(fs.existsSync(path.join(WEB_DIR, 'brand', 'velomesh-action-badge.svg')), 'monochrome action badge SVG must exist');
+
+  // Verify embedded PulseLedger live demo assets exist and follow B&W Swiss standard
+  const demoHtml = readWeb('demos/pulseledger/index.html');
+  const demoCss = readWeb('demos/pulseledger/styles.css');
+  const demoJs = readWeb('demos/pulseledger/app.js');
+  for (const demoId of ['pl-navbar', 'pl-kpi-strip', 'pl-runway-canvas', 'pl-ledger-table', 'pl-btn-rls-attack']) {
+    assert.ok(demoHtml.includes(`id="${demoId}"`), `PulseLedger demo must include #${demoId}`);
+  }
+  assert.ok(demoCss.includes('--bg: #070708'), 'PulseLedger styles must use monochrome Swiss palette');
+  assert.ok(demoJs.includes('stepSpring') || demoJs.includes('tickSpring'), 'PulseLedger must implement damped spring cashflow physics');
 });

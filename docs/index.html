@@ -573,9 +573,41 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
             <div class="code-panel" role="tabpanel">
               <div class="code-panel-topbar">
                 <div id="active-skills-strip" class="skills-row"></div>
-                <button type="button" id="copy-file-btn" class="mini-tab-btn">Copy File</button>
+                <div class="code-panel-actions">
+                  <a href="#workbench-live-demo" id="wb-scroll-demo-btn" class="mini-tab-btn">Live Demo App ↓</a>
+                  <a href="./demos/pulseledger/index.html" target="_blank" rel="noopener" id="wb-open-demo-link" class="mini-tab-btn">Open Fullscreen Demo ↗</a>
+                  <button type="button" id="copy-file-btn" class="mini-tab-btn">Copy File</button>
+                </div>
               </div>
               <pre id="workbench-code-output" class="code-view"></pre>
+            </div>
+          </div>
+
+          <!-- EMBEDDED COMPILED LIVE DEMO WEBSITE (PULSELEDGER MULTI-TENANT TREASURY OS) -->
+          <div id="workbench-live-demo" class="wb-live-demo">
+            <div class="wb-demo-bar">
+              <div class="wb-demo-title-group">
+                <span class="bento-index">07 Compiled Live Output</span>
+                <strong id="wb-demo-title" class="wb-demo-heading">PulseLedger — Multi-Tenant AI Treasury OS (Interactive Demo)</strong>
+              </div>
+              <div class="wb-demo-controls">
+                <div class="wb-viewport-group" role="group" aria-label="Demo Viewport Width">
+                  <button type="button" class="mini-tab-btn wb-viewport-btn active" data-demo-viewport="100%">Desktop 100%</button>
+                  <button type="button" class="mini-tab-btn wb-viewport-btn" data-demo-viewport="768px">Tablet 768px</button>
+                  <button type="button" class="mini-tab-btn wb-viewport-btn" data-demo-viewport="390px">Mobile 390px</button>
+                </div>
+                <button type="button" id="wb-reload-demo-btn" class="mini-tab-btn">Reload Demo</button>
+                <a href="./demos/pulseledger/index.html" target="_blank" rel="noopener" class="mini-tab-btn">Launch Standalone App ↗</a>
+              </div>
+            </div>
+            <div class="wb-demo-stage">
+              <iframe
+                id="workbench-demo-frame"
+                class="wb-demo-iframe"
+                src="./demos/pulseledger/index.html"
+                title="PulseLedger Multi-Tenant AI Treasury Platform Live Demo"
+                loading="lazy"
+              ></iframe>
             </div>
           </div>
         </div>
