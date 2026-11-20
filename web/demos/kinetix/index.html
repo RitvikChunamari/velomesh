@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kinetix — Collaborative Shader &amp; CRDT UI Studio</title>
+  <meta name="description" content="Real-time collaborative monochrome shader and UI studio in Black and White Swiss minimalism with Node.js WebSockets CRDT sync, PostgreSQL immutable versioning, and Cloudflare R2 presigned uploads." />
+  <meta name="theme-color" content="#070708" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="kx-shell">
+    <header id="kx-navbar" class="kx-navbar">
+      <div class="kx-brand-group">
+        <a href="#top" class="kx-brand-link" aria-label="Kinetix Home">
+          <svg width="20" height="20" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <path fill="currentColor" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
+            <path fill="currentColor" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+          </svg>
+          <span class="kx-wordmark" translate="no">KINETIX</span>
+        </a>
+        <span class="kx-edition-tag">REAL-TIME CRDT SHADER &amp; UI STUDIO</span>
+      </div>
+
+      <div class="kx-preset-switcher" role="tablist" aria-label="Monochrome Shader Kernel Preset">
+        <button type="button" class="kx-tab-btn active" role="tab" aria-selected="true" data-preset="interference">01 Interference Field</button>
+        <button type="button" class="kx-tab-btn" role="tab" aria-selected="false" data-preset="lattice">02 Geodesic SDF Lattice</button>
+        <button type="button" class="kx-tab-btn" role="tab" aria-selected="false" data-preset="halftone">03 Halftone Wave Matrix</button>
+      </div>
+
+      <div class="kx-nav-actions">
+        <button type="button" id="kx-theme-toggle" class="kx-outline-btn" aria-label="Switch Black and White polarity">Polarity</button>
+        <a href="../../index.html#workbench" class="kx-outline-btn kx-back-link" target="_top">← VeloMesh Workbench</a>
+      </div>
+    </header>
+
+    <main id="top" class="kx-main">
+      <!-- 4-COLUMN SWISS TELEMETRY HAIRLINE STRIP -->
+      <section id="kx-kpi-strip" class="kx-kpi-strip" aria-label="Collaborative Studio Telemetry">
+        <div class="kx-kpi-cell">
+          <span class="kx-kpi-label">01 CRDT Room &amp; Peers</span>
+          <strong id="kx-kpi-peers" class="kx-kpi-value">3 Peers Synced · 0 Conflicts</strong>
+          <span id="kx-kpi-clock" class="kx-kpi-sub">clock: [ZRH:14, TYO:09, SFO:22]</span>
+        </div>
+
+        <div class="kx-kpi-cell">
+          <span class="kx-kpi-label">02 Shader Frame &amp; Target</span>
+          <strong id="kx-kpi-fps" class="kx-kpi-value">60 FPS · Monochrome Field</strong>
+          <span id="kx-kpi-res" class="kx-kpi-sub">1120×320 HiDPI · WebSockets LWW Active</span>
+        </div>
+
+        <div class="kx-kpi-cell">
+          <span class="kx-kpi-label">03 PostgreSQL Revision Head</span>
+          <strong id="kx-kpi-rev" class="kx-kpi-value">rev_048f9a · SHA-256 Verified</strong>
+          <span id="kx-kpi-rev-sub" class="kx-kpi-sub">4 immutable snapshots stored</span>
+        </div>
+
+        <div class="kx-kpi-cell">
+          <span class="kx-kpi-label">04 Cloudflare R2 Asset Store</span>
+          <strong id="kx-kpi-r2" class="kx-kpi-value">R2 Presigned PUT Ready</strong>
+          <span id="kx-kpi-r2-sub" class="kx-kpi-sub">r2://kinetix-assets/proj_01/grain-lut.cube</span>
+        </div>
+      </section>
+
+      <!-- INTERACTIVE MONOCHROME SHADER VIEWPORT & UNIFORM CONTROLS -->
+      <section id="kx-stage" class="kx-stage" aria-label="Interactive Procedural Shader Viewport">
+        <div class="kx-stage-bar">
+          <div class="kx-uniform-group" aria-label="Live Shader Uniforms">
+            <div class="kx-uniform-control">
+              <span class="kx-uniform-label">Freq</span>
+              <button type="button" id="kx-freq-dec" class="kx-step-btn" aria-label="Decrease frequency">-</button>
+              <strong id="kx-val-freq" class="kx-uniform-val">3.6</strong>
+              <button type="button" id="kx-freq-inc" class="kx-step-btn" aria-label="Increase frequency">+</button>
+            </div>
+            <div class="kx-uniform-control">
+              <span class="kx-uniform-label">Harmonics</span>
+              <button type="button" id="kx-harm-dec" class="kx-step-btn" aria-label="Decrease harmonics">-</button>
+              <strong id="kx-val-harm" class="kx-uniform-val">5</strong>
+              <button type="button" id="kx-harm-inc" class="kx-step-btn" aria-label="Increase harmonics">+</button>
+            </div>
+            <div class="kx-uniform-control">
+              <span class="kx-uniform-label">Phase</span>
+              <button type="button" id="kx-vel-dec" class="kx-step-btn" aria-label="Decrease phase velocity">-</button>
+              <strong id="kx-val-vel" class="kx-uniform-val">1.2</strong>
+              <button type="button" id="kx-vel-inc" class="kx-step-btn" aria-label="Increase phase velocity">+</button>
+            </div>
+          </div>
+
+          <div class="kx-stage-actions">
+            <button type="button" id="kx-btn-peer-patch" class="kx-outline-btn">+ Simulate Peer CRDT Patch</button>
+            <button type="button" id="kx-btn-commit-rev" class="kx-solid-btn">+ Commit Postgres Revision</button>
+          </div>
+        </div>
+
+        <div class="kx-canvas-frame">
+          <canvas id="kx-shader-canvas" width="1120" height="320" aria-label="Interactive Monochrome Procedural Shader Surface"></canvas>
+        </div>
+      </section>
+
+      <!-- 2-COLUMN CRDT / R2 UPLOADER + POSTGRES REVISION LEDGER -->
+      <section id="kx-console" class="kx-console" aria-label="WebSockets CRDT, Cloudflare R2 & PostgreSQL Console">
+        <div class="kx-console-col">
+          <div class="kx-col-head">
+            <span class="kx-kpi-label">Node.js WebSockets LWW-CRDT &amp; S3/R2 SigV4</span>
+            <h2 class="kx-col-title">CRDT State Stream &amp; Cloudflare R2 Assets</h2>
+          </div>
+
+          <div class="kx-action-row">
+            <button type="button" id="kx-btn-crdt-op" class="kx-outline-btn">+ Simulate Remote Peer CRDT Op</button>
+            <button type="button" id="kx-btn-r2-upload" class="kx-outline-btn">+ Presign &amp; Upload Texture / LUT to R2</button>
+            <button type="button" id="kx-btn-crdt-conflict" class="kx-outline-btn">Test Concurrent Conflict Merge (LWW)</button>
+          </div>
+
+          <ul id="kx-crdt-feed" class="kx-crdt-feed" aria-live="polite" aria-label="CRDT Merge and R2 Asset Feed"></ul>
+        </div>
+
+        <div class="kx-console-col kx-console-col-right">
+          <div class="kx-col-head">
+            <span class="kx-kpi-label">PostgreSQL 16 Immutable Revision Graph (002_shader_revisions.sql)</span>
+            <h2 class="kx-col-title">Shader Revision History (Click Row to Time-Travel)</h2>
+          </div>
+
+          <div id="kx-sql-banner" class="kx-sql-banner">
+            INSERT INTO shader_revisions (project_id, lamport_clock, sha256_checksum) VALUES ('proj_01', 45, '048f9a...');
+          </div>
+
+          <div class="kx-table-scroll">
+            <table id="kx-revision-table" class="kx-revision-table" aria-label="Committed Shader Revisions">
+              <thead>
+                <tr>
+                  <th>Revision</th>
+                  <th>Author</th>
+                  <th>Preset / Uniforms</th>
+                  <th>R2 Asset Key</th>
+                  <th>Clock</th>
+                </tr>
+              </thead>
+              <tbody id="kx-revision-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>

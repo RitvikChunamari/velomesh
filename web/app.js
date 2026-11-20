@@ -2,6 +2,8 @@
 
 const WORKBENCH_BLUEPRINTS = {
   treasury: {
+    demoUrl: "./demos/pulseledger/index.html",
+    demoTitle: "PulseLedger — Multi-Tenant AI Treasury OS (Interactive Demo)",
     prompt:
       "Build PulseLedger, a multi-tenant AI treasury platform for Series-A CFOs with Black and White Swiss typography, interactive spring cashflow graphs, FastAPI + PostgreSQL RLS, and Stripe webhooks.",
     layers: {
@@ -97,18 +99,21 @@ CREATE POLICY enforce_tenant_isolation ON treasury_ledger_entries
     }
   },
   webglStudio: {
+    demoUrl: "./demos/kinetix/index.html",
+    demoTitle: "Kinetix — Real-Time CRDT Shader & UI Studio (Interactive Demo)",
     prompt:
       "Create Kinetix, a real-time collaborative shader & UI studio in Black and White Swiss minimalism with WebSockets CRDT state sync in Node.js, PostgreSQL versioning, and R2 uploads.",
     layers: {
       frontend: {
-        file: "components/ShaderViewport.tsx",
+        file: "demos/kinetix/index.html",
         skills: ["frontend-design", "rcs-frontend", "apple-design"],
-        code: `// Synthesized Frontend Layer — Achromatic Retina Canvas Stage
-export function ShaderViewport({ sceneGraph, peers }: ViewportProps) {
+        code: `// Compiled Demo Live at ./demos/kinetix/index.html & Engine ./demos/kinetix/backend/server.mjs
+// Pure Black & White Swiss Collaborative Shader & CRDT Studio
+export function ShaderViewport({ preset, vectorClock, frequency, harmonics }: ViewportProps) {
   return (
-    <section className="shader-stage" aria-label="Interactive Monochrome Viewport">
-      <canvas id="kinetix-surface" width={1280} height={720} />
-      <aside aria-label="Active Editors">{peers.length} synced</aside>
+    <section className="kx-stage" aria-label="Interactive Monochrome Procedural Shader Surface">
+      <canvas id="kx-shader-canvas" width={1120} height={320} />
+      <aside aria-label="Active Vector Clock">{JSON.stringify(vectorClock)}</aside>
     </section>
   );
 }`
@@ -158,11 +163,11 @@ CREATE TABLE shader_revisions (
       qa: {
         file: "qa/verification-receipt.txt",
         skills: ["tdd", "impeccable", "web-design-guidelines"],
-        code: `VELOMESH CRDT STUDIO VERIFICATION
-=================================
-[PASS] CRDT convergence property test (500 concurrent ops)
-[PASS] Reduced-motion static fallback verified
-[PASS] Zero console errors and zero overflow at 320px/390px/1440px`
+        code: `KINETIX FULL-STACK STUDIO VERIFICATION
+======================================
+[PASS] node --test demos/kinetix/tests/kinetix.test.mjs  -- CRDT LWW convergence + R2 SigV4 + PG SHA-256
+[PASS] impeccable detect web/demos/kinetix                -- 0 anti-patterns, 0 advisories
+[PASS] playwright --viewport=1440,390                     -- 0 console errors and 0 overflow`
       }
     }
   },
@@ -1282,6 +1287,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const copyFileBtn = document.getElementById('copy-file-btn');
   const blueprintBtns = document.querySelectorAll('.preset-btn');
   const fileBtns = document.querySelectorAll('.file-btn');
+  const demoTitleEl = document.getElementById('wb-demo-title');
+  const openDemoLinkEl = document.getElementById('wb-open-demo-link');
+  const standaloneDemoLinkEl = document.getElementById('wb-standalone-demo-link');
+  let activeDemoUrl = './demos/pulseledger/index.html';
 
   function escapeHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -1290,6 +1299,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderWorkbench(updatePrompt = true) {
     const bp = WORKBENCH_BLUEPRINTS[currentBlueprint] || WORKBENCH_BLUEPRINTS.treasury;
     if (promptInput && updatePrompt) promptInput.value = bp.prompt;
+
+    const targetDemoUrl = bp.demoUrl || WORKBENCH_BLUEPRINTS.treasury.demoUrl;
+    const targetDemoTitle = bp.demoTitle || WORKBENCH_BLUEPRINTS.treasury.demoTitle;
+    if (targetDemoUrl && targetDemoUrl !== activeDemoUrl) {
+      activeDemoUrl = targetDemoUrl;
+      if (demoFrame) demoFrame.setAttribute('src', activeDemoUrl);
+    }
+    if (demoTitleEl && targetDemoTitle) demoTitleEl.textContent = targetDemoTitle;
+    if (openDemoLinkEl && activeDemoUrl) openDemoLinkEl.setAttribute('href', activeDemoUrl);
+    if (standaloneDemoLinkEl && activeDemoUrl) standaloneDemoLinkEl.setAttribute('href', activeDemoUrl);
 
     fileBtns.forEach((btn) => {
       const key = btn.dataset.layer;
@@ -1379,7 +1398,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   reloadDemoBtn?.addEventListener('click', () => {
     if (!demoFrame) return;
-    const baseSrc = './demos/pulseledger/index.html';
+    const baseSrc = activeDemoUrl || './demos/pulseledger/index.html';
     demoFrame.src = `${baseSrc}?t=${Date.now()}`;
   });
 

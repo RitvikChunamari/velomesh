@@ -89,4 +89,14 @@ test('website renders full 21st.dev Swiss visual sections and preserves workbenc
   }
   assert.ok(demoCss.includes('--bg: #070708'), 'PulseLedger styles must use monochrome Swiss palette');
   assert.ok(demoJs.includes('stepSpring') || demoJs.includes('tickSpring'), 'PulseLedger must implement damped spring cashflow physics');
+
+  // Verify embedded Kinetix live demo assets exist and follow B&W Swiss standard
+  const kxHtml = readWeb('demos/kinetix/index.html');
+  const kxCss = readWeb('demos/kinetix/styles.css');
+  const kxJs = readWeb('demos/kinetix/app.js');
+  for (const kxId of ['kx-navbar', 'kx-shader-canvas', 'kx-revision-table', 'kx-btn-r2-upload', 'kx-btn-crdt-conflict']) {
+    assert.ok(kxHtml.includes(`id="${kxId}"`), `Kinetix demo must include #${kxId}`);
+  }
+  assert.ok(kxCss.includes('--bg: #070708'), 'Kinetix styles must use monochrome Swiss palette');
+  assert.ok(kxJs.includes('projectMomentum') && kxJs.includes('commitPostgresRevision'), 'Kinetix must implement momentum projection and revision commits');
 });
