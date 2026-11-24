@@ -215,9 +215,26 @@ test('createGatewayServer serves /v1/models, /v1/chat/completions (JSON + SSE), 
     assert.equal(respSse.headers.get('x-velomesh-phase'), 'architecture');
     const respSseText = await respSse.text();
     assert.ok(respSseText.includes('event: response.created'));
+    assert.ok(respSseText.includes('event: response.output_item.added'));
+    assert.ok(respSseText.includes('event: response.content_part.added'));
     assert.ok(respSseText.includes('event: response.output_text.delta'));
+    assert.ok(respSseText.includes('event: response.output_item.done'));
     assert.ok(respSseText.includes('event: response.completed'));
     assert.ok(respSseText.includes('data: [DONE]'));
+
+    // 7. Prompt Optimizer endpoint (/v1/optimize)
+    const optRes = await fetch(`${baseUrl}/v1/optimize`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        prompt: 'build multi-tenant SaaS with stripe billing and supabase rls'
+      })
+    });
+    assert.equal(optRes.status, 200);
+    const optBody = await optRes.json();
+    assert.ok(optBody.optimizedPrompt.includes('VeloMesh Optimized Engineering Spec'));
+    assert.ok(optBody.upgradedScore >= optBody.clarityScore);
+    assert.ok(optBody.matchedPlatformSkills.length > 0);
   } finally {
     await new Promise((resolve) => server.close(resolve));
     if (prevDir === undefined) delete process.env.VELOMESH_DATA_DIR;
@@ -267,9 +284,116 @@ test('routeTask and MCP server expose velomesh serverInfo, modelOrchestration, p
     for await (const chunk of initChild.stdout) initOut += chunk;
     const initJson = JSON.parse(initOut.trim().split('\n')[0]);
     assert.equal(initJson.result.serverInfo.name, 'velomesh');
+
+    // Verify MCP optimize_prompt returns structured prompt enrichment and platform skills
+    const optMcp = await mcpCall('optimize_prompt', {
+      prompt: 'build supabase postgres rls multi-tenant app with stripe webhooks'
+    });
+    assert.ok(optMcp.optimizedPrompt.includes('VeloMesh Optimized Engineering Spec'));
+    assert.ok(Array.isArray(optMcp.matchedPlatformSkills));
   } finally {
     if (prevDir === undefined) delete process.env.VELOMESH_DATA_DIR;
     else process.env.VELOMESH_DATA_DIR = prevDir;
     fs.rmSync(tmpData, { recursive: true, force: true });
+  }
+});
+
+test('discoverPlatformModels reads native Codex models_cache, switches real platform models, and skips offline routers', async () => {
+  const { discover } = await import('../scripts/catalog.mjs');
+  const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'velomesh-plat-test-'));
+  const prevDir = process.env.VELOMESH_DATA_DIR;
+  process.env.VELOMESH_DATA_DIR = tmpHome;
+
+  try {
+    // Create mock ~/.codex/models_cache.json with real platform models
+    const codexDir = path.join(tmpHome, '.codex');
+    fs.mkdirSync(codexDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(codexDir, 'models_cache.json'),
+      JSON.stringify({
+        models: [
+          { slug: 'gpt-6.2-sol', display_name: 'GPT-6.2 Sol', priority: 1 },
+          { slug: 'gpt-6.2-astra', display_name: 'GPT-6.2 Astra', priority: 2 },
+          { slug: 'gpt-6-luna', display_name: 'GPT-6 Luna', priority: 3 },
+          { slug: 'codex-auto-review', display_name: 'Codex Review', priority: 4 }
+        ]
+      })
+    );
+    // Create offline local router pointing to closed ephemeral port
+    const ocDir = path.join(tmpHome, '.config', 'opencode');
+    fs.mkdirSync(ocDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(ocDir, 'opencode.json'),
+      JSON.stringify({
+        providers: {
+          deadrouter: {
+            settings: { baseURL: 'http://127.0.0.1:59997/v1' },
+            models: { 'ag/fake': {} }
+          }
+        }
+      })
+    );
+    // Create fake codex executable in PATH so codex CLI bridge is discovered inside tmpHome
+    const binDir = path.join(tmpHome, '.local', 'bin');
+    fs.mkdirSync(binDir, { recursive: true });
+    const fakeCodex = path.join(binDir, 'codex');
+    fs.writeFileSync(fakeCodex, '#!/bin/sh\necho ok\n', { mode: 0o755 });
+
+    // Create symlinked & plugin-nested skills to test catalog.mjs platform skill discovery
+    const hubSkill = path.join(tmpHome, '.agent-fusion', 'skill-hub-v4', 'skills', 'custom-rls-skill');
+    fs.mkdirSync(hubSkill, { recursive: true });
+    fs.writeFileSync(path.join(hubSkill, 'SKILL.md'), '---\nname: custom-rls-skill\ndescription: Custom Supabase RLS skill\n---\nBody');
+    const codexSkillDir = path.join(tmpHome, '.codex', 'skills');
+    fs.mkdirSync(codexSkillDir, { recursive: true });
+    fs.symlinkSync(hubSkill, path.join(codexSkillDir, 'custom-rls-skill'));
+    const nestedPluginSkill = path.join(tmpHome, '.codex', 'plugins', 'cache', 'demo', '1.0', 'skills', 'nested-edge-skill');
+    fs.mkdirSync(nestedPluginSkill, { recursive: true });
+    fs.writeFileSync(path.join(nestedPluginSkill, 'SKILL.md'), '---\nname: nested-edge-skill\ndescription: Nested plugin skill\n---\nBody');
+
+    const cat = discover(tmpHome, { homeDir: tmpHome });
+    assert.ok(cat.skills.some((s) => s.host === 'codex' && s.name === 'custom-rls-skill'), 'Must follow skill symlinks across Codex skills dir');
+    assert.ok(cat.skills.some((s) => s.host === 'codex' && s.name === 'nested-edge-skill'), 'Must discover nested plugin skills in ~/.codex/plugins');
+
+    const d1 = selectModelForTurn({
+      prompt: 'Design multi-tenant PostgreSQL RLS database architecture',
+      requestedModel: 'velomesh/auto',
+      env: { PATH: '/usr/bin:/bin' },
+      homeDir: tmpHome,
+      checkClis: true,
+      record: false
+    });
+    assert.equal(d1.selectedModel, 'gpt-6.2-sol');
+    assert.equal(d1.cliProvider, 'codex');
+    assert.notEqual(d1.transport, 'local-router', 'Must skip offline localhost routers');
+
+    const d2 = selectModelForTurn({
+      prompt: 'Style a Black and White Swiss UI with CSS grid and typography',
+      requestedModel: 'velomesh/auto',
+      previousModel: d1.selectedModel,
+      previousFamily: d1.selectedFamily,
+      env: { PATH: '/usr/bin:/bin' },
+      homeDir: tmpHome,
+      checkClis: true,
+      record: false
+    });
+    assert.equal(d2.selectedModel, 'gpt-6.2-astra');
+    assert.equal(d2.switched, true);
+
+    const d3 = selectModelForTurn({
+      prompt: 'Audit and review authentication security diff',
+      requestedModel: 'velomesh/auto',
+      previousModel: d1.selectedModel,
+      previousFamily: d1.selectedFamily,
+      env: { PATH: '/usr/bin:/bin' },
+      homeDir: tmpHome,
+      checkClis: true,
+      record: false
+    });
+    assert.equal(d3.selectedModel, 'codex-auto-review');
+    assert.equal(d3.switched, true);
+  } finally {
+    if (prevDir === undefined) delete process.env.VELOMESH_DATA_DIR;
+    else process.env.VELOMESH_DATA_DIR = prevDir;
+    fs.rmSync(tmpHome, { recursive: true, force: true });
   }
 });

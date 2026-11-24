@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import http from 'node:http';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -9,8 +11,12 @@ import {
   PHASE_CATALOG,
   discoverUpstreams,
   selectModelForTurn,
-  getRoutingTelemetry
+  getRoutingTelemetry,
+  resolveCliBinary,
+  buildExpandedPath
 } from './model-router.mjs';
+import { discover } from './catalog.mjs';
+import { optimizePrompt } from './prompt-optimizer.mjs';
 
 export const VELOMESH_ASCII_EMBLEM = [
   ' ██╗   ██╗ ███╗   ███╗   VELOMESH ORCHESTRATOR GATEWAY // velomesh/auto',
@@ -18,13 +24,6 @@ export const VELOMESH_ASCII_EMBLEM = [
   '   ████╔╝  ██╔████╔██║   OpenAI /v1/chat/completions · /v1/responses · Anthropic /v1/messages',
   '    ██╔╝   ██║ ╚██╔╝██║  Adaptive Routing: Architecture -> Frontend -> Fast -> Cross-Family Review'
 ].join('\n');
-
-const CLI_EXEC_ARGS = {
-  claude: (prompt) => ({ cmd: 'claude', args: ['-p', prompt] }),
-  codex: (prompt) => ({ cmd: 'codex', args: ['exec', '--sandbox', 'read-only', prompt] }),
-  gemini: (prompt) => ({ cmd: 'gemini', args: ['-p', prompt] }),
-  opencode: (prompt) => ({ cmd: 'opencode', args: ['run', prompt] })
-};
 
 function readJsonBody(req, maxBytes = 2 * 1024 * 1024) {
   return new Promise((resolve, reject) => {
@@ -52,14 +51,41 @@ function readJsonBody(req, maxBytes = 2 * 1024 * 1024) {
   });
 }
 
+function flattenContentParts(content) {
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (typeof part === 'string' ? part : part?.text || part?.input_text || part?.content || ''))
+      .filter(Boolean)
+      .join(' ');
+  }
+  if (content && typeof content === 'object') {
+    return content.text || content.content || JSON.stringify(content);
+  }
+  return '';
+}
+
 function normalizeOpenAIMessages(body) {
-  if (Array.isArray(body.messages)) return body.messages;
+  if (Array.isArray(body.messages)) {
+    return body.messages.map((m) => ({
+      role: m?.role || 'user',
+      content: flattenContentParts(m?.content)
+    }));
+  }
   if (typeof body.input === 'string') return [{ role: 'user', content: body.input }];
   if (Array.isArray(body.input)) {
-    return body.input.map((item) => ({
-      role: item.role || 'user',
-      content: typeof item.content === 'string' ? item.content : JSON.stringify(item.content || '')
-    }));
+    const out = [];
+    for (const item of body.input) {
+      if (!item || typeof item !== 'object') continue;
+      if (item.type === 'function_call_output' || item.type === 'tool_result') {
+        out.push({ role: 'tool', content: flattenContentParts(item.output ?? item.content) });
+        continue;
+      }
+      const role = item.role || (item.type === 'message' ? 'user' : 'user');
+      const text = flattenContentParts(item.content);
+      if (text) out.push({ role, content: text });
+    }
+    return out;
   }
   if (typeof body.prompt === 'string') return [{ role: 'user', content: body.prompt }];
   return [];
@@ -84,32 +110,107 @@ function normalizeAnthropicMessages(body) {
   return out;
 }
 
-function promptFromMessages(messages) {
-  return messages
-    .map((m) => {
-      const role = String(m.role || 'user').toUpperCase();
-      const text = typeof m.content === 'string'
-        ? m.content
-        : Array.isArray(m.content)
-          ? m.content.map((c) => c?.text || c?.content || '').join(' ')
-          : JSON.stringify(m.content || '');
-      return `${role}: ${text}`;
-    })
-    .join('\n\n')
-    .slice(0, 32000);
+function isHarnessBoilerplate(text) {
+  const s = String(text || '').trim();
+  if (!s) return true;
+  if (
+    s.startsWith('<environment_context>') ||
+    s.startsWith('<permissions instructions>') ||
+    s.startsWith('# AGENTS.md instructions') ||
+    s.startsWith('<collaboration_mode>') ||
+    s.startsWith('<skills_instructions>')
+  ) {
+    return true;
+  }
+  return s.length > 5000 && (s.includes('<skill>') || s.includes('<!-- VELOMESH:START -->'));
 }
 
-function runCliBridge(provider, prompt, timeoutMs = 45000) {
+function promptFromMessages(messages) {
+  const cleaned = [];
+  for (const m of messages) {
+    const role = String(m?.role || 'user').toUpperCase();
+    if (role === 'SYSTEM' || role === 'DEVELOPER') continue;
+    const text = flattenContentParts(m?.content).trim();
+    if (!text || isHarnessBoilerplate(text)) continue;
+    cleaned.push(`${role}: ${text}`);
+  }
+  const list = cleaned.length
+    ? cleaned
+    : messages.slice(-2).map((m) => `${String(m?.role || 'user').toUpperCase()}: ${flattenContentParts(m?.content).trim()}`);
+  const combined = list.slice(-6).join('\n\n');
+  return combined.length > 24000 ? combined.slice(-24000) : combined;
+}
+
+function runCliBridge(provider, prompt, { model = '', phase = 'implementation', env = process.env, homeDir = os.homedir(), timeoutMs = 45000 } = {}) {
   return new Promise((resolve, reject) => {
-    const adapter = CLI_EXEC_ARGS[provider];
-    if (!adapter) return reject(new Error(`Unsupported CLI bridge provider: ${provider}`));
-    const { cmd, args } = adapter(prompt);
-    execFile(cmd, args, { timeout: timeoutMs, maxBuffer: 2 * 1024 * 1024 }, (err, stdout, stderr) => {
+    const cmdPath = resolveCliBinary(provider, env, homeDir);
+    if (!cmdPath) return reject(new Error(`CLI binary not found for provider: ${provider}`));
+
+    const childEnv = {
+      ...env,
+      PATH: buildExpandedPath(env, homeDir),
+      VELOMESH_INTERNAL_BRIDGE: '1'
+    };
+
+    if (provider === 'codex') {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'velomesh-codex-'));
+      const outFile = path.join(tmpDir, 'last-message.txt');
+      const reasoningEffort = phase === 'architecture' || phase === 'review' ? 'medium' : 'low';
+      const args = [
+        'exec',
+        '-c',
+        'model_provider="openai"',
+        '-c',
+        'mcp_servers={}',
+        '-c',
+        'features.hooks=false',
+        '-c',
+        'features.memories=false',
+        '-c',
+        `model_reasoning_effort="${reasoningEffort}"`,
+        ...(model ? ['-m', model] : []),
+        '--sandbox',
+        'read-only',
+        '--skip-git-repo-check',
+        '-o',
+        outFile,
+        prompt
+      ];
+      const child = execFile(cmdPath, args, { env: childEnv, timeout: timeoutMs, maxBuffer: 2 * 1024 * 1024 }, (err, stdout, stderr) => {
+        let text = '';
+        try {
+          if (fs.existsSync(outFile)) {
+            text = fs.readFileSync(outFile, 'utf8').trim();
+          }
+        } catch {
+          text = '';
+        } finally {
+          fs.rmSync(tmpDir, { recursive: true, force: true });
+        }
+        if (!text) text = String(stdout || '').trim();
+        if (err && !text) return reject(new Error(stderr?.trim() || err.message));
+        if (!text) return reject(new Error('codex returned empty output'));
+        resolve(text);
+      });
+      child.stdin?.end();
+      return;
+    }
+
+    const argsMap = {
+      claude: ['-p', ...(model ? ['--model', model] : []), prompt],
+      gemini: ['-p', ...(model ? ['-m', model] : []), prompt],
+      opencode: ['run', ...(model ? ['-m', model] : []), prompt]
+    };
+    const args = argsMap[provider];
+    if (!args) return reject(new Error(`Unsupported CLI bridge provider: ${provider}`));
+
+    const child = execFile(cmdPath, args, { env: childEnv, timeout: timeoutMs, maxBuffer: 2 * 1024 * 1024 }, (err, stdout, stderr) => {
       if (err) return reject(new Error(stderr?.trim() || err.message));
       const text = String(stdout || '').trim();
       if (!text) return reject(new Error(`${provider} returned empty output`));
       resolve(text);
     });
+    child.stdin?.end();
   });
 }
 
@@ -193,7 +294,7 @@ async function callUpstreamApi({ endpoint, model, messages, maxTokens = 4096, to
   }
 }
 
-async function executeTurn(decision, messages, { simulate = false, tools, toolChoice, temperature, topP, maxTokens, env = process.env } = {}) {
+async function executeTurn(decision, messages, { simulate = false, tools, toolChoice, temperature, topP, maxTokens, env = process.env, homeDir = os.homedir() } = {}) {
   const promptText = promptFromMessages(messages);
   const attempts = [
     {
@@ -208,6 +309,7 @@ async function executeTurn(decision, messages, { simulate = false, tools, toolCh
   ];
 
   let failoverCount = 0;
+  const cliFailCounts = new Map();
 
   if (simulate || decision.transport === 'simulator') {
     const text = `[VeloMesh Orchestrator -> ${decision.selectedModel} (${decision.phase})] ${decision.switchReason}. Simulated execution complete (antigravityTier=${decision.antigravityTier}, switched=${decision.switched}).`;
@@ -250,19 +352,33 @@ async function executeTurn(decision, messages, { simulate = false, tools, toolCh
         };
       }
       if (step.transport === 'cli' && step.cliProvider && env.VELOMESH_ENABLE_CLI_BRIDGE !== '0') {
-        const text = await runCliBridge(step.cliProvider, promptText);
-        return {
-          text,
-          toolCalls: [],
-          executedModel: step.model,
-          upstreamModel: step.upstreamModel || step.model,
-          transport: 'cli',
-          failoverCount,
-          usage: {
-            inputTokens: Math.max(8, Math.ceil(promptText.length / 4)),
-            outputTokens: Math.max(8, Math.ceil(text.length / 4))
-          }
-        };
+        if ((cliFailCounts.get(step.cliProvider) || 0) >= 2) {
+          continue;
+        }
+        const chosenModel = step.upstreamModel || step.model;
+        try {
+          const text = await runCliBridge(step.cliProvider, promptText, {
+            model: chosenModel,
+            phase: decision.phase,
+            env,
+            homeDir
+          });
+          return {
+            text,
+            toolCalls: [],
+            executedModel: step.model,
+            upstreamModel: chosenModel,
+            transport: 'cli',
+            failoverCount,
+            usage: {
+              inputTokens: Math.max(8, Math.ceil(promptText.length / 4)),
+              outputTokens: Math.max(8, Math.ceil(text.length / 4))
+            }
+          };
+        } catch (cliErr) {
+          cliFailCounts.set(step.cliProvider, (cliFailCounts.get(step.cliProvider) || 0) + 1);
+          throw cliErr;
+        }
       }
     } catch {
       // Fall through to next backend in ladder on 429/5xx/CLI unavailability
@@ -362,18 +478,45 @@ function sendAnthropicSSE(res, model, text, usage) {
 function sendOpenAIResponsesSSE(res, model, text, usage) {
   const respId = `resp_${crypto.randomBytes(10).toString('hex')}`;
   const itemId = `msg_${crypto.randomBytes(8).toString('hex')}`;
+  const createdAt = Math.floor(Date.now() / 1000);
   res.statusCode = 200;
   res.setHeader('content-type', 'text/event-stream; charset=utf-8');
   res.setHeader('cache-control', 'no-cache');
   res.setHeader('connection', 'keep-alive');
 
+  let seq = 0;
   const emit = (event, payload) => {
-    res.write(`event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`);
+    res.write(`event: ${event}\ndata: ${JSON.stringify({ ...payload, sequence_number: seq++ })}\n\n`);
   };
 
-  emit('response.created', {
-    type: 'response.created',
-    response: { id: respId, object: 'response', status: 'in_progress', model }
+  const baseResponse = {
+    id: respId,
+    object: 'response',
+    created_at: createdAt,
+    status: 'in_progress',
+    model,
+    output: []
+  };
+
+  emit('response.created', { type: 'response.created', response: baseResponse });
+  emit('response.in_progress', { type: 'response.in_progress', response: baseResponse });
+  emit('response.output_item.added', {
+    type: 'response.output_item.added',
+    output_index: 0,
+    item: {
+      id: itemId,
+      type: 'message',
+      status: 'in_progress',
+      role: 'assistant',
+      content: []
+    }
+  });
+  emit('response.content_part.added', {
+    type: 'response.content_part.added',
+    item_id: itemId,
+    output_index: 0,
+    content_index: 0,
+    part: { type: 'output_text', text: '', annotations: [] }
   });
   emit('response.output_text.delta', {
     type: 'response.output_text.delta',
@@ -382,15 +525,42 @@ function sendOpenAIResponsesSSE(res, model, text, usage) {
     content_index: 0,
     delta: text
   });
+  emit('response.output_text.done', {
+    type: 'response.output_text.done',
+    item_id: itemId,
+    output_index: 0,
+    content_index: 0,
+    text
+  });
+  emit('response.content_part.done', {
+    type: 'response.content_part.done',
+    item_id: itemId,
+    output_index: 0,
+    content_index: 0,
+    part: { type: 'output_text', text, annotations: [] }
+  });
+  const completedItem = {
+    id: itemId,
+    type: 'message',
+    status: 'completed',
+    role: 'assistant',
+    content: [{ type: 'output_text', text, annotations: [] }]
+  };
+  emit('response.output_item.done', {
+    type: 'response.output_item.done',
+    output_index: 0,
+    item: completedItem
+  });
   emit('response.completed', {
     type: 'response.completed',
     response: {
       id: respId,
       object: 'response',
+      created_at: createdAt,
       status: 'completed',
       model,
       output_text: text,
-      output: [{ id: itemId, type: 'message', role: 'assistant', content: [{ type: 'output_text', text }] }],
+      output: [completedItem],
       usage: {
         input_tokens: usage.inputTokens,
         output_tokens: usage.outputTokens,
@@ -411,7 +581,7 @@ export function createGatewayServer(options = {}) {
         return sendJson(res, 200, {
           ok: true,
           service: 'velomesh-gateway',
-          version: '4.2.0',
+          version: '4.3.0',
           emblem: '/brand/velomesh-mark.svg',
           models: VELOMESH_MODELS,
           upstreams: discoverUpstreams({ ...options, checkClis: options.checkClis ?? !options.simulate }),
@@ -420,15 +590,30 @@ export function createGatewayServer(options = {}) {
       }
 
       if (req.method === 'GET' && urlPath === '/v1/models') {
+        const list = VELOMESH_MODELS.map((m) => ({
+          id: m.id,
+          object: 'model',
+          created: 1735689600,
+          owned_by: 'velomesh',
+          description: m.description
+        }));
+        if (!options.simulate && options.checkClis !== false) {
+          const up = discoverUpstreams({ ...options, checkClis: true, checkNetwork: false });
+          for (const pm of up.platformModels?.all || []) {
+            if (!list.some((x) => x.id === pm.id)) {
+              list.push({
+                id: pm.id,
+                object: 'model',
+                created: 1735689600,
+                owned_by: pm.source || 'platform',
+                description: pm.displayName || pm.id
+              });
+            }
+          }
+        }
         return sendJson(res, 200, {
           object: 'list',
-          data: VELOMESH_MODELS.map((m) => ({
-            id: m.id,
-            object: 'model',
-            created: 1735689600,
-            owned_by: 'velomesh',
-            description: m.description
-          }))
+          data: list
         });
       }
 
@@ -444,6 +629,19 @@ export function createGatewayServer(options = {}) {
           record: options.record !== false
         });
         return sendJson(res, 200, decision);
+      }
+
+      if (req.method === 'POST' && urlPath === '/v1/optimize') {
+        const body = await readJsonBody(req);
+        const ws = typeof body.workspacePath === 'string' && path.isAbsolute(body.workspacePath) ? body.workspacePath : process.cwd();
+        const result = optimizePrompt(body.prompt || '', {
+          catalog: discover(ws),
+          workspacePath: ws,
+          currentHost: body.currentHost || 'antigravity',
+          requestedModel: body.model || 'velomesh/auto',
+          checkClis: options.checkClis ?? !options.simulate
+        });
+        return sendJson(res, 200, result);
       }
 
       if (req.method === 'POST' && (urlPath === '/v1/chat/completions' || urlPath === '/v1/responses')) {
@@ -583,7 +781,7 @@ export function createGatewayServer(options = {}) {
 }
 
 function renderHud() {
-  const upstreams = discoverUpstreams({ checkClis: true });
+  const upstreams = discoverUpstreams({ checkClis: true, checkNetwork: true });
   const lines = [
     '',
     VELOMESH_ASCII_EMBLEM,
@@ -597,9 +795,10 @@ function renderHud() {
     ),
     '',
     ' DETECTED UPSTREAM TRANSPORTS',
-    `  - Direct APIs : ${Object.entries(upstreams.apis).filter(([, v]) => v.configured).map(([k]) => k).join(', ') || 'none set in env (CLI Bridge & failover active)'}`,
-    `  - Local Routers: ${upstreams.localRouters.map((r) => `${r.name}(${r.models.length} models)`).join(', ') || 'none'}`,
-    `  - CLI Bridges  : ${Object.entries(upstreams.clis).filter(([, v]) => v.installed).map(([k]) => k).join(', ') || 'none detected'}`,
+    `  - Direct APIs    : ${Object.entries(upstreams.apis).filter(([, v]) => v.configured).map(([k]) => k).join(', ') || 'none set in env (CLI Bridge & failover active)'}`,
+    `  - Local Routers  : ${upstreams.localRouters.map((r) => `${r.name}(${r.online ? 'ONLINE' : 'offline'}:${r.models.length})`).join(', ') || 'none'}`,
+    `  - CLI Bridges    : ${Object.entries(upstreams.clis).filter(([, v]) => v.installed).map(([k]) => k).join(', ') || 'none detected'}`,
+    `  - Platform Models: ${(upstreams.platformModels?.all || []).slice(0, 8).map((m) => m.id).join(', ') || 'none cached'}`,
     '================================================================================',
     ''
   ];

@@ -182,6 +182,7 @@
           </li>
 
           <li><a href="#model-orchestrator" class="nav-direct-link">Orchestrator</a></li>
+          <li><a href="#super-tool-lab" class="nav-direct-link">Super-Tool</a></li>
           <li><a href="#execution-flow" class="nav-direct-link">Process</a></li>
           <li><a href="#workbench" class="nav-direct-link">Workbench</a></li>
           <li><a href="#vision-spec" class="nav-direct-link">Vision Gate</a></li>
@@ -220,7 +221,7 @@
             </h1>
 
             <p class="hero-description">
-              Wires Claude Code, Cursor, Codex, Copilot, Antigravity, and OpenCode to dynamic multi-model switching (<code>velomesh/auto</code>), live MCPs, APIs, databases, and 398+ skills. You define the product vision; VeloMesh handles the stack — <a href="#vision-spec" class="hero-inline-link">see the Vision Gate</a>.
+              Unifies your already-installed platform skills, 1,000+ community skills, automatic prompt optimization, RTK/security hooks, and live platform-native model switching (<code>velomesh/auto</code>) across Claude Code, Cursor, Codex, Copilot, Antigravity, and OpenCode — <a href="#vision-spec" class="hero-inline-link">see the Vision Gate</a>.
             </p>
 
             <div id="install-section" class="installer-wrap">
@@ -359,22 +360,22 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
       <!-- MULTI-MODEL ORCHESTRATOR IN ACTION (velomesh/auto) -->
       <section id="model-orchestrator" class="content-section" aria-label="Multi-Model Orchestrator in Action">
         <div class="section-split-head">
-          <h2 class="section-heading">Select velomesh/auto once. Switch models mid-execution.</h2>
+          <h2 class="section-heading">Select velomesh/auto once. Route native platform models.</h2>
           <p class="section-subcopy">
-            Choose VeloMesh in your harness model picker or invoke via MCP. The local gateway classifies every turn and switches across Claude, Codex, Grok, and Gemini mid-task with automatic API and CLI subscription failover.
+            VeloMesh discovers the actual models installed on your platform (<code>~/.codex/models_cache.json</code>, OpenCode routers, Claude Code, and Antigravity tiers), skips offline endpoints, and switches real models mid-execution via Responses SSE and <code>-m &lt;model&gt;</code> CLI execution.
           </p>
         </div>
 
         <div class="orchestrator-action-console">
           <div class="orch-left-panel">
             <div class="orch-block-head">
-              <span class="bento-index">Harness Model Picker Integration</span>
-              <span class="orch-status-label">Non-Destructive Additive Profiles</span>
+              <span class="bento-index">Platform-Native Model Discovery</span>
+              <span class="orch-status-label">Live Host Routing Active</span>
             </div>
 
             <div class="orch-harness-tabs" role="tablist" aria-label="Select Coding Harness">
               <button type="button" class="mini-tab-btn orch-harness-btn active" role="tab" aria-selected="true" data-orch-harness="opencode">OpenCode (velomesh/auto)</button>
-              <button type="button" class="mini-tab-btn orch-harness-btn" role="tab" aria-selected="false" data-orch-harness="codex">Codex CLI (-p velomesh)</button>
+              <button type="button" class="mini-tab-btn orch-harness-btn" role="tab" aria-selected="false" data-orch-harness="codex">Codex App &amp; CLI (models_cache)</button>
               <button type="button" class="mini-tab-btn orch-harness-btn" role="tab" aria-selected="false" data-orch-harness="claude">Claude Code (velomesh claude)</button>
               <button type="button" class="mini-tab-btn orch-harness-btn" role="tab" aria-selected="false" data-orch-harness="cursor">Cursor / Grok CLI (/v1)</button>
               <button type="button" class="mini-tab-btn orch-harness-btn" role="tab" aria-selected="false" data-orch-harness="antigravity">Antigravity (MCP Subagent Tiers)</button>
@@ -382,7 +383,7 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
 
             <div class="orch-cmd-surface">
               <code id="orch-harness-cmd" class="cmd-line-code">Select "velomesh/auto" in OpenCode /model picker (~/.config/opencode/opencode.json)</code>
-              <p id="orch-harness-note" class="orch-harness-note">Registers side-by-side alongside existing providers without replacing native OAuth or custom routers.</p>
+              <p id="orch-harness-note" class="orch-harness-note">Registers side-by-side alongside existing providers and ignores offline local routers automatically.</p>
             </div>
 
             <div class="orch-emblem-junction" aria-live="polite">
@@ -400,16 +401,16 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
                   <dd id="orch-active-phase">architecture</dd>
                 </div>
                 <div>
-                  <dt>Routed Upstream Model</dt>
-                  <dd id="orch-active-model">claude-opus-4-6</dd>
+                  <dt>Selected Platform Model</dt>
+                  <dd id="orch-active-model">gpt-6.2-sol</dd>
                 </div>
                 <div>
                   <dt>Transport &amp; Failover</dt>
-                  <dd id="orch-active-transport">Direct API -&gt; CLI Subscription Bridge Ready</dd>
+                  <dd id="orch-active-transport">Codex CLI -m gpt-6.2-sol -&gt; API Failover</dd>
                 </div>
                 <div>
                   <dt>Response Headers</dt>
-                  <dd id="orch-active-headers">X-VeloMesh-Model: claude-opus-4-6 | X-VeloMesh-Switched: false</dd>
+                  <dd id="orch-active-headers">X-VeloMesh-Model: gpt-6.2-sol | X-VeloMesh-Switched: false</dd>
                 </div>
               </dl>
             </div>
@@ -426,7 +427,7 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
                 <span class="orch-turn-num">01</span>
                 <span class="orch-turn-copy">
                   <strong>Architecture &amp; PostgreSQL RLS Plan</strong>
-                  <span class="orch-turn-meta">claude-opus-4-6 · Phase: architecture · Deep system &amp; tenant isolation planning</span>
+                  <span class="orch-turn-meta">gpt-6.2-sol / claude-opus-4-6 · Phase: architecture · Frontier reasoning &amp; RLS tenant isolation</span>
                 </span>
               </button>
 
@@ -434,25 +435,129 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
                 <span class="orch-turn-num">02</span>
                 <span class="orch-turn-copy">
                   <strong>Black &amp; White Swiss UI &amp; Spring Motion</strong>
-                  <span class="orch-turn-meta">gemini-3.1-pro · Phase: frontend · Switched: true · Visual hierarchy &amp; 60fps canvas craft</span>
+                  <span class="orch-turn-meta">gpt-6.2-astra / gemini-3.1-pro · Phase: frontend · Switched: true · Multimodal design precision</span>
                 </span>
               </button>
 
               <button type="button" class="orch-turn-btn" role="tab" aria-selected="false" data-orch-turn="2">
                 <span class="orch-turn-num">03</span>
                 <span class="orch-turn-copy">
-                  <strong>Fast Migration &amp; Webhook Boilerplate</strong>
-                  <span class="orch-turn-meta">grok-code-fast-1 · Phase: fast · Switched: true · Sub-second tool loop &amp; CLI scaffolding</span>
+                  <strong>Fast Migration &amp; RTK CLI Triage</strong>
+                  <span class="orch-turn-meta">gpt-6-luna / gemini-3-flash · Phase: fast · Switched: true · Sub-second repo inspection</span>
                 </span>
               </button>
 
               <button type="button" class="orch-turn-btn" role="tab" aria-selected="false" data-orch-turn="3">
                 <span class="orch-turn-num">04</span>
                 <span class="orch-turn-copy">
-                  <strong>Cross-Family Security &amp; Slop Verification</strong>
-                  <span class="orch-turn-meta">gpt-5.3-codex · Phase: review · Switched: true · Independent family verifier prevents self-grading</span>
+                  <strong>Independent Verifier &amp; Security Audit</strong>
+                  <span class="orch-turn-meta">codex-auto-review / gpt-5.3-codex · Phase: review · Switched: true · Prevents self-grading bias</span>
                 </span>
               </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUPER-TOOL LAB: PLATFORM SKILLS + PROMPT OPTIMIZER + POPULAR HOOKS -->
+      <section id="super-tool-lab" class="content-section" aria-label="Platform Skills, Prompt Optimizer and Super-Hooks">
+        <div class="section-split-head">
+          <h2 class="section-heading">Platform skills, prompt optimization, and popular hooks built in.</h2>
+          <p class="section-subcopy">
+            VeloMesh indexes every skill already installed across your coding agents, enriches raw prompts automatically before execution, and wires RTK token compression alongside deterministic security and UI gates.
+          </p>
+        </div>
+
+        <div class="super-tool-console">
+          <div id="prompt-optimizer-console" class="st-pane">
+            <div class="orch-block-head">
+              <span class="bento-index">01 Automatic Prompt Optimizer &amp; Platform Skill Mesh</span>
+              <span id="opt-score-badge" class="orch-status-label">Clarity 38% -&gt; 97%</span>
+            </div>
+
+            <div class="opt-sample-row" role="group" aria-label="Prompt Optimizer Presets">
+              <button type="button" class="mini-tab-btn opt-sample-btn active" data-opt-sample="build multi-tenant SaaS with stripe billing and supabase rls">SaaS + Stripe + RLS</button>
+              <button type="button" class="mini-tab-btn opt-sample-btn" data-opt-sample="create cloudflare worker websocket shader studio with r2 uploads and playwright tests">Workers + R2 + Playwright</button>
+              <button type="button" class="mini-tab-btn opt-sample-btn" data-opt-sample="make an app">Vague Prompt</button>
+            </div>
+
+            <div class="opt-input-row">
+              <textarea id="optimizer-raw-input" class="opt-textarea" rows="2" aria-label="Enter raw user prompt to optimize">build multi-tenant SaaS with stripe billing and supabase rls</textarea>
+              <button type="button" id="optimizer-run-btn" class="prompt-run-btn">Optimize Prompt</button>
+            </div>
+
+            <div class="opt-meta-strip">
+              <div class="opt-meta-cell">
+                <span class="opt-meta-label">Platform Model Selected</span>
+                <strong id="opt-route-badge">gpt-6.2-sol (phase=architecture, tier=pro)</strong>
+              </div>
+              <div class="opt-meta-cell">
+                <span class="opt-meta-label">Matched Platform + Internet Skills</span>
+                <span id="opt-skills-list" class="opt-skills-text">supabase-rls-architect, stripe-webhooks-billing, supabase-postgres-best-practices, stripe-best-practices, postgres-patterns</span>
+              </div>
+            </div>
+
+            <div class="opt-output-head">
+              <span class="opt-meta-label">Synthesized Engineering Specification</span>
+              <button type="button" id="opt-copy-btn" class="mini-tab-btn">Copy Spec</button>
+            </div>
+            <pre id="optimizer-output-view" class="opt-code-output"></pre>
+          </div>
+
+          <div id="hooks-pack-matrix" class="st-pane">
+            <div class="orch-block-head">
+              <span class="bento-index">02 Popular Hooks Suite (RTK + Security + Craft)</span>
+              <span id="hook-active-event" class="orch-status-label">Event: PreToolUse</span>
+            </div>
+
+            <div class="hooks-tab-list" role="tablist" aria-label="Installed Super-Hooks">
+              <button type="button" class="orch-turn-btn hook-select-btn active" role="tab" aria-selected="true" data-hook-id="rtk">
+                <span class="orch-turn-num">01</span>
+                <span class="orch-turn-copy">
+                  <strong>RTK Token Killer (rtk-ai/rtk)</strong>
+                  <span class="orch-turn-meta">PreToolUse · Compresses verbose git, find, diff, test, and logs by 60-90%</span>
+                </span>
+              </button>
+
+              <button type="button" class="orch-turn-btn hook-select-btn" role="tab" aria-selected="false" data-hook-id="optimizer">
+                <span class="orch-turn-num">02</span>
+                <span class="orch-turn-copy">
+                  <strong>VeloMesh Prompt Optimizer</strong>
+                  <span class="orch-turn-meta">PreInvocation / UserPromptSubmit · Injects platform skills + clarity upgrades</span>
+                </span>
+              </button>
+
+              <button type="button" class="orch-turn-btn hook-select-btn" role="tab" aria-selected="false" data-hook-id="security">
+                <span class="orch-turn-num">03</span>
+                <span class="orch-turn-copy">
+                  <strong>Security &amp; Secret Exfiltration Guard</strong>
+                  <span class="orch-turn-meta">PreToolUse · Fail-closed block on rm -rf / and SSH/AWS/.env network leaks</span>
+                </span>
+              </button>
+
+              <button type="button" class="orch-turn-btn hook-select-btn" role="tab" aria-selected="false" data-hook-id="impeccable">
+                <span class="orch-turn-num">04</span>
+                <span class="orch-turn-copy">
+                  <strong>Impeccable UI Craft &amp; Plankton Lint Gate</strong>
+                  <span class="orch-turn-meta">PostToolUse · Flags gradient-clip text, &lt;12px UI text, emojis, and slop fonts</span>
+                </span>
+              </button>
+
+              <button type="button" class="orch-turn-btn hook-select-btn" role="tab" aria-selected="false" data-hook-id="credit">
+                <span class="orch-turn-num">05</span>
+                <span class="orch-turn-copy">
+                  <strong>Context &amp; Credit Saver Guard</strong>
+                  <span class="orch-turn-meta">PreToolUse · Steers recursive grep -r to ripgrep (rg) &amp; targeted reads</span>
+                </span>
+              </button>
+            </div>
+
+            <div class="hook-trace-wrap">
+              <div class="opt-output-head">
+                <span id="hook-active-repo" class="opt-meta-label">Source: rtk-ai/rtk + ~/.codex/hooks.json + ~/.claude/settings.json</span>
+                <span class="opt-meta-label">Additive Safe Merge</span>
+              </div>
+              <pre id="hook-trace-output" class="opt-code-output"></pre>
             </div>
           </div>
         </div>
@@ -788,10 +893,11 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
       <nav class="drawer-links" aria-label="Mobile Quick Navigation">
         <a href="#architecture-bento" class="drawer-link-row"><span>01 Architecture Matrix</span><span>↗</span></a>
         <a href="#model-orchestrator" class="drawer-link-row"><span>02 Multi-Model Orchestrator</span><span>↗</span></a>
-        <a href="#execution-flow" class="drawer-link-row"><span>03 Execution Pipeline</span><span>↗</span></a>
-        <a href="#workbench" class="drawer-link-row"><span>04 Full-Stack Workbench</span><span>↗</span></a>
-        <a href="#vision-spec" class="drawer-link-row"><span>05 Vision Clarity Gate</span><span>↗</span></a>
-        <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener" class="drawer-link-row"><span>06 GitHub Repository</span><span>↗</span></a>
+        <a href="#super-tool-lab" class="drawer-link-row"><span>03 Prompt Optimizer &amp; Hooks</span><span>↗</span></a>
+        <a href="#execution-flow" class="drawer-link-row"><span>04 Execution Pipeline</span><span>↗</span></a>
+        <a href="#workbench" class="drawer-link-row"><span>05 Full-Stack Workbench</span><span>↗</span></a>
+        <a href="#vision-spec" class="drawer-link-row"><span>06 Vision Clarity Gate</span><span>↗</span></a>
+        <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener" class="drawer-link-row"><span>07 GitHub Repository</span><span>↗</span></a>
       </nav>
     </div>
 

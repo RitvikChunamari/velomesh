@@ -835,6 +835,7 @@ h1, h2, h3 {
 .content-section {
   padding: 4.25rem 0;
   border-bottom: 1px solid var(--rule);
+  scroll-margin-top: 88px;
 }
 
 .section-split-head {
@@ -2017,12 +2018,131 @@ h1, h2, h3 {
 }
 
 /* =========================================================
+   SUPER-TOOL LAB: PROMPT OPTIMIZER + POPULAR HOOKS (#super-tool-lab)
+   ========================================================= */
+.super-tool-console {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.st-pane {
+  border: 1px solid var(--rule-strong);
+  border-radius: 12px;
+  background-color: var(--bg-elevated);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  min-width: 0;
+}
+
+.opt-sample-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.opt-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 0.85rem 0;
+  align-items: stretch;
+}
+
+.opt-textarea {
+  width: 100%;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.opt-meta-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.85rem;
+}
+
+.opt-meta-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.opt-meta-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}
+
+.opt-meta-cell strong,
+.opt-skills-text {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.opt-output-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.opt-code-output {
+  margin: 0;
+  padding: 0.85rem 0 0;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 0.78125rem;
+  line-height: 1.55;
+  color: var(--ink-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 290px;
+  overflow-y: auto;
+}
+
+.hooks-tab-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--rule);
+}
+
+.hook-trace-wrap {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding-top: 0.5rem;
+}
+
+/* =========================================================
    RESPONSIVE BREAKPOINTS (1080px, 960px, 720px, 390px, 320px)
    ========================================================= */
 @media (max-width: 1080px) {
   .section-split-head,
   .flow-split,
-  .orchestrator-action-console {
+  .orchestrator-action-console,
+  .super-tool-console {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -2146,7 +2266,9 @@ h1, h2, h3 {
   }
 
   .orch-emblem-junction,
-  .orch-telemetry-grid {
+  .orch-telemetry-grid,
+  .opt-input-row,
+  .opt-meta-strip {
     grid-template-columns: minmax(0, 1fr);
   }
 

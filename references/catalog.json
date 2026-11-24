@@ -11,6 +11,10 @@
     {"repo": "Leonxlnx/taste-skill", "category": "design", "level": "recommended", "selection": "all", "notes": "Visual taste and frontend art direction"},
     {"repo": "pbakaus/impeccable", "category": "design", "level": "recommended", "selection": "all", "notes": "Design audit and visual polish"},
     {"repo": "Nutlope/hallmark", "category": "design", "level": "recommended", "selection": "all", "notes": "Design quality and accessibility"},
+    {"repo": "supabase/agent-skills", "category": "database", "level": "recommended", "selection": "all", "notes": "Official Supabase Postgres optimization, RLS policies, edge functions, and Auth"},
+    {"repo": "cloudflare/skills", "category": "infrastructure", "level": "recommended", "selection": "all", "notes": "Official Cloudflare Workers, Durable Objects, R2 storage, and Agents SDK"},
+    {"repo": "stripe/ai", "category": "backend", "level": "recommended", "selection": "all", "notes": "Official Stripe Checkout, Billing, Connect, and verified webhook patterns"},
+    {"repo": "testdino-hq/playwright-skill", "category": "testing", "level": "recommended", "selection": "all", "notes": "Resilient E2E, locator, API, visual, and accessibility testing with Playwright"},
     {"repo": "VoltAgent/awesome-agent-skills", "category": "ecosystem", "level": "recommended", "selection": "all", "notes": "Curated collection of 1,000+ real-world agent skills"},
     {"repo": "VoltAgent/awesome-design-md", "category": "design", "level": "recommended", "selection": "all", "notes": "Design-system rules, tokens, and art direction playbooks"},
     {"repo": "addyosmani/agent-skills", "category": "engineering", "level": "recommended", "selection": "all", "notes": "Specify, build, verify and ship"},
@@ -25,7 +29,15 @@
     {"name": "Playwright MCP", "repo": "microsoft/playwright-mcp", "purpose": "browser testing and verification"},
     {"name": "Chrome DevTools MCP", "repo": "ChromeDevTools/chrome-devtools-mcp", "purpose": "diagnostics and browser debugging"},
     {"name": "Official MCP Servers", "repo": "modelcontextprotocol/servers", "purpose": "official reference implementations (filesystem, fetch, sqlite, git)"},
-    {"name": "Awesome MCP Servers", "repo": "punkpeye/awesome-mcp-servers", "purpose": "catalog of 60,000+ community MCP integrations"},
+    {"name": "Awesome MCP Servers", "repo": "punkpeye/awesome-mcp-servers", "purpose": "catalog of community MCP integrations"},
     {"name": "Figma MCP", "url": "https://developers.figma.com/docs/figma-mcp-server/", "purpose": "design context and components"}
+  ],
+  "hooks_catalog": [
+    {"id": "rtk-token-killer", "name": "RTK Token Killer", "repo": "rtk-ai/rtk", "events": ["PreToolUse"], "purpose": "Compresses verbose CLI outputs (git, find, diff, test, logs) saving 60-90% tokens"},
+    {"id": "velomesh-prompt-optimizer", "name": "Prompt Optimizer", "repo": "RitvikChunamari/velomesh", "events": ["PreInvocation", "UserPromptSubmit"], "purpose": "Upgrades vague/raw prompts with matched platform skills, model route, and spec constraints"},
+    {"id": "security-command-guard", "name": "Security & Secret Guard", "repo": "slavaspitsyn/claude-code-security-hooks", "events": ["PreToolUse"], "purpose": "Blocks catastrophic deletes and SSH/AWS/.env secret exfiltration via curl/wget/nc"},
+    {"id": "impeccable-ui-gate", "name": "Impeccable UI Craft Gate", "repo": "pbakaus/impeccable", "events": ["PostToolUse", "Stop"], "purpose": "Flags gradient-clip text, neon box glows, <12px UI type, raw emojis, and nested cards"},
+    {"id": "plankton-quality-gate", "name": "Plankton Format & Lint Gate", "repo": "affaan-m/ECC", "events": ["PostToolUse"], "purpose": "Enforces zero-slop syntax, formatting, and regression checks after file edits"},
+    {"id": "context-credit-saver", "name": "Context & Credit Saver Guard", "repo": "RitvikChunamari/velomesh", "events": ["PreToolUse"], "purpose": "Steers unbounded recursive grep toward ripgrep (rg) and compact command batches"}
   ]
 }

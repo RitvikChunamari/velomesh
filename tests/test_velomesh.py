@@ -349,6 +349,62 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
         self.assertIn("database", rules.lower())
         self.assertIn("impeccable", rules.lower())
 
+    def test_platform_skill_discovery_hooks_merge_and_codex_root_provider(self):
+        from velomesh import configure_codex_toml, configure_harness_hooks, discover_platform_skills, local_recommend
+        repo_root = Path(__file__).resolve().parent.parent
+
+        # 1. Bundled skills exist in repo/skills
+        bundled = list((repo_root / "skills").glob("*/SKILL.md"))
+        self.assertTrue(len(bundled) >= 6, "Bundled super-tool skills must exist under skills/")
+
+        # 2. Root model="velomesh/auto" ensures model_provider="velomesh"
+        updated_toml, _ = configure_codex_toml('model = "velomesh/auto"\n', "/usr/bin/node", "/tmp/mcp.mjs", "/tmp/cat.json")
+        self.assertIn('model_provider = "velomesh"', updated_toml)
+
+        # 3. Non-destructive hooks merge preserves existing rtk & impeccable hooks
+        with tempfile.TemporaryDirectory() as tmp:
+            home_dir = Path(tmp)
+            codex_dir = home_dir / ".codex"
+            claude_dir = home_dir / ".claude"
+            codex_dir.mkdir(parents=True)
+            claude_dir.mkdir(parents=True)
+            (codex_dir / "hooks.json").write_text(json.dumps({
+                "hooks": {
+                    "PreToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "rtk hook codex"}]}]
+                }
+            }))
+            (claude_dir / "settings.json").write_text(json.dumps({
+                "hooks": {
+                    "PostToolUse": [{"matcher": "Edit|Write", "hooks": [{"type": "command", "command": "impeccable hook"}]}]
+                }
+            }))
+            custom_skill = codex_dir / "skills" / "custom-rtk-helper"
+            custom_skill.mkdir(parents=True)
+            (custom_skill / "SKILL.md").write_text("---\nname: custom-rtk-helper\ndescription: Custom Codex RTK token skill\n---\nBody")
+
+            with patch("velomesh.HOME", home_dir), \
+                 patch("velomesh.TARGETS", {"codex": codex_dir / "skills"}), \
+                 patch("velomesh.LIB", home_dir / ".hub" / "skills"), \
+                 patch("velomesh.MANIFEST", home_dir / ".hub" / "manifest.json"):
+                res = configure_harness_hooks("/usr/bin/node", "/tmp/hooks.mjs")
+                self.assertIn("codex-hooks", res)
+                self.assertIn("claude-hooks", res)
+
+                cx = json.loads((codex_dir / "hooks.json").read_text())
+                self.assertEqual(cx["hooks"]["PreToolUse"][0]["hooks"][0]["command"], "rtk hook codex")
+                self.assertEqual(len(cx["hooks"]["PreToolUse"]), 2)
+                self.assertEqual(len(cx["hooks"]["UserPromptSubmit"]), 1)
+
+                cl = json.loads((claude_dir / "settings.json").read_text())
+                self.assertEqual(cl["hooks"]["PostToolUse"][0]["hooks"][0]["command"], "impeccable hook")
+                self.assertEqual(len(cl["hooks"]["PostToolUse"]), 2)
+
+                plat = discover_platform_skills()
+                self.assertIn("custom-rtk-helper", plat)
+                self.assertIn("prompt-architect", plat)
+                recs = local_recommend("custom rtk token", limit=3)
+                self.assertTrue(any(r["skill"] == "custom-rtk-helper" for r in recs))
+
     def test_audit_ui_detects_ai_slop_patterns(self):
         from velomesh import audit_ui
         with tempfile.TemporaryDirectory() as tmp:

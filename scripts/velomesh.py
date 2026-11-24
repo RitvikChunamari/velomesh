@@ -330,6 +330,7 @@ VELOMESH_MCP_TOOLS = [
     "discover_and_install_capability",
     "search_online_capabilities",
     "select_model_route",
+    "optimize_prompt",
     "gateway_status",
 ]
 
@@ -338,6 +339,7 @@ VELOMESH_ONLY_TOOLS = {
     "discover_and_install_capability",
     "search_online_capabilities",
     "select_model_route",
+    "optimize_prompt",
     "gateway_status",
     "synthesize_fullstack_architecture",
 }
@@ -402,16 +404,24 @@ def configure_codex_toml(toml_text: str, node_bin: str, mcp_script_path: str, ca
         sections.append((current_header, current_body))
 
     detected_top_model = None
+    raw_top_model = None
     cleaned_root = []
+    has_root_provider = False
     for line in root_lines:
         if re.match(r"^\s*model_catalog_json\s*=", line):
             continue
+        if re.match(r"^\s*model_provider\s*=", line):
+            has_root_provider = True
         m_model = re.match(r'^\s*model\s*=\s*"([^"]+)"', line)
-        if m_model and m_model.group(1) != "velomesh/auto":
-            detected_top_model = m_model.group(1)
+        if m_model:
+            raw_top_model = m_model.group(1)
+            if not raw_top_model.startswith("velomesh/"):
+                detected_top_model = raw_top_model
         cleaned_root.append(line)
 
     new_root = [f'model_catalog_json = "{catalog_path}"']
+    if raw_top_model and raw_top_model.startswith("velomesh/") and not has_root_provider:
+        new_root.append('model_provider = "velomesh"')
     if any(l.strip() for l in cleaned_root):
         new_root.extend(cleaned_root)
 
@@ -594,6 +604,91 @@ def write_codex_model_catalog(catalog_path: Path, top_model: str | None = None):
     catalog_path.write_text(json.dumps({"models": models}, indent=2) + "\n", encoding="utf-8")
 
 
+def _merge_hook_entry(hook_list: list, matcher: str | None, command: str, timeout: int = 5) -> list:
+    """Append a command hook group if no existing hook references the same hooks.mjs mode."""
+    mode_tag = command.split()[-1] if command.split() else command
+    for item in hook_list:
+        if not isinstance(item, dict):
+            continue
+        for sub in item.get("hooks", []):
+            cmd_str = str(sub.get("command", ""))
+            if "hooks.mjs" in cmd_str and mode_tag in cmd_str:
+                return hook_list
+    entry: dict = {"hooks": [{"type": "command", "command": command, "timeout": timeout}]}
+    if matcher is not None:
+        entry["matcher"] = matcher
+    hook_list.append(entry)
+    return hook_list
+
+
+def configure_harness_hooks(node_bin: str, hooks_script_path: str) -> list[str]:
+    """Additively register VeloMesh prompt-optimizer, RTK/security pre-tool, and UI post-tool hooks
+    across Claude Code, Codex, and Antigravity without altering existing user hooks.
+    """
+    updated = []
+    cmd_prompt = f'"{node_bin}" "{hooks_script_path}" prompt-submit'
+    cmd_pre = f'"{node_bin}" "{hooks_script_path}" pre-tool'
+    cmd_post = f'"{node_bin}" "{hooks_script_path}" post-tool'
+
+    # 1. Claude Code (~/.claude/settings.json)
+    claude_settings_file = HOME / ".claude" / "settings.json"
+    if (HOME / ".claude").is_dir():
+        try:
+            cs_data = json.loads(claude_settings_file.read_text(encoding="utf-8")) if claude_settings_file.is_file() else {}
+            if not isinstance(cs_data, dict):
+                cs_data = {}
+        except Exception:
+            cs_data = {}
+        hooks_obj = cs_data.setdefault("hooks", {})
+        if isinstance(hooks_obj, dict):
+            hooks_obj["UserPromptSubmit"] = _merge_hook_entry(list(hooks_obj.get("UserPromptSubmit") or []), None, cmd_prompt)
+            hooks_obj["PreToolUse"] = _merge_hook_entry(list(hooks_obj.get("PreToolUse") or []), "*", cmd_pre)
+            hooks_obj["PostToolUse"] = _merge_hook_entry(list(hooks_obj.get("PostToolUse") or []), "Edit|Write", cmd_post)
+        claude_settings_file.write_text(json.dumps(cs_data, indent=2) + "\n", encoding="utf-8")
+        updated.append("claude-hooks")
+
+    # 2. Codex (~/.codex/hooks.json) — preserves existing rtk / impeccable hooks intact
+    codex_hooks_file = HOME / ".codex" / "hooks.json"
+    if (HOME / ".codex").is_dir():
+        try:
+            cx_data = json.loads(codex_hooks_file.read_text(encoding="utf-8")) if codex_hooks_file.is_file() else {}
+            if not isinstance(cx_data, dict):
+                cx_data = {}
+        except Exception:
+            cx_data = {}
+        cx_hooks = cx_data.setdefault("hooks", {})
+        if isinstance(cx_hooks, dict):
+            cx_hooks["UserPromptSubmit"] = _merge_hook_entry(list(cx_hooks.get("UserPromptSubmit") or []), None, cmd_prompt)
+            cx_hooks["PreToolUse"] = _merge_hook_entry(list(cx_hooks.get("PreToolUse") or []), "Bash", cmd_pre)
+            cx_hooks["PostToolUse"] = _merge_hook_entry(list(cx_hooks.get("PostToolUse") or []), "Edit|Write|apply_patch", cmd_post)
+        codex_hooks_file.write_text(json.dumps(cx_data, indent=2) + "\n", encoding="utf-8")
+        updated.append("codex-hooks")
+
+    # 3. Antigravity plugin hooks.json (~/.gemini/config/plugins/velomesh/hooks.json)
+    agy_plugin_dir = HOME / ".gemini" / "config" / "plugins" / "velomesh"
+    if agy_plugin_dir.is_dir():
+        agy_hooks_script = str(agy_plugin_dir / "scripts" / "hooks.mjs") if (agy_plugin_dir / "scripts" / "hooks.mjs").is_file() else hooks_script_path
+        agy_hooks_file = agy_plugin_dir / "hooks.json"
+        agy_payload = {
+            "velomesh-session-discovery": {
+                "SessionStart": [{"command": f"'{node_bin}' '{agy_hooks_script}' session"}]
+            },
+            "velomesh-preinvoke": {
+                "PreInvocation": [{"command": f"'{node_bin}' '{agy_hooks_script}' invocation"}]
+            },
+            "velomesh-pretool": {
+                "PreToolUse": [{"command": f"'{node_bin}' '{agy_hooks_script}' pre-tool"}]
+            },
+            "velomesh-posttool": {
+                "PostToolUse": [{"command": f"'{node_bin}' '{agy_hooks_script}' post-tool"}]
+            },
+        }
+        agy_hooks_file.write_text(json.dumps(agy_payload, indent=2) + "\n", encoding="utf-8")
+        updated.append("antigravity-hooks")
+
+    return updated
+
+
 def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str | None = None) -> list[str]:
     configured = []
     if not node_bin:
@@ -757,6 +852,10 @@ def auto_configure_harnesses(mcp_script_path: str | None = None, node_bin: str |
         opencode_file.write_text(json.dumps(oc_data, indent=2) + "\n", encoding="utf-8")
         configured.append("opencode")
 
+    # 6. Super-Hooks Suite (RTK + Prompt Optimizer + Security Guard + UI Gate)
+    hooks_script = str(Path(mcp_script_path).parent / "hooks.mjs")
+    configured.extend(configure_harness_hooks(node_bin, hooks_script))
+
     return configured
 
 
@@ -865,28 +964,133 @@ def setup(args):
         except (OSError, RuntimeError) as e:
             say(f"  Could not add {name}: {e}")
     linked, skipped = sync(state, core_only=True)
+    bundled_added = install_bundled_skills()
     install_rules()
     configured = auto_configure_harnesses()
     save_state(state)
-    say(f"Done. {installed} library skills; {linked} links/copies across targets; {collisions} duplicate names avoided; {skipped} existing custom skills preserved.")
+    say(f"Done. {installed + len(bundled_added)} library skills; {linked} links/copies across targets; {collisions} duplicate names avoided; {skipped} existing custom skills preserved.")
     say(f"Auto-configured MCP & hooks for: {', '.join(configured)}")
     say("Zero-config setup complete! VeloMesh is now active automatically in all your AI coding agents.")
+
+
+def discover_platform_skills(workspace: Path | None = None) -> dict[str, dict]:
+    """Scan all installed agentic AI platform and harness skill folders alongside VeloMesh's hub."""
+    discovered: dict[str, dict] = {}
+    scan_roots: list[tuple[str, Path]] = []
+
+    for host, dest in TARGETS.items():
+        scan_roots.append((f"platform:{host}", dest))
+
+    scan_roots.append(("platform:antigravity-builtin", HOME / ".gemini" / "antigravity" / "builtin" / "skills"))
+
+    for host_label, plugin_root in (
+        ("antigravity-plugin", HOME / ".gemini" / "config" / "plugins"),
+        ("codex-plugin", HOME / ".codex" / "plugins"),
+        ("claude-plugin", HOME / ".claude" / "plugins"),
+    ):
+        if plugin_root.is_dir():
+            for root, dirs, _ in os.walk(plugin_root, followlinks=False):
+                rel_depth = len(Path(root).relative_to(plugin_root).parts)
+                if rel_depth > 5:
+                    dirs[:] = []
+                    continue
+                dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("node_modules", "agent-fusion")]
+                if Path(root).name == "skills":
+                    scan_roots.append((f"platform:{host_label}", Path(root)))
+                    dirs[:] = []
+
+    if workspace and Path(workspace).is_dir():
+        ws = Path(workspace)
+        for ws_rel in (".agents/skills", ".claude/skills", ".cursor/skills", ".opencode/skills", ".github/skills", ".gemini/skills"):
+            scan_roots.append(("platform:workspace", ws / ws_rel))
+
+    scan_roots.append(("velomesh-hub", LIB))
+    scan_roots.append(("velomesh-bundled", BUNDLE / "skills"))
+
+    state = load_state()
+    hub_skills = state.get("skills", {}) if isinstance(state, dict) else {}
+
+    for source_label, root_dir in scan_roots:
+        if not root_dir.is_dir():
+            continue
+        try:
+            entries = sorted(root_dir.iterdir(), key=lambda p: p.name)
+        except OSError:
+            continue
+        for entry in entries:
+            if entry.name.startswith("."):
+                continue
+            skill_md = entry / "SKILL.md"
+            try:
+                if not entry.is_dir() or not skill_md.is_file():
+                    continue
+            except OSError:
+                continue
+            name = entry.name.strip().lower()
+            if not name or len(name) > 64:
+                continue
+            host_tag = source_label.replace("platform:", "")
+            bucket = discovered.get(name)
+            if bucket is None:
+                repo_source = hub_skills.get(name, {}).get("repo") or source_label
+                discovered[name] = {
+                    "name": name,
+                    "source": repo_source,
+                    "path": str(skill_md),
+                    "hosts": [host_tag],
+                }
+            elif host_tag not in bucket["hosts"]:
+                bucket["hosts"].append(host_tag)
+    return discovered
+
+
+def install_bundled_skills(targets=None) -> list[str]:
+    """Copy bundled portable skills in BUNDLE/skills into LIB and link them across harnesses."""
+    bundled_dir = BUNDLE / "skills"
+    if not bundled_dir.is_dir():
+        return []
+    LIB.mkdir(parents=True, exist_ok=True)
+    state = load_state()
+    added = []
+    for entry in sorted(bundled_dir.iterdir(), key=lambda p: p.name):
+        if not entry.is_dir() or not (entry / "SKILL.md").is_file():
+            continue
+        clean = sanitize_skill_name(entry.name)
+        if not clean:
+            continue
+        dst = LIB / clean
+        prior = state["skills"].get(clean)
+        if dst.exists() and not prior:
+            continue
+        try:
+            safe_copy(entry, dst)
+            state["skills"][clean] = {"repo": "local/velomesh-bundled", "commit": "bundled", "path": str(dst)}
+            hot_link_skill(clean, targets=targets)
+            added.append(clean)
+        except (OSError, RuntimeError):
+            pass
+    save_state(state)
+    return added
 
 
 def tokenize(words):
     return {w for w in re.findall(r"[a-z0-9]+", words.lower()) if len(w) > 2}
 
 
-def local_recommend(query, limit=6):
+def local_recommend(query, limit=8, workspace: Path | None = None):
     q = tokenize(query)
-    state = load_state()
+    if not q:
+        return []
+    platform_skills = discover_platform_skills(workspace=workspace)
     scored = []
-    for name, meta in state["skills"].items():
-        file = LIB / name / "SKILL.md"
-        if not file.exists():
+    for name, meta in platform_skills.items():
+        if name in ("velomesh", "agent-fusion-orchestrator"):
+            continue
+        file = Path(meta["path"])
+        if not file.is_file():
             continue
         try:
-            md = file.read_text(encoding="utf-8")[:3000]
+            md = file.read_text(encoding="utf-8", errors="ignore")[:3000]
         except OSError:
             continue
         namewords = tokenize(name.replace("-", " "))
@@ -894,8 +1098,11 @@ def local_recommend(query, limit=6):
         desc = descmatch.group(1) if descmatch else ""
         score = 5 * len(q & namewords) + 2 * len(q & tokenize(desc)) + len(q & tokenize(md[:1600]))
         if score > 0:
-            scored.append((score, name, meta["repo"]))
-    return [{"skill": name, "source": repo, "score": score} for score, name, repo in sorted(scored, reverse=True)[:limit]]
+            scored.append((score, name, meta["source"], meta["hosts"], str(file)))
+    return [
+        {"skill": name, "source": repo, "hosts": hosts, "path": path_str, "score": score}
+        for score, name, repo, hosts, path_str in sorted(scored, reverse=True)[:limit]
+    ]
 
 
 def github_search(query, kind="skill", limit=6):
@@ -1003,25 +1210,26 @@ def install_skill(query_or_repo: str, force: bool = False, targets=None, kind: s
     state = load_state()
     targets = targets or TARGETS
 
-    clean = sanitize_skill_name(query_or_repo)
-    if clean and (LIB / clean).is_dir():
-        links = hot_link_skill(clean, targets=targets)
-        state["skills"].setdefault(clean, {"repo": "local/installed", "path": str(LIB / clean)})
-        save_state(state)
-        return {"status": "linked_existing", "skill": clean, "links": links}
-
-    matches = local_recommend(query_or_repo, limit=1)
-    if matches and matches[0]["score"] >= 8:
-        matched_name = matches[0]["skill"]
-        links = hot_link_skill(matched_name, targets=targets)
-        return {"status": "linked_existing", "skill": matched_name, "score": matches[0]["score"], "links": links}
-
     repo_target = None
     candidate_meta = {}
     if "/" in query_or_repo and not query_or_repo.startswith("http"):
         parts = query_or_repo.strip().split("/")
-        if len(parts) == 2 and all(p.replace("-", "").replace("_", "").isalnum() for p in parts):
+        if len(parts) == 2 and all(p.replace("-", "").replace("_", "").replace(".", "").isalnum() for p in parts):
             repo_target = query_or_repo.strip()
+
+    if not repo_target:
+        clean = sanitize_skill_name(query_or_repo)
+        if clean and (LIB / clean).is_dir():
+            links = hot_link_skill(clean, targets=targets)
+            state["skills"].setdefault(clean, {"repo": "local/installed", "path": str(LIB / clean)})
+            save_state(state)
+            return {"status": "linked_existing", "skill": clean, "links": links}
+
+        matches = local_recommend(query_or_repo, limit=1)
+        if matches and matches[0]["score"] >= 10 and (LIB / matches[0]["skill"]).is_dir():
+            matched_name = matches[0]["skill"]
+            links = hot_link_skill(matched_name, targets=targets)
+            return {"status": "linked_existing", "skill": matched_name, "score": matches[0]["score"], "links": links}
 
     if not repo_target:
         q_lower = query_or_repo.lower()
@@ -1178,9 +1386,10 @@ def recommend_fullstack_bundle(prompt: str) -> dict:
             "systematic-debugging",
             "verification-before-completion",
         ],
+        "platform_native_skills": local_recommend(text, limit=8),
         "internet_provisioning": {
             "tool": "discover_and_install_capability",
-            "local_matches": local_recommend(text, limit=5),
+            "local_matches": local_recommend(text, limit=6),
             "curated_mcp": [
                 v for v in catalog()["mcp_recommendations"]
                 if any(t in tokenize(v["name"] + " " + v["purpose"]) for t in tokenize(text))
@@ -1273,7 +1482,8 @@ def discover(args):
 
 def status(args):
     state = load_state()
-    print(json.dumps({"hub": str(ROOT), "skills": len(state["skills"]), "by_source": state["sources"], "targets": {key: {"path": str(path), "exists": path.is_dir()} for key, path in TARGETS.items()}, "copilot_app_rule": str(ROOT / "copilot-app-instructions.txt")}, indent=2))
+    platform = discover_platform_skills()
+    print(json.dumps({"hub": str(ROOT), "skills": len(state["skills"]), "platform_skills": len(platform), "by_source": state["sources"], "targets": {key: {"path": str(path), "exists": path.is_dir()} for key, path in TARGETS.items()}, "copilot_app_rule": str(ROOT / "copilot-app-instructions.txt")}, indent=2))
 
 
 def print_catalog(args):
@@ -1443,6 +1653,53 @@ def cmd_gateway(args):
         return 0
 
 
+def cmd_optimize_prompt(args):
+    opt_path = _gateway_script().parent / "prompt-optimizer.mjs"
+    cat_path = _gateway_script().parent / "catalog.mjs"
+    if not opt_path.is_file():
+        raise RuntimeError(f"prompt-optimizer.mjs not found at {opt_path}")
+    payload = {
+        "prompt": args.prompt,
+        "requestedModel": args.model,
+        "workspacePath": os.getcwd(),
+    }
+    env = os.environ.copy()
+    env["VELOMESH_OPT_URL"] = opt_path.resolve().as_uri()
+    env["VELOMESH_CAT_URL"] = cat_path.resolve().as_uri()
+    env["VELOMESH_OPT_INPUT"] = json.dumps(payload)
+    res = subprocess.run(
+        [
+            _node_binary(),
+            "--input-type=module",
+            "-e",
+            (
+                "const [{ optimizePrompt }, { discover }] = await Promise.all(["
+                "import(process.env.VELOMESH_OPT_URL), import(process.env.VELOMESH_CAT_URL)]);"
+                "const input = JSON.parse(process.env.VELOMESH_OPT_INPUT);"
+                "const out = optimizePrompt(input.prompt, { catalog: discover(input.workspacePath), workspacePath: input.workspacePath, requestedModel: input.requestedModel, checkClis: true });"
+                "process.stdout.write(JSON.stringify(out, null, 2) + '\\n');"
+            ),
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    sys.stdout.write(res.stdout)
+
+
+def cmd_hooks(args):
+    hooks_script = _gateway_script().parent / "hooks.mjs"
+    if not hooks_script.is_file():
+        raise RuntimeError(f"hooks.mjs not found at {hooks_script}")
+    if args.action == "install":
+        configured = configure_harness_hooks(_node_binary(), str(hooks_script))
+        say(json.dumps({"status": "hooks_configured", "targets": configured}, indent=2))
+        return 0
+    res = subprocess.run([_node_binary(), str(hooks_script), "status"], check=True)
+    return res.returncode
+
+
 def cmd_route_model(args):
     router_path = _gateway_script().parent / "model-router.mjs"
     if not router_path.is_file():
@@ -1517,6 +1774,11 @@ def main():
     p.add_argument("prompt", help="Prompt text to route")
     p.add_argument("--model", default="velomesh/auto", help="Virtual model ID (default: velomesh/auto)")
     p.add_argument("--previous-model", default=None, help="Previous turn model to evaluate mid-execution switching")
+    p = sub.add_parser("optimize", help="Optimize a raw user prompt with platform skills, constraints, and model routing")
+    p.add_argument("prompt", help="Prompt text to optimize")
+    p.add_argument("--model", default="velomesh/auto", help="Virtual model ID (default: velomesh/auto)")
+    p = sub.add_parser("hooks", help="Inspect or install VeloMesh Super-Hooks suite (RTK, Security Guard, Prompt Optimizer, UI Gate)")
+    p.add_argument("action", choices=("status", "install"), default="status", nargs="?")
     p = sub.add_parser("gateway", help="Manage the local VeloMesh multi-model gateway daemon")
     p.add_argument("action", choices=("start", "stop", "status", "hud", "install-service", "uninstall-service"))
     p.add_argument("--port", type=int, default=int(os.environ.get("VELOMESH_PORT", "4190")))
@@ -1532,10 +1794,11 @@ def main():
         if args.command == "setup":
             setup(args)
         elif args.command == "sync":
+            bundled = install_bundled_skills()
             state = load_state()
             linked, skipped = sync(state, core_only=not getattr(args, "all", False))
             save_state(state)
-            say(f"Synced {linked} links/copies. Existing conflicts preserved: {skipped}.")
+            say(f"Synced {linked} links/copies (+{len(bundled)} bundled skills). Existing conflicts preserved: {skipped}.")
         elif args.command == "install-skill":
             res = install_skill(args.query, force=args.force)
             say(json.dumps(res, indent=2))
@@ -1547,6 +1810,12 @@ def main():
             say(json.dumps(audit_ui(args.target), indent=2))
         elif args.command == "route-model":
             cmd_route_model(args)
+        elif args.command == "optimize":
+            cmd_optimize_prompt(args)
+        elif args.command == "hooks":
+            code = cmd_hooks(args)
+            if code:
+                sys.exit(code)
         elif args.command == "gateway":
             code = cmd_gateway(args)
             if code:
