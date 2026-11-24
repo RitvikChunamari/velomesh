@@ -1,0 +1,30 @@
+{
+  "name": "velomesh",
+  "displayName": "VeloMesh",
+  "version": "4.4.0",
+  "description": "Universal Multi-Model Orchestrator (velomesh/auto), Automatic Prompt Optimizer, Unified Platform + Internet Skill Mesh, and Super-Hooks Engine (RTK + Security + UI Craft).",
+  "logo": "assets/logo.svg",
+  "icon": "assets/velomesh-icon-256.png",
+  "category": "Developer Tools",
+  "author": {
+    "name": "Ritvik Chunamari"
+  },
+  "repository": "https://github.com/RitvikChunamari/velomesh",
+  "homepage": "https://ritvikchunamari.github.io/velomesh/",
+  "license": "MIT",
+  "keywords": [
+    "velomesh",
+    "orchestrator",
+    "multi-model",
+    "prompt-optimizer",
+    "rtk",
+    "skills",
+    "mcp",
+    "hooks"
+  ],
+  "suggestedPrompts": [
+    "Optimize my prompt, unify platform skills, and pick the best model across phases",
+    "Build a multi-tenant PostgreSQL RLS + FastAPI + Swiss UI app with Stripe webhooks",
+    "Audit and upgrade my active agent hooks with RTK token compression and security guards"
+  ]
+}

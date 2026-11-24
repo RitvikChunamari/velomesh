@@ -1,0 +1,7 @@
+interface:
+  display_name: "Cloudflare Edge"
+  short_description: "Workers, Durable Objects & R2 uploads"
+  icon_small: "./assets/velomesh-icon-64.png"
+  icon_large: "./assets/velomesh-icon-256.png"
+  brand_color: "#E78A53"
+  default_prompt: "Use $cloudflare-edge-workers with VeloMesh orchestration to handle this workflow cleanly."

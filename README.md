@@ -1,11 +1,13 @@
 <div align="center">
 
-<img src="./web/brand/velomesh-action-badge.svg" alt="VELOMESH/AUTO — Dynamic Multi-Model Orchestrator" width="360" height="40" />
+<img src="./web/brand/velomesh-wordmark.svg" alt="VeloMesh — Super-Tool v4.4" width="380" height="99" />
 
-# ⚡ VeloMesh
+<br />
+
+<img src="./web/brand/velomesh-action-badge.svg" alt="VELOMESH/AUTO — Dynamic Multi-Model & Skill Engine" width="380" height="44" />
 
 ### **Build Polished Websites, Full-Stack Products, Backends, Frontends & Databases in One Prompt — With Dynamic Multi-Model Switching (`velomesh/auto`).**
-**Autonomous Internet Capability Engine · Multi-Model Gateway · Live MCPs, APIs, Agents & 398+ Skills**
+**Autonomous Internet Capability Engine · Prompt Optimizer · Platform Skill Mesh · RTK & Security Hooks**
 
 ### 🌐 **[Live Interactive Product Experience → ritvikchunamari.github.io/velomesh](https://ritvikchunamari.github.io/velomesh/)**
 

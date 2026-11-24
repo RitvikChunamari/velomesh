@@ -1,0 +1,12 @@
+{
+  "name": "velomesh",
+  "version": "4.4.0",
+  "description": "Universal Multi-Model Orchestrator (velomesh/auto), Prompt Optimizer, Platform Skill Mesh, and Super-Hooks Engine.",
+  "author": {
+    "name": "Ritvik Chunamari"
+  },
+  "repository": "https://github.com/RitvikChunamari/velomesh",
+  "license": "MIT",
+  "logo": "assets/logo.svg",
+  "icon": "assets/velomesh-icon-256.png"
+}

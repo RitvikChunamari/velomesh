@@ -1,0 +1,7 @@
+interface:
+  display_name: "Stripe Billing"
+  short_description: "HMAC webhooks & Checkout idempotency"
+  icon_small: "./assets/velomesh-icon-64.png"
+  icon_large: "./assets/velomesh-icon-256.png"
+  brand_color: "#5B67F1"
+  default_prompt: "Use $stripe-webhooks-billing with VeloMesh orchestration to handle this workflow cleanly."

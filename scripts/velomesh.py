@@ -346,7 +346,9 @@ VELOMESH_ONLY_TOOLS = {
 
 
 def sync_velomesh_core_skill(targets=None) -> int:
-    """Install the native `/velomesh` skill across harness skill directories and retire `/agent-fusion-orchestrator` links."""
+    """Install the native `/velomesh` skill (with branded icon thumbnails & openai.yaml)
+    across harness skill directories and retire `/agent-fusion-orchestrator` links.
+    """
     src_skill = BUNDLE / "SKILL.md"
     if not src_skill.is_file():
         return 0
@@ -361,6 +363,8 @@ def sync_velomesh_core_skill(targets=None) -> int:
             "cursor": HOME / ".cursor" / "skills",
         }
     skill_text = src_skill.read_text(encoding="utf-8")
+    src_assets = BUNDLE / "assets"
+    src_openai_yaml = BUNDLE / "agents" / "openai.yaml"
     count = 0
     for dest in targets.values():
         try:
@@ -368,6 +372,16 @@ def sync_velomesh_core_skill(targets=None) -> int:
             vdir = dest / "velomesh"
             vdir.mkdir(parents=True, exist_ok=True)
             (vdir / "SKILL.md").write_text(skill_text, encoding="utf-8")
+            if src_assets.is_dir():
+                vassets = vdir / "assets"
+                vassets.mkdir(parents=True, exist_ok=True)
+                for asset_file in src_assets.iterdir():
+                    if asset_file.is_file():
+                        shutil.copy2(asset_file, vassets / asset_file.name)
+            if src_openai_yaml.is_file():
+                vagents = vdir / "agents"
+                vagents.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src_openai_yaml, vagents / "openai.yaml")
             legacy = dest / "agent-fusion-orchestrator"
             if legacy.is_symlink():
                 legacy.unlink(missing_ok=True)

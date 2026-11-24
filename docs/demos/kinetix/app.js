@@ -96,11 +96,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getColors() {
     const cs = getComputedStyle(document.documentElement);
+    const isLight = document.documentElement.dataset.theme === 'light';
     return {
-      bg: cs.getPropertyValue('--bg-elevated').trim() || '#0f0f11',
-      ink: cs.getPropertyValue('--ink').trim() || '#f8f8fa',
-      muted: cs.getPropertyValue('--ink-muted').trim() || '#9898a0',
-      rule: cs.getPropertyValue('--rule').trim() || '#222226'
+      isLight,
+      bg: cs.getPropertyValue('--bg-elevated').trim() || (isLight ? '#ffffff' : '#101016'),
+      ink: cs.getPropertyValue('--ink').trim() || (isLight ? '#121216' : '#f4f4f7'),
+      muted: cs.getPropertyValue('--ink-muted').trim() || (isLight ? '#5b5c68' : '#8f909e'),
+      rule: cs.getPropertyValue('--rule').trim() || (isLight ? '#dfddd6' : '#21222c'),
+      accent: cs.getPropertyValue('--kx-accent').trim() || (isLight ? '#b44d15' : '#d96b27'),
+      accentInk: cs.getPropertyValue('--kx-accent-ink').trim() || (isLight ? '#9e3f0d' : '#f09a67'),
+      cyan: cs.getPropertyValue('--kx-cyan').trim() || (isLight ? '#096e8c' : '#5ccfe6'),
+      ok: cs.getPropertyValue('--kx-ok').trim() || (isLight ? '#137547' : '#4cc38a')
     };
   }
 
@@ -123,7 +129,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (feedEl) {
       feedEl.innerHTML = feedItems
         .slice(0, 6)
-        .map((item) => `<li class="kx-crdt-item"><span>${item.text}</span><span class="kx-crdt-badge">${item.badge}</span></li>`)
+        .map((item) => {
+          const badgeCls =
+            item.badge.startsWith('R2')
+              ? ' is-r2'
+              : item.badge.startsWith('PG') || item.badge.startsWith('LWW')
+                ? ' is-pg'
+                : '';
+          return `<li class="kx-crdt-item"><span>${item.text}</span><span class="kx-crdt-badge${badgeCls}">${item.badge}</span></li>`;
+        })
         .join('');
     }
 
@@ -207,13 +221,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (state.preset === 'interference') {
-      // Multi-harmonic monochrome standing wave isolines
+      // Multi-harmonic Spectral Cyan & Copper-Amber standing wave isolines
       const lines = Math.max(8, Math.min(20, 6 + state.harmonics * 2));
-      ctx.strokeStyle = c.ink;
       for (let l = 0; l < lines; l++) {
         const yBase = ((l + 0.5) / lines) * h;
-        ctx.globalAlpha = 0.25 + (l % 3) * 0.25;
-        ctx.lineWidth = l % 4 === 0 ? 1.75 : 1;
+        const isAccent = l % 3 === 0;
+        const isFocus = l === Math.floor(lines / 2);
+        ctx.strokeStyle = isFocus ? c.ink : isAccent ? c.accentInk : c.cyan;
+        ctx.globalAlpha = isFocus ? 0.92 : isAccent ? 0.62 : 0.42;
+        ctx.lineWidth = isFocus ? 2 : isAccent ? 1.5 : 1;
         ctx.beginPath();
         for (let x = 0; x <= w; x += 6) {
           const nx = x / w;
@@ -232,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       ctx.globalAlpha = 1;
     } else if (state.preset === 'lattice') {
-      // Geodesic wireframe SDF wave surface
+      // Geodesic wireframe SDF wave surface with optics pointer heatmap
       const cols = 22;
       const rows = 9;
       const nodes = [];
@@ -245,14 +261,16 @@ document.addEventListener('DOMContentLoaded', () => {
           const by = 28 + v * (h - 56);
           const d = Math.hypot(bx - px, by - py);
           const disp = Math.sin(u * state.frequency * 2 + v * state.harmonics + phaseTime) * 11 + Math.exp(-d / 140) * 18;
-          nodes[r][col] = [bx + disp * 0.45, by + disp];
+          nodes[r][col] = [bx + disp * 0.45, by + disp, d];
         }
       }
-      ctx.strokeStyle = c.ink;
-      ctx.lineWidth = 1.1;
       for (let r = 0; r < rows; r++) {
         for (let col = 0; col < cols; col++) {
-          const [x0, y0] = nodes[r][col];
+          const [x0, y0, d] = nodes[r][col];
+          const near = d < 145;
+          ctx.strokeStyle = near ? c.accentInk : (r + col) % 2 === 0 ? c.cyan : c.muted;
+          ctx.globalAlpha = near ? 0.9 : 0.48;
+          ctx.lineWidth = near ? 1.55 : 1.05;
           if (col + 1 < cols) {
             ctx.beginPath();
             ctx.moveTo(x0, y0);
@@ -267,10 +285,10 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       }
+      ctx.globalAlpha = 1;
     } else {
-      // Halftone Swiss wave matrix
+      // Halftone Swiss spectral wave matrix
       const gap = 22;
-      ctx.fillStyle = c.ink;
       for (let x = 22; x < w - 16; x += gap) {
         for (let y = 22; y < h - 16; y += gap) {
           const nx = x / w;
@@ -281,24 +299,29 @@ document.addEventListener('DOMContentLoaded', () => {
             0.5 *
               Math.sin(nx * state.frequency * 3 + phaseTime + Math.cos(ny * state.harmonics * 2 - phaseTime));
           const focus = Math.exp(-dist / 170) * 0.45;
-          const radius = Math.max(1.2, Math.min(8.5, (amp + focus) * 6.5));
+          const energy = amp + focus;
+          const radius = Math.max(1.2, Math.min(8.5, energy * 6.5));
+          ctx.fillStyle = energy > 0.85 ? c.accentInk : energy > 0.56 ? c.cyan : c.muted;
+          ctx.globalAlpha = energy > 0.85 ? 0.92 : energy > 0.56 ? 0.72 : 0.35;
           ctx.beginPath();
           ctx.arc(x, y, radius, 0, Math.PI * 2);
           ctx.fill();
         }
       }
+      ctx.globalAlpha = 1;
     }
 
-    // Draw remote collaborator CRDT cursor markers (monochrome technical reticles)
+    // Draw remote collaborator CRDT cursor markers (Spectral Cyan & Copper-Amber optical reticles)
     ctx.font = '12px "JetBrains Mono", monospace';
     state.peers.forEach((peer, idx) => {
       const shiftX = reduced ? 0 : Math.sin(phaseTime * 0.7 + idx * 2.1) * 0.08;
       const shiftY = reduced ? 0 : Math.cos(phaseTime * 0.6 + idx * 1.4) * 0.06;
       const cx = (peer.x + shiftX) * w;
       const cy = (peer.y + shiftY) * h;
+      const peerColor = idx % 2 === 0 ? c.cyan : c.accentInk;
 
-      ctx.strokeStyle = c.ink;
-      ctx.lineWidth = 1.25;
+      ctx.strokeStyle = peerColor;
+      ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.moveTo(cx - 7, cy);
       ctx.lineTo(cx + 7, cy);
@@ -306,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.lineTo(cx, cy + 7);
       ctx.stroke();
 
-      ctx.fillStyle = c.ink;
+      ctx.fillStyle = peerColor;
       ctx.fillText(peer.id, cx + 10, cy + 4);
     });
   }

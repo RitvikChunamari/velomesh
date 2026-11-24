@@ -1,0 +1,7 @@
+interface:
+  display_name: "VeloMesh"
+  short_description: "Autonomous multi-model orchestrator, prompt optimizer, platform skill mesh & RTK hooks"
+  icon_small: "./assets/velomesh-icon-64.png"
+  icon_large: "./assets/velomesh-icon-256.png"
+  brand_color: "#5B67F1"
+  default_prompt: "Use $velomesh to optimize this prompt, select the best platform models via velomesh/auto, unify installed + internet skills, and build end-to-end with verified tests."

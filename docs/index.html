@@ -5,12 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VeloMesh: One-Prompt Full-Stack &amp; Autonomous Capability Engine</title>
   <meta name="description" content="Build complete frontends, backends, PostgreSQL schemas, and verified web apps from one elaborated prompt across Claude Code, Cursor, Codex, Copilot, Antigravity, and OpenCode." />
-  <meta name="theme-color" content="#070708" />
+  <meta name="theme-color" content="#08090c" />
   <link rel="canonical" href="https://ritvikchunamari.github.io/velomesh/" />
+  <link rel="icon" type="image/svg+xml" href="./brand/velomesh-icon-tile.svg" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./brand/favicon-64.png" />
+  <link rel="apple-touch-icon" href="./brand/apple-touch-icon.png" />
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="VeloMesh: One Prompt. Full-Stack Shipped." />
   <meta property="og:description" content="Elaborate your product vision once. VeloMesh autonomously discovers and wires skills, MCP servers, APIs, schemas, and browser QA." />
+  <meta property="og:image" content="https://ritvikchunamari.github.io/velomesh/brand/og-card.png" />
   <meta property="og:url" content="https://ritvikchunamari.github.io/velomesh/" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,9 +29,10 @@
     <!-- 21ST.DEV SWISS NAVBAR & DROPDOWN MENUS -->
     <header class="swiss-navbar" id="site-navbar">
       <a href="#top" class="nav-wordmark-link" aria-label="VeloMesh Home" translate="no">
-        <svg class="nav-emblem-svg" width="22" height="22" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+        <svg class="nav-emblem-svg" width="24" height="24" viewBox="0 0 120 120" fill="none" aria-hidden="true">
           <path fill="currentColor" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
-          <path fill="currentColor" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+          <path class="vm-mark-core" fill="var(--brand)" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+          <circle class="vm-mark-node" cx="60" cy="40" r="4" fill="var(--phase-ui)"/>
         </svg>
         <span class="nav-wordmark-text">VELOMESH</span>
       </a>
@@ -192,7 +197,7 @@
       <div class="nav-actions">
         <a href="https://github.com/RitvikChunamari/velomesh" target="_blank" rel="noopener" class="nav-github-link">GitHub</a>
         <a href="#install-section" class="nav-cta-btn">Install CLI</a>
-        <button type="button" id="theme-toggle-btn" class="nav-icon-btn" aria-label="Switch black and white theme polarity" title="Switch Polarity">
+        <button type="button" id="theme-toggle-btn" class="nav-icon-btn" aria-label="Switch dark and light palette" title="Toggle Theme">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.4"/>
             <path d="M8 2.5A5.5 5.5 0 0 1 8 13.5Z" fill="currentColor"/>
@@ -215,6 +220,11 @@
 
         <div class="lattice-hero-inner">
           <div class="hero-copy-col">
+            <div class="hero-brand-pill">
+              <img src="./brand/velomesh-icon-tile.svg" width="22" height="22" alt="VeloMesh" />
+              <span>VeloMesh Super-Tool · v4.4</span>
+            </div>
+
             <h1 class="hero-headline">
               One prompt.
               <span class="hero-headline-muted">Full-stack shipped.</span>
@@ -387,10 +397,11 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
             </div>
 
             <div class="orch-emblem-junction" aria-live="polite">
-              <div class="orch-emblem-frame" id="orch-action-frame">
+              <div class="orch-emblem-frame" id="orch-action-frame" data-phase="architecture">
                 <svg id="orch-action-logo" class="orch-action-svg" width="52" height="52" viewBox="0 0 120 120" fill="none" role="img" aria-label="VeloMesh Emblem Routing Junction">
                   <path fill="currentColor" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
-                  <path fill="currentColor" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+                  <path class="vm-mark-core" fill="var(--active-phase-color, var(--brand))" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+                  <circle class="vm-mark-node" cx="60" cy="40" r="4" fill="var(--phase-ui)"/>
                 </svg>
                 <span class="orch-virtual-id">velomesh/auto</span>
               </div>
@@ -692,6 +703,7 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
           <div id="workbench-live-demo" class="wb-live-demo">
             <div class="wb-demo-bar">
               <div class="wb-demo-title-group">
+                <img src="./brand/velomesh-icon-tile.svg" width="24" height="24" alt="" class="wb-brand-icon" />
                 <span class="bento-index">07 Compiled Live Output</span>
                 <strong id="wb-demo-title" class="wb-demo-heading">PulseLedger — Multi-Tenant AI Treasury OS (Interactive Demo)</strong>
               </div>
@@ -793,10 +805,10 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
         </div>
       </section>
 
-      <!-- NEW 21ST.DEV WORTH KEEPING MONOCHROME CTA (Adapted from id: 26705 in Swiss Monolith) -->
+      <!-- CLOSING CTA -->
       <section id="closing-cta" class="wk-cta-section" aria-label="Install VeloMesh">
         <div class="wk-cta-foreground">
-          <p class="wk-kicker">( Last Word )</p>
+          <img src="./brand/velomesh-icon-tile.svg" width="56" height="56" alt="VeloMesh Product Emblem" class="wk-brand-tile" />
           <h2 class="wk-headline">Build with one command. Elaborate your vision.</h2>
           <p class="wk-subcopy">No manual skill flags, no config wiring: one command installs autonomous orchestration across every coding harness you use.</p>
           <div class="wk-cta-actions">
@@ -816,9 +828,12 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
 
       <div class="hwf-top">
         <div class="hwf-brand">
-          <strong translate="no">VELOMESH</strong>
+          <div class="hwf-brand-lockup">
+            <img src="./brand/velomesh-icon-tile.svg" width="24" height="24" alt="" />
+            <strong translate="no">VELOMESH</strong>
+          </div>
           <span>One-command autonomous engine</span>
-          <span>Pure black and white Swiss build</span>
+          <span>Obsidian Slate &amp; Cobalt-Iris UI</span>
         </div>
 
         <nav class="hwf-col" aria-label="Footer System Navigation">
@@ -860,7 +875,10 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
   <!-- RESPONSIVE MOBILE DRAWER -->
   <div id="mobile-nav-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobile Navigation" hidden>
     <div class="drawer-top">
-      <span class="nav-wordmark-text" translate="no">VELOMESH</span>
+      <div class="hwf-brand-lockup">
+        <img src="./brand/velomesh-icon-tile.svg" width="22" height="22" alt="" />
+        <span class="nav-wordmark-text" translate="no">VELOMESH</span>
+      </div>
       <button type="button" id="drawer-close-btn" class="drawer-close-btn">Close [Esc]</button>
     </div>
 
@@ -901,7 +919,7 @@ USING (tenant_id = current_setting('app.tenant')::uuid);</pre>
       </nav>
     </div>
 
-    <div class="drawer-footer-meta">VeloMesh Black and White Swiss Edition</div>
+    <div class="drawer-footer-meta">VeloMesh Obsidian Slate &amp; Cobalt-Iris Edition</div>
   </div>
 
   <script src="./app.js" defer></script>

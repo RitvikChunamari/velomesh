@@ -117,11 +117,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getColors() {
     const cs = getComputedStyle(document.documentElement);
+    const isLight = document.documentElement.dataset.theme === 'light';
     return {
-      bg: cs.getPropertyValue('--bg-elevated').trim() || '#0f0f11',
-      ink: cs.getPropertyValue('--ink').trim() || '#f8f8fa',
-      muted: cs.getPropertyValue('--ink-muted').trim() || '#9898a0',
-      rule: cs.getPropertyValue('--rule').trim() || '#222226'
+      isLight,
+      bg: cs.getPropertyValue('--bg-elevated').trim() || (isLight ? '#ffffff' : '#0d121b'),
+      ink: cs.getPropertyValue('--ink').trim() || (isLight ? '#0f172a' : '#f4f6fb'),
+      muted: cs.getPropertyValue('--ink-muted').trim() || (isLight ? '#526075' : '#8b95ad'),
+      rule: cs.getPropertyValue('--rule').trim() || (isLight ? '#dce3ed' : '#1c2434'),
+      accent: cs.getPropertyValue('--pl-accent').trim() || (isLight ? '#3d4dc7' : '#5263e8'),
+      accentInk: cs.getPropertyValue('--pl-accent-ink').trim() || (isLight ? '#3544b5' : '#9aaaff'),
+      pos: cs.getPropertyValue('--pl-pos').trim() || (isLight ? '#0d7a4e' : '#3ecf8e'),
+      neg: cs.getPropertyValue('--pl-neg').trim() || (isLight ? '#945206' : '#eab364'),
+      danger: cs.getPropertyValue('--pl-danger').trim() || (isLight ? '#be123c' : '#f27272')
     };
   }
 
@@ -140,13 +147,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const horizonLabel = horizonDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
     if (runwaySubEl) runwaySubEl.textContent = `Zero-Cash Horizon: ${horizonLabel}`;
     if (uuidEl) uuidEl.textContent = `tenant_id: ${t.uuid}`;
-    if (sqlBannerEl) sqlBannerEl.textContent = `SET LOCAL app.current_tenant_id = '${t.uuid}';`;
+    if (sqlBannerEl && !sqlBannerEl.classList.contains('is-blocked')) {
+      sqlBannerEl.textContent = `SET LOCAL app.current_tenant_id = '${t.uuid}';`;
+    }
 
     if (ledgerBodyEl) {
       ledgerBodyEl.innerHTML = t.entries
         .map((row) => {
-          const signAmount = row.amountCents >= 0 ? `+${formatUsdFull(row.amountCents)}` : formatUsdFull(row.amountCents);
-          return `<tr><td>${row.id}</td><td>${row.account}</td><td>${row.memo}</td><td>${row.time}</td><td>${signAmount}</td></tr>`;
+          const isPositive = row.amountCents >= 0;
+          const signAmount = isPositive ? `+${formatUsdFull(row.amountCents)}` : formatUsdFull(row.amountCents);
+          const amtClass = isPositive ? 'pl-amt-pos' : 'pl-amt-neg';
+          return `<tr><td>${row.id}</td><td>${row.account}</td><td>${row.memo}</td><td>${row.time}</td><td class="${amtClass}">${signAmount}</td></tr>`;
         })
         .join('');
     }
@@ -154,7 +165,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (feedEl) {
       feedEl.innerHTML = webhookLogs
         .slice(0, 6)
-        .map((item) => `<li class="pl-webhook-item"><span>${item.text}</span><span class="pl-webhook-badge">${item.badge}</span></li>`)
+        .map((item) => {
+          const isBlocked = item.badge.includes('403') || item.badge.includes('BLOCKED');
+          return `<li class="pl-webhook-item"><span>${item.text}</span><span class="pl-webhook-badge${isBlocked ? ' is-blocked' : ''}">${item.badge}</span></li>`;
+        })
         .join('');
     }
 
@@ -228,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.fillText(`M${String(idx + 1).padStart(2, '0')}`, x - 10, h - pad.bottom + 8);
     });
 
-    // Subtle monochrome fill beneath projection curve
+    // Subtle Mercury Indigo gradient beneath projection curve
     ctx.beginPath();
     springPos.forEach((v, i) => {
       const x = xAt(i);
@@ -239,10 +253,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.lineTo(xAt(35), h - pad.bottom);
     ctx.lineTo(xAt(0), h - pad.bottom);
     ctx.closePath();
-    ctx.fillStyle = document.documentElement.dataset.theme === 'light' ? 'rgba(9, 9, 11, 0.08)' : 'rgba(248, 248, 250, 0.08)';
+    const grad = ctx.createLinearGradient(0, pad.top, 0, h - pad.bottom);
+    grad.addColorStop(0, c.isLight ? 'rgba(61, 77, 199, 0.22)' : 'rgba(82, 99, 232, 0.28)');
+    grad.addColorStop(1, c.isLight ? 'rgba(61, 77, 199, 0.01)' : 'rgba(82, 99, 232, 0.01)');
+    ctx.fillStyle = grad;
     ctx.fill();
 
-    // Crisp monochrome spring curve
+    // Crisp Indigo spring trajectory curve
     ctx.beginPath();
     springPos.forEach((v, i) => {
       const x = xAt(i);
@@ -250,25 +267,29 @@ document.addEventListener('DOMContentLoaded', () => {
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     });
-    ctx.strokeStyle = c.ink;
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = c.accent;
+    ctx.lineWidth = 2.4;
     ctx.stroke();
 
-    // Interactive scrub crosshair & active data point
+    // Interactive scrub crosshair & Treasury Emerald active data point
     const hx = xAt(hoverMonthIdx);
     const hy = yAt(springPos[hoverMonthIdx] || 0);
     ctx.beginPath();
     ctx.setLineDash([4, 4]);
     ctx.moveTo(hx, pad.top);
     ctx.lineTo(hx, h - pad.bottom);
-    ctx.strokeStyle = c.muted;
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = c.pos;
+    ctx.lineWidth = 1.1;
     ctx.stroke();
     ctx.setLineDash([]);
 
     ctx.beginPath();
-    ctx.arc(hx, hy, 5, 0, Math.PI * 2);
-    ctx.fillStyle = c.ink;
+    ctx.arc(hx, hy, 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = c.pos;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(hx, hy, 2, 0, Math.PI * 2);
+    ctx.fillStyle = c.bg;
     ctx.fill();
 
     updateScrubText();
@@ -311,7 +332,12 @@ document.addEventListener('DOMContentLoaded', () => {
       time: 'Just now',
       amountCents
     });
-    if (rlsEl) rlsEl.textContent = 'RLS ENFORCED · HMAC 202';
+    if (rlsEl) {
+      rlsEl.textContent = 'RLS ENFORCED · HMAC 202';
+      rlsEl.classList.remove('is-blocked');
+      rlsEl.classList.add('is-ok');
+    }
+    if (sqlBannerEl) sqlBannerEl.classList.remove('is-blocked');
     webhookLogs.unshift({
       badge: '202 HMAC OK',
       text: `${eventType} (${formatUsdCompact(amountCents)}) -> ${t.uuid.slice(0, 8)}...`
@@ -322,7 +348,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function simulateCrossTenantRlsBlock() {
     const t = TENANTS[activeTenantKey];
     const targetOther = activeTenantKey === 'aether' ? TENANTS.kinetix : TENANTS.aether;
-    if (rlsEl) rlsEl.textContent = 'RLS BLOCKED (403 ISOLATED)';
+    if (rlsEl) {
+      rlsEl.textContent = 'RLS BLOCKED (403 ISOLATED)';
+      rlsEl.classList.remove('is-ok');
+      rlsEl.classList.add('is-blocked');
+    }
+    if (sqlBannerEl) {
+      sqlBannerEl.classList.add('is-blocked');
+      sqlBannerEl.textContent = `ERROR: 42501 RLS policy violation blocked read from ${t.uuid.slice(0, 8)} to ${targetOther.uuid.slice(0, 8)};`;
+    }
     webhookLogs.unshift({
       badge: '403 RLS BLOCKED',
       text: `Denied cross-tenant read from ${t.uuid.slice(0, 8)} to ${targetOther.uuid.slice(0, 8)}`
@@ -338,7 +372,12 @@ document.addEventListener('DOMContentLoaded', () => {
         b.classList.toggle('active', active);
         b.setAttribute('aria-selected', String(active));
       });
-      if (rlsEl) rlsEl.textContent = 'RLS ENFORCED · HMAC 202';
+      if (rlsEl) {
+        rlsEl.textContent = 'RLS ENFORCED · HMAC 202';
+        rlsEl.classList.remove('is-blocked');
+        rlsEl.classList.add('is-ok');
+      }
+      if (sqlBannerEl) sqlBannerEl.classList.remove('is-blocked');
       renderMetricsAndLedger();
     });
   });

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none" role="img" aria-label="VeloMesh OpenGraph Preview Card">
+  <rect width="1200" height="630" fill="#08090C"/>
+  <rect x="36" y="36" width="1128" height="558" rx="18" fill="#0F1116" stroke="#252A3A" stroke-width="1.5"/>
+  <g transform="translate(84, 88)">
+    <rect x="0" y="0" width="108" height="108" rx="24" fill="#0B0D14" stroke="#5B67F1" stroke-width="2"/>
+    <path fill="#F5F6FA" d="M18 27 H31.5 L46.5 56 Q54 69 61.5 56 L76.5 27 H90 L63.5 78 Q54 93 44.5 78 Z"/>
+    <path fill="#636EF2" d="M37.5 27 H48 L50.8 32.5 Q54 38.5 57.2 32.5 L60 27 H70.5 L58.5 50.2 Q54 58.2 49.5 50.2 Z"/>
+    <circle cx="54" cy="39.5" r="3.4" fill="#5CC8F8"/>
+  </g>
+  <text x="220" y="132" fill="#9AA5FF" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17" font-weight="600" letter-spacing="0.08em">VELOMESH SUPER-TOOL · v4.4</text>
+  <text x="220" y="184" fill="#F5F6FA" font-family="Switzer, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="46" font-weight="600" letter-spacing="-0.03em">One prompt. Full-stack shipped.</text>
+  <text x="84" y="284" fill="#C7CCD8" font-family="Switzer, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="25" font-weight="400">Unified platform skills, prompt optimizer, RTK hooks &amp; live model switching.</text>
+  <g transform="translate(84, 344)">
+    <rect x="0" y="0" width="242" height="76" rx="10" fill="#151821" stroke="#3640B8" stroke-width="1.5"/>
+    <text x="20" y="30" fill="#9AA5FF" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="600">01 ARCHITECTURE</text>
+    <text x="20" y="54" fill="#F5F6FA" font-family="ui-monospace, Menlo, monospace" font-size="16">gpt-6.2-sol · RLS</text>
+
+    <rect x="262" y="0" width="242" height="76" rx="10" fill="#151821" stroke="#1E4D6B" stroke-width="1.5"/>
+    <text x="282" y="30" fill="#5CC8F8" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="600">02 FRONTEND UI</text>
+    <text x="282" y="54" fill="#F5F6FA" font-family="ui-monospace, Menlo, monospace" font-size="16">gpt-6.2-astra · Motion</text>
+
+    <rect x="524" y="0" width="242" height="76" rx="10" fill="#151821" stroke="#6E4E1A" stroke-width="1.5"/>
+    <text x="544" y="30" fill="#EAB364" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="600">03 FAST + RTK</text>
+    <text x="544" y="54" fill="#F5F6FA" font-family="ui-monospace, Menlo, monospace" font-size="16">gpt-6-luna · 60-90%</text>
+
+    <rect x="786" y="0" width="246" height="76" rx="10" fill="#151821" stroke="#1E6648" stroke-width="1.5"/>
+    <text x="806" y="30" fill="#4CC38A" font-family="ui-monospace, Menlo, monospace" font-size="13" font-weight="600">04 REVIEW VERIFIED</text>
+    <text x="806" y="54" fill="#F5F6FA" font-family="ui-monospace, Menlo, monospace" font-size="16">codex-auto-review</text>
+  </g>
+  <line x1="84" y1="490" x2="1116" y2="490" stroke="#1F2330" stroke-width="1.5"/>
+  <text x="84" y="540" fill="#8B92A5" font-family="ui-monospace, Menlo, monospace" font-size="16">Claude Code · Codex · Cursor · Copilot · Antigravity · OpenCode</text>
+  <text x="1116" y="540" text-anchor="end" fill="#9AA5FF" font-family="ui-monospace, Menlo, monospace" font-size="16">ritvikchunamari.github.io/velomesh</text>
+</svg>

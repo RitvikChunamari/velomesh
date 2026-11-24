@@ -420,5 +420,18 @@ class TestAgentFusionUniversalV4(unittest.TestCase):
             self.assertIn("gradient-text", codes)
             self.assertIn("emoji-in-ui", codes)
 
+    def test_sync_velomesh_core_skill_copies_branding_assets(self):
+        from velomesh import sync_velomesh_core_skill
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp) / "skills"
+            synced = sync_velomesh_core_skill(targets={"test-harness": dest})
+            self.assertEqual(synced, 1)
+            vdir = dest / "velomesh"
+            self.assertTrue((vdir / "SKILL.md").is_file())
+            self.assertTrue((vdir / "assets" / "logo.svg").is_file())
+            self.assertTrue((vdir / "assets" / "velomesh-icon-64.png").is_file())
+            self.assertTrue((vdir / "assets" / "velomesh-icon-256.png").is_file())
+            self.assertTrue((vdir / "agents" / "openai.yaml").is_file())
+
 if __name__ == "__main__":
     unittest.main()

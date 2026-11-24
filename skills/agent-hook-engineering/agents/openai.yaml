@@ -1,0 +1,7 @@
+interface:
+  display_name: "Agent Hooks"
+  short_description: "Deterministic PreToolUse & UI gates"
+  icon_small: "./assets/velomesh-icon-64.png"
+  icon_large: "./assets/velomesh-icon-256.png"
+  brand_color: "#5CC8F8"
+  default_prompt: "Use $agent-hook-engineering with VeloMesh orchestration to handle this workflow cleanly."

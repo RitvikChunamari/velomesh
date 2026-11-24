@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kinetix — Collaborative Shader &amp; CRDT UI Studio</title>
-  <meta name="description" content="Real-time collaborative monochrome shader and UI studio in Black and White Swiss minimalism with Node.js WebSockets CRDT sync, PostgreSQL immutable versioning, and Cloudflare R2 presigned uploads." />
-  <meta name="theme-color" content="#070708" />
+  <meta name="description" content="Real-time collaborative spectral shader and UI studio in Swiss minimalism with Node.js WebSockets CRDT sync, PostgreSQL immutable versioning, and Cloudflare R2 presigned uploads." />
+  <meta name="theme-color" content="#09090c" />
+  <link rel="icon" type="image/svg+xml" href="../../brand/velomesh-icon-tile.svg" />
+  <link rel="icon" type="image/png" sizes="64x64" href="../../brand/favicon-64.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet" />
@@ -17,23 +19,26 @@
       <div class="kx-brand-group">
         <a href="#top" class="kx-brand-link" aria-label="Kinetix Home">
           <svg width="20" height="20" viewBox="0 0 120 120" fill="none" aria-hidden="true">
-            <path fill="currentColor" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
-            <path fill="currentColor" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
+            <path class="kx-mark-core" fill="currentColor" d="M8 20 H26 L49 61.82 Q60 81.82 71 61.82 L94 20 H112 L72 92.73 Q60 112 48 92.73 Z"/>
+            <path class="kx-mark-accent" fill="currentColor" d="M36 20 H51 L54.5 26.36 Q60 36.36 65.5 26.36 L69 20 H84 L66.5 51.82 Q60 63.64 53.5 51.82 Z"/>
           </svg>
           <span class="kx-wordmark" translate="no">KINETIX</span>
         </a>
         <span class="kx-edition-tag">REAL-TIME CRDT SHADER &amp; UI STUDIO</span>
       </div>
 
-      <div class="kx-preset-switcher" role="tablist" aria-label="Monochrome Shader Kernel Preset">
+      <div class="kx-preset-switcher" role="tablist" aria-label="Spectral Shader Kernel Preset">
         <button type="button" class="kx-tab-btn active" role="tab" aria-selected="true" data-preset="interference">01 Interference Field</button>
         <button type="button" class="kx-tab-btn" role="tab" aria-selected="false" data-preset="lattice">02 Geodesic SDF Lattice</button>
         <button type="button" class="kx-tab-btn" role="tab" aria-selected="false" data-preset="halftone">03 Halftone Wave Matrix</button>
       </div>
 
       <div class="kx-nav-actions">
-        <button type="button" id="kx-theme-toggle" class="kx-outline-btn" aria-label="Switch Black and White polarity">Polarity</button>
-        <a href="../../index.html#workbench" class="kx-outline-btn kx-back-link" target="_top">← VeloMesh Workbench</a>
+        <button type="button" id="kx-theme-toggle" class="kx-outline-btn" aria-label="Switch color polarity">Polarity</button>
+        <a href="../../index.html#workbench" class="kx-outline-btn kx-back-link" target="_top">
+          <img src="../../brand/velomesh-icon-tile.svg" alt="" width="14" height="14" class="kx-vm-badge-icon" />
+          <span>← VeloMesh Workbench</span>
+        </a>
       </div>
     </header>
 
@@ -48,7 +53,7 @@
 
         <div class="kx-kpi-cell">
           <span class="kx-kpi-label">02 Shader Frame &amp; Target</span>
-          <strong id="kx-kpi-fps" class="kx-kpi-value">60 FPS · Monochrome Field</strong>
+          <strong id="kx-kpi-fps" class="kx-kpi-value">60 FPS · Spectral Field</strong>
           <span id="kx-kpi-res" class="kx-kpi-sub">1120×320 HiDPI · WebSockets LWW Active</span>
         </div>
 
@@ -144,6 +149,14 @@
         </div>
       </section>
     </main>
+
+    <footer class="kx-footer">
+      <div class="kx-footer-brand">
+        <img src="../../brand/velomesh-icon-tile.svg" alt="VeloMesh" width="16" height="16" class="kx-vm-badge-icon" />
+        <span>Orchestrated by VeloMesh v4.4 · Darkmatter Copper &amp; Spectral Cyan Optics</span>
+      </div>
+      <span class="kx-footer-meta">Node.js LWW-CRDT + PostgreSQL 16 + Cloudflare R2</span>
+    </footer>
   </div>
 
   <script src="./app.js" defer></script>

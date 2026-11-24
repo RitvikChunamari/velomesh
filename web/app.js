@@ -509,9 +509,10 @@ function initLatticeHeroMesh() {
     }
 
     const light = document.documentElement.dataset.theme === 'light';
-    const baseRgb = light ? [110, 110, 118] : [132, 132, 140];
-    const lineRgb = light ? [150, 150, 158] : [78, 78, 86];
-    const hotRgb = light ? [9, 9, 11] : [250, 250, 252];
+    const baseRgb = light ? [92, 98, 128] : [102, 112, 146];
+    const lineRgb = light ? [146, 152, 180] : [58, 66, 94];
+    const irisRgb = light ? [67, 78, 209] : [115, 126, 248];
+    const hotRgb = light ? [34, 42, 168] : [228, 234, 255];
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
@@ -550,11 +551,14 @@ function initLatticeHeroMesh() {
       const avgZ = (projZ[a] + projZ[b]) * 0.5;
       const depth = Math.max(0.14, Math.min(1, (avgZ + radius) / (radius * 2)));
       const g = Math.max(pulseWeight(seeds[a], wave), pulseWeight(seeds[b], wave));
-      const rCol = Math.round(lineRgb[0] + (hotRgb[0] - lineRgb[0]) * g);
-      const gCol = Math.round(lineRgb[1] + (hotRgb[1] - lineRgb[1]) * g);
-      const bCol = Math.round(lineRgb[2] + (hotRgb[2] - lineRgb[2]) * g);
-      const alpha = (0.14 + 0.34 * depth) * (0.45 + 1.25 * g);
-      ctx.strokeStyle = `rgba(${rCol},${gCol},${bCol},${Math.min(0.88, alpha).toFixed(3)})`;
+      const midRgb = g > 0.45 ? hotRgb : irisRgb;
+      const mix = g > 0.45 ? (g - 0.45) / 0.55 : g / 0.45;
+      const src = g > 0.45 ? irisRgb : lineRgb;
+      const rCol = Math.round(src[0] + (midRgb[0] - src[0]) * mix);
+      const gCol = Math.round(src[1] + (midRgb[1] - src[1]) * mix);
+      const bCol = Math.round(src[2] + (midRgb[2] - src[2]) * mix);
+      const alpha = (0.18 + 0.36 * depth) * (0.5 + 1.2 * g);
+      ctx.strokeStyle = `rgba(${rCol},${gCol},${bCol},${Math.min(0.92, alpha).toFixed(3)})`;
       ctx.beginPath();
       ctx.moveTo(projX[a], projY[a]);
       ctx.lineTo(projX[b], projY[b]);
@@ -564,11 +568,14 @@ function initLatticeHeroMesh() {
     for (let i = 0; i < nodeCount; i++) {
       const depth = Math.max(0.15, Math.min(1, (projZ[i] + radius) / (radius * 2)));
       const g = pulseWeight(seeds[i], wave);
-      const rCol = Math.round(baseRgb[0] + (hotRgb[0] - baseRgb[0]) * g);
-      const gCol = Math.round(baseRgb[1] + (hotRgb[1] - baseRgb[1]) * g);
-      const bCol = Math.round(baseRgb[2] + (hotRgb[2] - baseRgb[2]) * g);
-      const nodeR = (1.35 + 1.65 * depth) * (1 + g * 1.15);
-      const alpha = (0.28 + 0.58 * depth) * (0.55 + 0.45 * g);
+      const midRgb = g > 0.4 ? hotRgb : irisRgb;
+      const mix = g > 0.4 ? (g - 0.4) / 0.6 : g / 0.4;
+      const src = g > 0.4 ? irisRgb : baseRgb;
+      const rCol = Math.round(src[0] + (midRgb[0] - src[0]) * mix);
+      const gCol = Math.round(src[1] + (midRgb[1] - src[1]) * mix);
+      const bCol = Math.round(src[2] + (midRgb[2] - src[2]) * mix);
+      const nodeR = (1.35 + 1.75 * depth) * (1 + g * 1.15);
+      const alpha = (0.34 + 0.56 * depth) * (0.55 + 0.45 * g);
       ctx.fillStyle = `rgba(${rCol},${gCol},${bCol},${Math.min(0.98, alpha).toFixed(3)})`;
       ctx.beginPath();
       ctx.arc(projX[i], projY[i], nodeR, 0, Math.PI * 2);
@@ -620,14 +627,14 @@ function initBentoModules() {
       ['Code mono', 'JetBrains Mono / 13px / tabular']
     ],
     contrast: [
-      ['Primary ink on dark', '#F8F8FA on #070708 (19.2:1 AAA)'],
-      ['Muted ink on dark', '#9898A0 on #0F0F11 (6.3:1 AA)'],
-      ['Inverted CTA fill', '#F8F8FA / #070708 (19.2:1 AAA)']
+      ['Primary ink on dark', '#F5F6FA on #08090C (18.6:1 AAA)'],
+      ['Brand Iris on dark', '#9AA5FF on #0F1116 (7.9:1 AAA)'],
+      ['Solid Cobalt CTA', '#FFFFFF on #4A55D6 (5.6:1 AA)']
     ],
     tokens: [
-      ['--bg / --ink', '#070708 / #F8F8FA'],
-      ['--rule / --rule-strong', '#222226 / #3F3F46'],
-      ['--ease-swiss', 'cubic-bezier(0.22, 1, 0.36, 1)']
+      ['--brand / --brand-ink', '#5B67F1 / #9AA5FF'],
+      ['--phase-ui / --phase-ok', '#5CC8F8 / #4CC38A'],
+      ['--phase-fast / --warn', '#EAB364 / #F07575']
     ]
   };
   document.querySelectorAll('[data-token-mode]').forEach((btn) => {
@@ -660,15 +667,28 @@ function initBentoModules() {
       const light = document.documentElement.dataset.theme === 'light';
       ctx.clearRect(0, 0, w, h);
 
-      ctx.strokeStyle = light ? 'rgba(9,9,11,0.16)' : 'rgba(248,248,250,0.16)';
+      ctx.strokeStyle = light ? 'rgba(67,78,209,0.22)' : 'rgba(92,200,248,0.22)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, h / 2);
       ctx.lineTo(w, h / 2);
       ctx.stroke();
 
-      ctx.strokeStyle = light ? '#09090b' : '#f8f8fa';
-      ctx.lineWidth = 2;
+      // Secondary phase-shifted Sky envelope
+      ctx.strokeStyle = light ? 'rgba(9,105,155,0.42)' : 'rgba(92,200,248,0.45)';
+      ctx.lineWidth = 1.25;
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 2) {
+        const t = x / w;
+        const env = Math.exp(-t * 3.0) * amp;
+        const y = h / 2 + Math.cos(t * 20 - phase * 0.85) * env * (h * 0.28);
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.strokeStyle = light ? '#434ed1' : '#8591ff';
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
       for (let x = 0; x <= w; x += 2) {
         const t = x / w;
@@ -812,8 +832,8 @@ function initHalftoneWordmarkFooter() {
   const palette = () => {
     const light = document.documentElement.dataset.theme === 'light';
     return light
-      ? { bg: '#f8f8fa', ink: [42, 42, 48], warm: [9, 9, 11] }
-      : { bg: '#070708', ink: [212, 212, 218], warm: [255, 255, 255] };
+      ? { bg: '#f7f7f5', ink: [28, 30, 42], warm: [67, 78, 209] }
+      : { bg: '#08090c', ink: [198, 204, 224], warm: [115, 126, 248] };
   };
 
   const layout = () => {
@@ -1139,6 +1159,7 @@ function initModelOrchestratorAction() {
     if (modelEl) modelEl.textContent = t.model;
     if (transportEl) transportEl.textContent = t.transport;
     if (headersEl) headersEl.textContent = t.headers;
+    if (frameEl) frameEl.dataset.phase = t.phase;
     if (pulse && frameEl) {
       frameEl.classList.remove('is-switching');
       void frameEl.offsetWidth;
@@ -1202,10 +1223,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
       if (next === 'light') {
         document.documentElement.dataset.theme = 'light';
-        if (metaTheme) metaTheme.setAttribute('content', '#f8f8fa');
+        if (metaTheme) metaTheme.setAttribute('content', '#f7f7f5');
       } else {
         delete document.documentElement.dataset.theme;
-        if (metaTheme) metaTheme.setAttribute('content', '#070708');
+        if (metaTheme) metaTheme.setAttribute('content', '#08090c');
       }
       syncDemoTheme();
     });

@@ -1,0 +1,20 @@
+{
+  "name": "velomesh",
+  "version": "4.4.0",
+  "description": "Universal Multi-Model Orchestrator (velomesh/auto), Prompt Optimizer, Platform Skill Mesh, and Super-Hooks Engine.",
+  "author": {
+    "name": "Ritvik Chunamari"
+  },
+  "homepage": "https://ritvikchunamari.github.io/velomesh/",
+  "repository": "https://github.com/RitvikChunamari/velomesh",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "VeloMesh",
+    "shortDescription": "Multi-model router, prompt optimizer, platform skill mesh & RTK hooks",
+    "composerIcon": "./assets/velomesh-icon-64.png",
+    "logo": "./assets/velomesh-icon-256.png",
+    "brandColor": "#5B67F1",
+    "category": "Developer Tools"
+  }
+}

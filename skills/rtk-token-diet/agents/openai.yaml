@@ -1,0 +1,7 @@
+interface:
+  display_name: "RTK Token Diet"
+  short_description: "Cut CLI context bloat by 60-90% via RTK"
+  icon_small: "./assets/velomesh-icon-64.png"
+  icon_large: "./assets/velomesh-icon-256.png"
+  brand_color: "#EAB364"
+  default_prompt: "Use $rtk-token-diet with VeloMesh orchestration to handle this workflow cleanly."

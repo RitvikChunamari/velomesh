@@ -1,0 +1,7 @@
+interface:
+  display_name: "Prompt Architect"
+  short_description: "Upgrade raw prompts into full-stack specs"
+  icon_small: "./assets/velomesh-icon-64.png"
+  icon_large: "./assets/velomesh-icon-256.png"
+  brand_color: "#636EF2"
+  default_prompt: "Use $prompt-architect with VeloMesh orchestration to handle this workflow cleanly."

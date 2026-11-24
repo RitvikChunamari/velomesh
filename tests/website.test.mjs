@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = path.resolve(__dirname, '..');
 const WEB_DIR = path.resolve(__dirname, '../web');
 
 function readWeb(name) {
@@ -31,28 +32,42 @@ test('website removes all Berger Fohr navbar primitives, floating dock, and geom
   }
 });
 
-test('website uses strict black and white monochrome palette with zero chromatic accents', () => {
+test('website uses curated Cobalt-Iris and semantic phase palette with zero AI-slop tokens', () => {
+  const html = readWeb('index.html');
   const css = readWeb('styles.css');
   const js = readWeb('app.js');
+  const plCss = readWeb('demos/pulseledger/styles.css');
+  const kxCss = readWeb('demos/kinetix/styles.css');
 
-  for (const chromaticHex of [
-    '#b8180d',
-    '#9e1309',
-    '#ff3b2f',
-    '#eec768',
-    '#3dd68c',
-    '#ff6b61',
-    '#092216',
-    '#290c0c',
-    '#125c3a',
-    '#a61c2d'
+  for (const requiredToken of [
+    '--brand: #5b67f1',
+    '--brand-solid: #4a55d6',
+    '--phase-arch: #9aa5ff',
+    '--phase-ui: #5cc8f8',
+    '--phase-fast: #eab364',
+    '--phase-ok: #4cc38a',
+    '--phase-warn: #f07575',
+    ".orch-emblem-frame[data-phase='architecture']"
   ]) {
-    assert.ok(!css.toLowerCase().includes(chromaticHex), `styles.css must not use chromatic hex ${chromaticHex}`);
+    assert.ok(css.includes(requiredToken), `styles.css must define ${requiredToken}`);
   }
 
-  // Ensure canvas JS renderers only emit neutral grayscale RGB values
-  assert.ok(!js.includes('[184, 24, 13]'), 'app.js halftone warm color must be pure monochrome');
-  assert.ok(!js.includes('[255, 59, 47]'), 'app.js halftone/lattice pulse color must be pure monochrome');
+  for (const bannedPattern of [
+    '#b8180d',
+    '#9e1309',
+    '#d97757',
+    '#00ff00',
+    'background-clip: text',
+    'Plus Jakarta Sans',
+    'Space Grotesk'
+  ]) {
+    assert.ok(!css.toLowerCase().includes(bannedPattern.toLowerCase()), `styles.css must not include AI-slop ${bannedPattern}`);
+    assert.ok(!plCss.toLowerCase().includes(bannedPattern.toLowerCase()), `pulseledger/styles.css must not include AI-slop ${bannedPattern}`);
+    assert.ok(!kxCss.toLowerCase().includes(bannedPattern.toLowerCase()), `kinetix/styles.css must not include AI-slop ${bannedPattern}`);
+  }
+
+  assert.ok(html.includes('velomesh-icon-tile.svg'), 'index.html must reference velomesh-icon-tile.svg brand mark');
+  assert.ok(js.includes('[115, 126, 248]') && js.toLowerCase().includes('#5b67f1'), 'app.js hero/bento canvas must use curated Cobalt-Iris chroma');
 });
 
 test('website renders full 21st.dev Swiss visual sections and preserves workbench and vision clarity gate', () => {
@@ -84,25 +99,66 @@ test('website renders full 21st.dev Swiss visual sections and preserves workbenc
   }
 
   assert.ok(html.includes('velomesh/auto'), 'index.html must showcase velomesh/auto virtual model selector');
-  assert.ok(fs.existsSync(path.join(WEB_DIR, 'brand', 'velomesh-action-badge.svg')), 'monochrome action badge SVG must exist');
 
-  // Verify embedded PulseLedger live demo assets exist and follow B&W Swiss standard
+  // Verify brand assets, favicons, OG image, and all skill thumbnail manifests exist
+  for (const brandFile of [
+    'velomesh-mark.svg',
+    'velomesh-icon-tile.svg',
+    'velomesh-wordmark.svg',
+    'velomesh-action-badge.svg',
+    'favicon-64.png',
+    'apple-touch-icon.png',
+    'og-card.png'
+  ]) {
+    assert.ok(fs.existsSync(path.join(WEB_DIR, 'brand', brandFile)), `brand asset ${brandFile} must exist`);
+  }
+
+  for (const rootAsset of [
+    'assets/logo.svg',
+    'assets/velomesh-icon-64.png',
+    'assets/velomesh-icon-256.png',
+    'assets/velomesh-icon-512.png',
+    'agents/openai.yaml',
+    'plugin.json',
+    '.codex-plugin/plugin.json',
+    '.claude-plugin/plugin.json'
+  ]) {
+    assert.ok(fs.existsSync(path.join(ROOT_DIR, rootAsset)), `root branding file ${rootAsset} must exist`);
+  }
+
+  for (const skillName of [
+    'prompt-architect',
+    'rtk-token-diet',
+    'supabase-rls-architect',
+    'cloudflare-edge-workers',
+    'stripe-webhooks-billing',
+    'agent-hook-engineering'
+  ]) {
+    const skillDir = path.join(ROOT_DIR, 'skills', skillName);
+    for (const rel of ['assets/logo.svg', 'assets/velomesh-icon-64.png', 'assets/velomesh-icon-256.png', 'agents/openai.yaml']) {
+      assert.ok(fs.existsSync(path.join(skillDir, rel)), `skill ${skillName} must contain ${rel}`);
+    }
+  }
+
+  // Verify embedded PulseLedger live demo assets exist and use Mercury Indigo + Emerald tokens
   const demoHtml = readWeb('demos/pulseledger/index.html');
   const demoCss = readWeb('demos/pulseledger/styles.css');
   const demoJs = readWeb('demos/pulseledger/app.js');
   for (const demoId of ['pl-navbar', 'pl-kpi-strip', 'pl-runway-canvas', 'pl-ledger-table', 'pl-btn-rls-attack']) {
     assert.ok(demoHtml.includes(`id="${demoId}"`), `PulseLedger demo must include #${demoId}`);
   }
-  assert.ok(demoCss.includes('--bg: #070708'), 'PulseLedger styles must use monochrome Swiss palette');
+  assert.ok(demoHtml.includes('velomesh-icon-tile.svg'), 'PulseLedger must include VeloMesh brand icon');
+  assert.ok(demoCss.includes('--bg: #070a0f') && demoCss.includes('--pl-accent:') && demoCss.includes('--pl-pos:'), 'PulseLedger styles must use Navy-Slate + Mercury Indigo + Emerald palette');
   assert.ok(demoJs.includes('stepSpring') || demoJs.includes('tickSpring'), 'PulseLedger must implement damped spring cashflow physics');
 
-  // Verify embedded Kinetix live demo assets exist and follow B&W Swiss standard
+  // Verify embedded Kinetix live demo assets exist and use Darkmatter Copper-Amber + Spectral Cyan tokens
   const kxHtml = readWeb('demos/kinetix/index.html');
   const kxCss = readWeb('demos/kinetix/styles.css');
   const kxJs = readWeb('demos/kinetix/app.js');
   for (const kxId of ['kx-navbar', 'kx-shader-canvas', 'kx-revision-table', 'kx-btn-r2-upload', 'kx-btn-crdt-conflict']) {
     assert.ok(kxHtml.includes(`id="${kxId}"`), `Kinetix demo must include #${kxId}`);
   }
-  assert.ok(kxCss.includes('--bg: #070708'), 'Kinetix styles must use monochrome Swiss palette');
+  assert.ok(kxHtml.includes('velomesh-icon-tile.svg'), 'Kinetix must include VeloMesh brand icon');
+  assert.ok(kxCss.includes('--bg: #09090c') && kxCss.includes('--kx-accent-solid:') && kxCss.includes('--kx-cyan:'), 'Kinetix styles must use Precision Carbon + Copper-Amber + Spectral Cyan palette');
   assert.ok(kxJs.includes('projectMomentum') && kxJs.includes('commitPostgresRevision'), 'Kinetix must implement momentum projection and revision commits');
 });
